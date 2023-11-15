@@ -1,0 +1,37 @@
+body {
+  background-color: white;
+}
+
+.lobbyTableDiv {
+  margin: 0 auto;
+}
+
+.lobbyTable {
+  margin: 0 auto;
+}
+
+thead {
+  background-color: lightblue;
+}
+
+th,td {
+  padding: 20px;
+}
+
+th {
+  font-size: 16px;
+}
+
+td {
+  font-size: 16px;
+}
+
+
+tbody tr:nth-child(odd) {
+  background-color: #f3f3f3;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #FFFFFF;
+  /*border-bottom: 2px solid #009879;*/
+}
