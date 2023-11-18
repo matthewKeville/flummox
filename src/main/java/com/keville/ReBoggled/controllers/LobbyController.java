@@ -7,6 +7,7 @@ import org.springframework.data.util.Streamable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.repository.LobbyRepository;
@@ -32,5 +33,24 @@ public class LobbyController {
             stream().
             collect(Collectors.toList());
     }
+
+    //@GetMapping("/lobby")
+    @GetMapping(value = {"/lobby","/"})
+    public ModelAndView test() {
+      //return the lobby template 
+      ModelAndView modelAndView = new ModelAndView();
+      modelAndView.setViewName("lobby");
+      return modelAndView;
+    }
+
+    /*
+    @GetMapping("/")
+    public ModelAndView rootIsLobby() {
+      //return the lobby template 
+      ModelAndView modelAndView = new ModelAndView();
+      modelAndView.setViewName("lobby");
+      return modelAndView;
+    }
+    */
 
 }
