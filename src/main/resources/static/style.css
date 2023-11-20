@@ -1,5 +1,26 @@
+/*
+
+https://mycolor.space/?hex=%23002EAD&sub=1
+
+  #002EAD
+  #ADA9BB
+  #797586
+  #DA1630
+
+*/
+
+/* A little hack to toggle borders on elements that have them */
+* {
+  --dev-border-size: 0px;
+}
+
+* {
+  /*font-family: Roboto;*/
+  font-family: Lato;
+}
+
 body {
-  background-color: white;
+  background-color: #ADA9BB;
 }
 
 .lobbyTableDiv {
@@ -11,7 +32,7 @@ body {
 }
 
 thead {
-  background-color: lightblue;
+  background-color: #797586;
 }
 
 th,td {
@@ -34,4 +55,52 @@ tbody tr:nth-child(odd) {
 tbody tr:nth-child(even) {
   background-color: #FFFFFF;
   /*border-bottom: 2px solid #009879;*/
+}
+
+
+
+
+
+/* header */
+
+#header {
+  background-color: #002EAD;
+}
+
+#title-span {
+  font-size: 64px;
+  color: white;
+  width: 90%;
+  padding-left: 1%;
+  display: inline-block;
+  vertical-align: bottom;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+#username-span{
+  font-size: 32px;
+  color: white;
+  display: inline-block;
+  vertical-align: bottom;
+  margin-bottom: 10px;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+#profile-icon {
+  margin-left: 30px;
+  width: 30px;
+  height: 30px;
+  vertical-align: bottom;
+  margin-bottom: 15px;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+
 }

@@ -1,13 +1,23 @@
 import React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import Header from "./Header";
 
 function joinLobby(lobby) {
   window.location.href = `/lobby/${lobby.id}`
   console.log(`joining lobby ${lobby.name}`)
 }
 
-export default function LobbieList() {
+export default function LobbyPage() {
+  return (
+    <>
+      <Header/>
+      <LobbyTable></LobbyTable>
+    </>
+  )
+}
+
+function LobbyTable() {
 
   const [lobbies,setLobbies] = useState();
 
