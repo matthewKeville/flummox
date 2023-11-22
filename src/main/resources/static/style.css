@@ -3,9 +3,17 @@
 https://mycolor.space/?hex=%23002EAD&sub=1
 
   #002EAD
+  #AC109D
+  #F13078
+  #FF7558
+  #FFB94C
+  #F9F871
+
   #ADA9BB
   #797586
   #DA1630
+  #FFF
+  #000
 
 */
 
@@ -20,32 +28,35 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 }
 
 body {
-  background-color: #ADA9BB;
+  background-color: #FFF;
 }
 
 .lobbyTableDiv {
-  margin: 0 auto;
+  margin-top: 40px;
 }
 
 .lobbyTable {
   margin: 0 auto;
 }
 
+table {
+  width: 60%;
+  border-style: solid;
+  border-color: #002EAD;
+  border-width: 5px;
+}
+
 thead {
-  background-color: #797586;
+  background-color: #FFB94C;
 }
 
 th,td {
   padding: 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
 }
 
-th {
-  font-size: 16px;
-}
-
-td {
-  font-size: 16px;
-}
 
 
 tbody tr:nth-child(odd) {
@@ -54,7 +65,6 @@ tbody tr:nth-child(odd) {
 
 tbody tr:nth-child(even) {
   background-color: #FFFFFF;
-  /*border-bottom: 2px solid #009879;*/
 }
 
 
@@ -74,6 +84,7 @@ tbody tr:nth-child(even) {
   padding-left: 1%;
   display: inline-block;
   vertical-align: bottom;
+  font-family: Roboto;
 
   border: var(--dev-border-size);
   border-style: solid;

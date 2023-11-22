@@ -53,9 +53,10 @@ function LobbyTable() {
       <table className="lobbyTable">
         <thead>
           <tr>
-            <th>id</th>
+            <th>#</th>
             <th>Lobby Name</th>
-            <th>IsPrivate?</th>
+            <th>Private</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
