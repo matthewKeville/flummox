@@ -1,8 +1,50 @@
+---------------------------------------------------------------------------------
+-- NOTE : 
+-- 
+-- Note H2 will by default make table names uppercase ...
+-- I.E. casing doesn't mean anything in this file, it will be 
+-- changed to uppercase, but queries from Spring using lowercase
+-- tables names & columns will fail.
+---------------------------------------------------------------------------------
+-- User Auth
+---------------------------------------------------------------------------------
 
--- lobby
-create table Lobby(
-  id int auto_increment primary key,
-  name varchar(255) not null,
-  -- is_private int not null,
-  capacity int not null
+-- https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/jdbc.html
+CREATE TABLE users(
+  USERNAME varchar_ignorecase(50) not null primary key,
+  PASSWORD varchar_ignorecase(500) not null,
+  ENABLED boolean not null
+);
+
+CREATE TABLE authorities(
+    USERNAME VARCHAR_IGNORECASE(50) NOT NULL,
+    AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,
+    CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username)
+);
+--
+CREATE UNIQUE INDEX ix_auth_username ON authorities (username,authority);
+
+---------------------------------------------------------------------------------
+-- User Data
+---------------------------------------------------------------------------------
+
+CREATE TABLE USERDETAIL(
+  ID INT AUTO_INCREMENT PRIMARY KEY,
+  EMAIL varchar_ignorecase(50),
+  VERIFIED BOOLEAN not null
+);
+
+CREATE TABLE LOBBY(
+  ID INT AUTO_INCREMENT PRIMARY KEY,
+  NAME VARCHAR(255) NOT NULL,
+  CAPACITY INT NOT null,
+  IS_PRIVATE BOOLEAN NOT NULL,
+  OWNER INT
 ); 
+
+CREATE TABLE LOBBY_USER_REFERENCE(
+  ID INT AUTO_INCREMENT PRIMARY KEY,
+  USERDETAIL INT, -- I can't use USER as column name
+  LOBBY INT,
+  CONSTRAINT fk_user_reference_lobby FOREIGN KEY(LOBBY) REFERENCES LOBBY(ID)
+);

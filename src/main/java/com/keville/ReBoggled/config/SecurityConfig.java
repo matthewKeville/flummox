@@ -1,5 +1,7 @@
 package com.keville.ReBoggled.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -21,6 +24,7 @@ public class SecurityConfig {
   @Autowired
   private AuthenticationSuccessHandlerImpl authenticationSuccessHandler;
 
+
   @Bean
   public SecurityFilterChain securityFilterChain(@Autowired HttpSecurity http,
       @Autowired HandlerMappingIntrospector introspector) 
@@ -30,6 +34,16 @@ public class SecurityConfig {
 
     return http
       .csrf(csrf -> csrf.disable())
+
+      // h2-console sends X-Frame-Options Deny
+      .headers( headers -> headers
+          .frameOptions().sameOrigin()
+      )
+
+      .authorizeHttpRequests( request -> request
+        .requestMatchers(mvcMatcherBuilder.pattern("/h2-console/*")).permitAll()
+        //.headers().frameOptions().sameOrigin().
+      )
 
       //there must be a better way not sure why I can't access these all the
       //unless I explicitly allow access
@@ -72,23 +86,64 @@ public class SecurityConfig {
       .authorizeHttpRequests( request -> request
           .anyRequest().authenticated()
       )
+
+
       .build();
   }
 
+  /* 
+   * I believe boot automatically creates the DataSource bean
+   * with respect to h2, otherwise I would have to register my own
+   */
   @Bean
-  public InMemoryUserDetailsManager users() {
-    return new InMemoryUserDetailsManager(
-        User.withUsername("matt")
+  public JdbcUserDetailsManager users(DataSource dataSource) {
+
+        // We probably want to extend security.User to reference
+        // keville.User.id
+        UserDetails user = User.builder()
+          .username("matt")
           .password("{noop}test") //use no op password encoder
           .roles("SA")
           .authorities("read")
-          .build(),
-        User.withUsername("guest")
-          .password("{noop}test") //use no op password encoder
+          .build();
+
+        UserDetails alice = User.builder()
+          .username("alice")
+          .password("{noop}guest") //use no op password encoder
           .roles("user")
           .authorities("read")
-          .build()
-    );
+          .build();
+
+        UserDetails bob = User.builder()
+          .username("bob")
+          .password("{noop}guest") //use no op password encoder
+          .roles("user")
+          .authorities("read")
+          .build();
+
+        UserDetails charlie = User.builder()
+          .username("charlie")
+          .password("{noop}guest") //use no op password encoder
+          .roles("user")
+          .authorities("read")
+          .build();
+
+        UserDetails david = User.builder()
+          .username("david")
+          .password("{noop}guest") //use no op password encoder
+          .roles("user")
+          .authorities("read")
+          .build();
+    
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager (dataSource);
+
+        users.createUser(user);
+        users.createUser(alice);
+        users.createUser(bob);
+        users.createUser(charlie);
+        users.createUser(david);
+
+        return users;
   }
 
 }

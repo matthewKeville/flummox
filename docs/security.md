@@ -187,3 +187,36 @@ X-XSS-Protection: 0
 - Auth tokens typically outsourced to another server
 - Typically used for server-server authentication
 
+# Spring Security and JDBC
+
+https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/jdbc.html
+https://docs.spring.io/spring-framework/reference/data-access/jdbc/embedded-database-support.html
+
+The following are all Spring Security classes related to authenticating users
+in the spring security context. 
+
+UserDetails
+UserDetailsService
+UserDetailsManager 
+
+InMemoryUserDetailsManager
+JdbcUserDetailsManger
+
+The tutorials I have seen thus far use `InMemoryUserDetailsManager`
+as an example manager for user details, but I want user details
+to be in the database so I can use user information (i.e. userId) 
+to associate users with other data (i.e. lobbies).
+
+We can use a different `UserDetailsManager` that changes how this information
+is stored, and `JdbcUserDetailsManger` will store this information
+in a database through `JDBC` interface. 
+
+In order to construct one, we need a `DataSource` which a handle
+to interface with a db, implementation agnostic.
+
+We could create a `@bean` to and set up a custom `DataSource` but
+**Spring Boot** automaticallly registers an **H2** `DataSource` bean
+if **H2** is a in the project. Thus we can just autowire the default 
+`DataSource`
+
+

@@ -55,7 +55,8 @@ function LobbyTable() {
           <tr>
             <th>#</th>
             <th>Lobby Name</th>
-            <th>Private</th>
+            <th>Players</th>
+            <th>Status</th>
             <th></th>
           </tr>
         </thead>
@@ -66,7 +67,8 @@ function LobbyTable() {
               <tr key={lobby.id}>
                 <td>{lobby.id}</td>
                 <td>{lobby.name}</td>
-                <td>{lobby.private ? "private" : "public"}</td>
+                <td>{lobby.users.length} / {lobby.capacity}</td>
+                <td>{lobby.private ? "locked" : "open"}</td>
                 <td><button onClick={() => joinLobby(lobby)}>Join</button></td>
               </tr>
             )

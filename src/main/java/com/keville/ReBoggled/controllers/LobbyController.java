@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.repository.LobbyRepository;
+import com.keville.ReBoggled.service.LobbyService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -25,59 +26,57 @@ public class LobbyController {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbyController.class);
 
-    private LobbyRepository lobbies;
+    private LobbyService lobbyService;
 
-    public LobbyController(@Autowired LobbyRepository lobbies) {
-      this.lobbies = lobbies;
+    public LobbyController(@Autowired LobbyService lobbies) {
+      this.lobbyService = lobbies;
     }
 
     @GetMapping("/api/lobby")
-    public Collection<Lobby> test(
+    public Iterable<Lobby> test(
         @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
         HttpSession session) {
 
       LOG.info("hit api/lobby");
-
       LOG.info("user type : " + (String) session.getAttribute("sessionType"));
+      Iterable<Lobby> lobbies = lobbyService.getLobbies();
+      LOG.info("retrieved lobbies MTK");
 
-        return Streamable.of(lobbies.findAll()).toList().
-            stream().
-            collect(Collectors.toList());
+      return lobbies;
     }
 
-    @PostMapping("/api/lobby")
-    public String addLobby(@Autowired HttpSession session) {
+    // @PostMapping("/api/lobby")
+    // public String addLobby(@Autowired HttpSession session) {
+    //
+    //   LOG.info("hit POST /api/lobby");
+    //   LOG.info("user type : " + (String) session.getAttribute("sessionType"));
+    //
+    //   return "allowed";
+    //
+    // }
 
-      LOG.info("hit POST /api/lobby");
-      LOG.info("user type : " + (String) session.getAttribute("sessionType"));
-
-      return "allowed";
-
-    }
-
-    @PostMapping("/api/lobby/{id}/join")
-    public String joinLobbyRequest(@PathVariable("id") String id,
-        @Autowired HttpSession session,
-        @Autowired Authentication auth
-        ) {
-
-      LOG.info("hit POST /api/lobby/"+id+"join");
-      LOG.info("user type : " + (String) session.getAttribute("sessionType"));
-      LOG.info("principal " + auth.toString());
-
-      return "you are trying to join lobby " + id;
-
-    }
-
-    @PostMapping("/api/lobby/{id}/leave")
-    public String leaveLobbyRequest(@PathVariable("id") String id, @Autowired HttpSession session) {
-
-      LOG.info("hit POST /api/lobby/"+id+"leave");
-      LOG.info("user type : " + (String) session.getAttribute("sessionType"));
-
-      return "you are trying to leave lobby " + id;
-
-    }
+    // public String joinLobbyRequest(@PathVariable("id") String id,
+    //     @Autowired HttpSession session,
+    //     @Autowired Authentication auth
+    //     ) {
+    //
+    //   LOG.info("hit POST /api/lobby/"+id+"join");
+    //   LOG.info("user type : " + (String) session.getAttribute("sessionType"));
+    //   LOG.info("principal " + auth.toString());
+    //
+    //   return "you are trying to join lobby " + id;
+    //
+    // }
+    // //
+    // @PostMapping("/api/lobby/{id}/leave")
+    // public String leaveLobbyRequest(@PathVariable("id") String id, @Autowired HttpSession session) {
+    //
+    //   LOG.info("hit POST /api/lobby/"+id+"leave");
+    //   LOG.info("user type : " + (String) session.getAttribute("sessionType"));
+    //
+    //   return "you are trying to leave lobby " + id;
+    //
+    // }
 
     // view
 
