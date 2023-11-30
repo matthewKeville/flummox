@@ -24,23 +24,22 @@ public class ReBoggledApplication {
     CommandLineRunner commandLineRunner(@Autowired LobbyRepository lobbies, @Autowired UserRepository users) {
       return args -> {
 
-        User matt = users.save(new User("fake@email.com",false));
+        // User (info) testing data
+
+        User matt = users.save(User.createUser("matt@email.com","fake"));
         AggregateReference<User, Integer>  mattRef = AggregateReference.to(matt.getId());
 
-        User alice = users.save(new User("fake@email.com",false));
-        User bob = users.save(new User("fake@email.com",false));
-        User charlie = users.save(new User("fake@email.com",false));
+        User alice = users.save(User.createUser("alice@email.com","alice"));
+        User bob = users.save(User.createUser("bob@email.com","bob42"));
 
-        lobbies.save(new Lobby("Room A",10,false,mattRef));
-        lobbies.save(new Lobby("The Purple Lounge",12,false,mattRef));
+        // Lobby Testing Data
 
         Lobby secret = new Lobby("Secret Dungeon",4,true,mattRef);
-
         secret.addUser(ARof(matt));
         secret.addUser(ARof(alice));
-        secret.addUser(ARof(charlie));
-
         lobbies.save(secret);
+        lobbies.save(new Lobby("Room A",10,false,mattRef));
+        lobbies.save(new Lobby("The Purple Lounge",12,false,mattRef));
 
       };
     }

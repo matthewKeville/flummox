@@ -24,7 +24,6 @@ public class SecurityConfig {
   @Autowired
   private AuthenticationSuccessHandlerImpl authenticationSuccessHandler;
 
-
   @Bean
   public SecurityFilterChain securityFilterChain(@Autowired HttpSecurity http,
       @Autowired HandlerMappingIntrospector introspector) 
@@ -63,9 +62,10 @@ public class SecurityConfig {
           .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern("/login")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
+          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
-          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET, "/api/lobby")).permitAll()
+          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
       )
 
       //users only
@@ -98,38 +98,25 @@ public class SecurityConfig {
   @Bean
   public JdbcUserDetailsManager users(DataSource dataSource) {
 
-        // We probably want to extend security.User to reference
-        // keville.User.id
+        // user authentication will always be (email,password)
+        // thus email is the bridge between User (info) & Auth (UserDetails)
+
         UserDetails user = User.builder()
-          .username("matt")
+          .username("matt@email.com")
           .password("{noop}test") //use no op password encoder
           .roles("SA")
           .authorities("read")
           .build();
 
         UserDetails alice = User.builder()
-          .username("alice")
+          .username("alice@email.com")
           .password("{noop}guest") //use no op password encoder
           .roles("user")
           .authorities("read")
           .build();
 
         UserDetails bob = User.builder()
-          .username("bob")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-
-        UserDetails charlie = User.builder()
-          .username("charlie")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-
-        UserDetails david = User.builder()
-          .username("david")
+          .username("bob@email.com")
           .password("{noop}guest") //use no op password encoder
           .roles("user")
           .authorities("read")
@@ -140,8 +127,6 @@ public class SecurityConfig {
         users.createUser(user);
         users.createUser(alice);
         users.createUser(bob);
-        users.createUser(charlie);
-        users.createUser(david);
 
         return users;
   }

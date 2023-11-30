@@ -28,9 +28,11 @@ CREATE UNIQUE INDEX ix_auth_username ON authorities (username,authority);
 -- User Data
 ---------------------------------------------------------------------------------
 
-CREATE TABLE USERDETAIL(
+CREATE TABLE USERINFO (
   ID INT AUTO_INCREMENT PRIMARY KEY,
   EMAIL varchar_ignorecase(50),
+  USERNAME varchar_ignorecase(50),
+  GUEST BOOLEAN not null,
   VERIFIED BOOLEAN not null
 );
 
@@ -44,7 +46,7 @@ CREATE TABLE LOBBY(
 
 CREATE TABLE LOBBY_USER_REFERENCE(
   ID INT AUTO_INCREMENT PRIMARY KEY,
-  USERDETAIL INT, -- I can't use USER as column name
+  USERINFO INT, -- I can't use USER as column name
   LOBBY INT,
   CONSTRAINT fk_user_reference_lobby FOREIGN KEY(LOBBY) REFERENCES LOBBY(ID)
 );

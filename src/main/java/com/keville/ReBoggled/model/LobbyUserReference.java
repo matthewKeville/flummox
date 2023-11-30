@@ -8,7 +8,7 @@ public class LobbyUserReference {
   
   @Id
   public Integer id;
-  @Column("USERDETAIL") //rem H2 only has UPPERCASE COLUMSN AND TABLES
+  @Column("USERINFO") //rem H2 only has UPPERCASE COLUMSN AND TABLES
   public AggregateReference<User, Integer> user;
 
   //public LobbyUserReference(){}
@@ -16,25 +16,5 @@ public class LobbyUserReference {
   public LobbyUserReference(AggregateReference<User, Integer> user){
     this.user = user;
   }
-
-  /*
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public AggregateReference<User, Integer> getUser() {
-    return user;
-  }
-
-  public void setUser(AggregateReference<User, Integer> user) {
-    this.user = user;
-  };
-
-  */
 
 }

@@ -3,23 +3,15 @@ package com.keville.ReBoggled.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Streamable;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.keville.ReBoggled.model.Lobby;
-import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.service.LobbyService;
 
 import jakarta.servlet.http.HttpSession;
-
-import java.util.stream.Collectors;
-import java.util.Collection;
 
 @RestController
 public class LobbyController {
@@ -32,15 +24,21 @@ public class LobbyController {
       this.lobbyService = lobbies;
     }
 
+    @GetMapping("/lobby")
+    public ModelAndView test() {
+      //return the lobby template 
+      ModelAndView modelAndView = new ModelAndView();
+      modelAndView.setViewName("lobby");
+      return modelAndView;
+    }
+
     @GetMapping("/api/lobby")
     public Iterable<Lobby> test(
         @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
         HttpSession session) {
 
-      LOG.info("hit api/lobby");
-      LOG.info("user type : " + (String) session.getAttribute("sessionType"));
+      LOG.info("hit /api/lobby");
       Iterable<Lobby> lobbies = lobbyService.getLobbies();
-      LOG.info("retrieved lobbies MTK");
 
       return lobbies;
     }
@@ -77,15 +75,5 @@ public class LobbyController {
     //   return "you are trying to leave lobby " + id;
     //
     // }
-
-    // view
-
-    @GetMapping("/lobby")
-    public ModelAndView test() {
-      //return the lobby template 
-      ModelAndView modelAndView = new ModelAndView();
-      modelAndView.setViewName("lobby");
-      return modelAndView;
-    }
 
 }
