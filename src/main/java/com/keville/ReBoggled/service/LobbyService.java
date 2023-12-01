@@ -10,6 +10,7 @@ import com.keville.ReBoggled.repository.LobbyRepository;
 
 import java.util.stream.Collectors;
 import java.util.Collection;
+import java.util.Optional;
 
 @Component
 public class LobbyService {
@@ -24,6 +25,10 @@ public class LobbyService {
 
     public Iterable<Lobby> getLobbies() {
       return lobbies.findAll();
+    }
+
+    public Optional<Lobby> getLobby(int id) {
+      return lobbies.findById(id);
     }
 
     public void addLobby(Lobby lobby) {

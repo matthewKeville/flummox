@@ -9,6 +9,7 @@ https://mycolor.space/?hex=%23002EAD&sub=1
   #FFB94C
   #F9F871
 
+  #0c0c0d
   #ADA9BB
   #797586
   #DA1630
@@ -28,7 +29,12 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 }
 
 body {
-  background-color: #FFF;
+  /*background-color: #FFF;*/
+  background-color: #0c0c0d;
+}
+
+#lobby-welcome-header {
+  color: white;
 }
 
 .lobbyTableDiv {
@@ -122,4 +128,65 @@ tbody tr:nth-child(even) {
   border-style: solid;
   border-color: red;
 
+}
+
+#join-lobby-link {
+  color: black;
+}
+
+.nav-link {
+  font-size: 16px;
+  color: white;
+  margin-right: 8px;
+}
+
+/* Lobby */
+
+#lobby-flex {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: center;
+
+  margin-left: 10%;
+  margin-right: 10%;
+  background: blue;
+}
+
+#users-flex-container {
+  flex-grow: 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: green;
+}
+
+#users-flex {
+}
+
+
+#chat-flex-container{
+  flex-grow: 8;
+
+  display: flex;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+#settings-flex-container{
+  flex-grow: 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: yellow;
 }

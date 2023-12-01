@@ -13,7 +13,7 @@ public class LoginController {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoginController.class);
 
-    @GetMapping(value = {"/login", "/"})
+    @GetMapping(value = {"/login"}) 
     public String login(@Autowired HttpSession session) {
 
       LOG.info("user type : " + (String) session.getAttribute("sessionType"));
