@@ -10,15 +10,17 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 public class Lobby {
 
     @Id
-    private Integer id;
+    public Integer id;
 
-    private String name;
-    private int capacity;
-    private Boolean isPrivate;
-    private AggregateReference<User, Integer> owner ;
+    public String name;
+    public int capacity;
+    public Boolean isPrivate;
+    public GameSettings gameSettings;
+
+    public AggregateReference<User, Integer> owner ;
 
     @MappedCollection(idColumn = "LOBBY")
-    private Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
+    public Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
 
     // Err: if no nargs cons
     public Lobby(){}
@@ -28,6 +30,16 @@ public class Lobby {
       this.capacity = capacity;
       this.isPrivate = isPrivate;
       this.owner = owner;
+      this.gameSettings = new GameSettings();
+    }
+
+    public Lobby(String name, int capacity, boolean isPrivate,
+        AggregateReference<User, Integer> owner, GameSettings gameSettings) {
+      this.name = name;
+      this.capacity = capacity;
+      this.isPrivate = isPrivate;
+      this.owner = owner;
+      this.gameSettings = gameSettings;
     }
  
     // Create Sub Entity
@@ -98,6 +110,10 @@ public class Lobby {
 
     public void setUsers(Set<LobbyUserReference> users) {
       this.users = users;
+    }
+
+    public GameSettings getGameSettings() {
+      return this.gameSettings;
     }
 
 }

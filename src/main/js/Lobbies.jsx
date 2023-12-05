@@ -20,7 +20,7 @@ export default function Lobbies() {
     <>
 
     <div className="lobbyTableDiv">
-      <table className="lobbyTable">
+      <table id="lobby-table">
         <thead>
           <tr>
             <th>#</th>

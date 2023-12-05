@@ -8,12 +8,12 @@ import org.springframework.data.relational.core.mapping.Table;
 public class User {
 
     @Id
-    private Integer id;
+    public Integer id;
 
-    private String email;
-    private String username;
-    private Boolean verified;
-    private Boolean guest;
+    public String email;
+    public String username;
+    public Boolean verified;
+    public Boolean guest;
 
     public User() {}
 

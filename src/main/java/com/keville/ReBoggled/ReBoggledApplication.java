@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
-
+import com.keville.ReBoggled.model.BoardSize;
+import com.keville.ReBoggled.model.BoardTopology;
+import com.keville.ReBoggled.model.FindRule;
+import com.keville.ReBoggled.model.GameSettings;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
@@ -38,7 +41,10 @@ public class ReBoggledApplication {
         secret.addUser(ARof(matt));
         secret.addUser(ARof(alice));
         lobbies.save(secret);
-        lobbies.save(new Lobby("Room A",10,false,mattRef));
+
+        GameSettings gameSettings = new GameSettings(BoardSize.FIVE,BoardTopology.CYLINDER,FindRule.UNIQUE,120);
+        lobbies.save(new Lobby("Room A",10,false,mattRef,gameSettings));
+
         lobbies.save(new Lobby("The Purple Lounge",12,false,mattRef));
 
       };

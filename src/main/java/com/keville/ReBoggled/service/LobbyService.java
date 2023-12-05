@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.repository.LobbyRepository;
 
-import java.util.stream.Collectors;
-import java.util.Collection;
 import java.util.Optional;
 
 @Component
