@@ -92,13 +92,13 @@ export default function Lobby() {
                   <input type="checkbox" defaultChecked={lobby.isPrivate}/>
               
                 <div className="settings-grid-label">Size</div>
-                  <select name="size" defaultValue={lobby.gameSettings.size}>
+                  <select name="size" defaultValue={lobby.gameSettings.boardSize}>
                     <option value="FOUR">4 x 4</option>
                     <option value="FIVE">5 x 5</option>
                   </select>
 
                 <div className="settings-grid-label">Topology</div>
-                  <select name="topology" defaultvalue={lobby.gameSettings.boardTopology}>
+                  <select name="topology" defaultValue={lobby.gameSettings.boardTopology}>
                     <option value="PLANE">Plane</option>
                     <option value="CYLINDER">Cylinder</option>
                     <option value="TORUS">Torus</option>
@@ -106,9 +106,9 @@ export default function Lobby() {
                  
                 <div className="settings-grid-label">Find Rule</div>
                   <select name="find" defaultValue={lobby.gameSettings.findRule}>
-                    <option value="ANY">any</option>
-                    <option value="ALL">all</option>
-                    <option value="FIRST">first</option>
+                    <option value="ANY">Any</option>
+                    <option value="UNIQUE">Unique</option>
+                    <option value="FIRST">First</option>
                   </select>
 
                 <div className="settings-grid-label">Time Limit</div>
@@ -145,7 +145,7 @@ export default function Lobby() {
         </div>
       </div>
 
-      <button id="lobby-exit-button">{isOwner ? "Delete Lobby" : "Leave Lobby"}</button>
+      <button id="lobby-exit-button">{isOwner ? "Abandon Lobby" : "Leave Lobby"}</button>
 
     </>
   );
