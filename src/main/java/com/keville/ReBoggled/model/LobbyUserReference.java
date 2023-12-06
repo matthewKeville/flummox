@@ -17,4 +17,31 @@ public class LobbyUserReference {
     this.user = user;
   }
 
+  @Override
+  public int hashCode() {
+    if ( user.getId() == null ) {
+      return 0;
+    }
+    return 31 * this.user.getId();
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if ( object instanceof LobbyUserReference ) {
+
+      LobbyUserReference lobbyUserReference = (LobbyUserReference) object;
+
+      if ( user == null ) {
+        return lobbyUserReference.user == null;
+      } else if (lobbyUserReference.user == null) {
+        return false;
+      }
+
+      return user.getId() == lobbyUserReference.user.getId();
+    }
+
+    return false;
+
+  }
+
 }

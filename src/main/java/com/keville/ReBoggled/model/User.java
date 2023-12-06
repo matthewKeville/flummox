@@ -2,6 +2,7 @@ package com.keville.ReBoggled.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("USERINFO")
@@ -14,6 +15,8 @@ public class User {
     public String username;
     public Boolean verified;
     public Boolean guest;
+
+    public AggregateReference<Lobby, Integer> lobby ;
 
     public User() {}
 

@@ -18,11 +18,11 @@ public class LobbyDTO {
     public List<LobbyUserDTO> users;
 
     public LobbyDTO(Lobby lobby) {
-      this.id = lobby.getId();
-      this.name = lobby.getName();
-      this.capacity = lobby.getCapacity();
-      this.isPrivate = lobby.getIsPrivate();
-      this.gameSettings = lobby.getGameSettings();
+      this.id = lobby.id;
+      this.name = lobby.name;
+      this.capacity = lobby.capacity;
+      this.isPrivate = lobby.isPrivate;
+      this.gameSettings = lobby.gameSettings;
     }
 
 }

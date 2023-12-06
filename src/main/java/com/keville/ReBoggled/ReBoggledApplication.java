@@ -15,9 +15,13 @@ import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
+import com.keville.ReBoggled.service.LobbyService;
 
 @SpringBootApplication
 public class ReBoggledApplication {
+
+    @Autowired
+    private LobbyService lobbyService;
 
     public static void main(String[] args) {
         SpringApplication.run(ReBoggledApplication.class, args);
@@ -34,16 +38,20 @@ public class ReBoggledApplication {
 
         User alice = users.save(User.createUser("alice@email.com","alice"));
         User bob = users.save(User.createUser("bob@email.com","bob42"));
+        User charlie = users.save(User.createUser("charlie@email.com","bigCharles"));
+        User dan = users.save(User.createUser("dan@email.com","thePipesArePlaying"));
 
         // Lobby Testing Data
 
         Lobby secret = new Lobby("Secret Dungeon",4,true,mattRef);
-        secret.addUser(ARof(matt));
-        secret.addUser(ARof(alice));
-        lobbies.save(secret);
+        secret = lobbies.save(secret);
+        lobbyService.addUserToLobby(matt.getId(),secret.id);
+        lobbyService.addUserToLobby(alice.getId(),secret.id);
 
         GameSettings gameSettings = new GameSettings(BoardSize.FIVE,BoardTopology.CYLINDER,FindRule.UNIQUE,120);
-        lobbies.save(new Lobby("Room A",10,false,mattRef,gameSettings));
+        Lobby roomA = lobbies.save(new Lobby("Room A",2,false,mattRef,gameSettings));
+        lobbyService.addUserToLobby(charlie.getId(),roomA.id);
+        lobbyService.addUserToLobby(dan.getId(),roomA.id);
 
         lobbies.save(new Lobby("The Purple Lounge",12,false,mattRef));
 

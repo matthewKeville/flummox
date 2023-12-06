@@ -26,7 +26,7 @@ public class CustomSessionListener implements HttpSessionListener {
     public void sessionCreated(HttpSessionEvent se) {
 
         User guest = guestCreator.createGuest();
-        se.getSession().setAttribute("user",guest);
+        se.getSession().setAttribute("userId",guest.id);
         LOG.info("started guest session \n" + guest);
 
     }

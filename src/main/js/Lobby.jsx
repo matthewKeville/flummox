@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 
 
@@ -14,9 +14,25 @@ export default function Lobby() {
 
   const { lobby, isOwner } = useLoaderData();
 
-  const [edit, setEdit] = useState(false)
-  let lobbySettings = useRef(null)
-  lobbySettings = lobby
+  const [edit, setEdit]    = useState(false)
+  const navigate            = useNavigate();
+
+  let leaveLobby = async function(lobbyId) {
+
+    console.log("where i would leave lobby")
+
+    const response = await fetch("/api/lobby/"+lobbyId+"/leave", {
+      method: "POST",
+      headers: {
+      },
+      body: null
+    });
+
+    // const result = await response.json();
+    navigate("/lobby");
+
+  }
+
 
   function onChangeSettings() {
     setEdit(!edit)
@@ -145,7 +161,7 @@ export default function Lobby() {
         </div>
       </div>
 
-      <button id="lobby-exit-button">{isOwner ? "Abandon Lobby" : "Leave Lobby"}</button>
+      <button id="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon Lobby" : "Leave Lobby"}</button>
 
     </>
   );

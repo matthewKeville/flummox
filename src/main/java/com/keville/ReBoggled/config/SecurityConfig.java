@@ -62,11 +62,13 @@ public class SecurityConfig {
           .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern("/login")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
+
           .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
-          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
-          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
           .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*")).permitAll()
+
+          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
+          .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
       )
 
       //users only
@@ -122,12 +124,28 @@ public class SecurityConfig {
           .roles("user")
           .authorities("read")
           .build();
+
+        UserDetails charlie = User.builder()
+          .username("charlie@email.com")
+          .password("{noop}guest") //use no op password encoder
+          .roles("user")
+          .authorities("read")
+          .build();
+
+        UserDetails dan = User.builder()
+          .username("dan@email.com")
+          .password("{noop}guest") //use no op password encoder
+          .roles("user")
+          .authorities("read")
+          .build();
     
         JdbcUserDetailsManager users = new JdbcUserDetailsManager (dataSource);
 
         users.createUser(user);
         users.createUser(alice);
         users.createUser(bob);
+        users.createUser(charlie);
+        users.createUser(dan);
 
         return users;
   }
