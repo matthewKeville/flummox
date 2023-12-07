@@ -1,0 +1,83 @@
+package com.keville.ReBoggled.controllers;
+
+import org.junit.jupiter.api.Test;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.keville.ReBoggled.context.TestingContext;
+import com.keville.ReBoggled.controllers.UserController.UserInfo;
+import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.service.UserService;
+
+
+@ContextConfiguration(classes = TestingContext.class)
+@WebMvcTest(UserController.class)  //flavor the MockMvc
+@Import(UserController.class) //make a minimal spring web container
+public class UserControllerTest {
+
+  @MockBean
+  UserService userService;
+
+  @Autowired
+  private MockMvc mockMvc;
+  // this can spoof request , sessions , and security
+
+  @Test
+  @WithMockUser(username="bob@email.com", authorities = {"read"} )
+  void getInfoReturnsUserInfo() throws Exception {
+
+    //setup
+    User user = User.createUser("bob@email.com","bob42");
+    ObjectMapper mapper = new ObjectMapper();
+
+    when(userService.getUser(any(Integer.class))).thenReturn(user);
+
+    mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/user/info")
+        .sessionAttr("userId", 1234)
+        )
+      .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(new UserInfo("bob42",false))))
+      .andExpect(MockMvcResultMatchers.status().isOk());
+
+  }
+
+  @Test
+  @WithMockUser(username="bob@email.com", authorities = {"read"} )
+  void getInfoThrowsWhenSessionIsEmpty() throws Exception {
+
+    mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/user/info")
+        )
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+  }
+
+  @Test
+  @WithMockUser(username="bob@email.com", authorities = {"read"} )
+  void getInfoThrowsWhenUserNotFound() throws Exception {
+
+    User user = User.createUser("bob@email.com","bob42");
+    when(userService.getUser(any(Integer.class))).thenReturn(null);
+
+    mockMvc.perform(
+        MockMvcRequestBuilders.get("/api/user/info")
+        .sessionAttr("userId", 1234)
+        )
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+  }
+
+
+}

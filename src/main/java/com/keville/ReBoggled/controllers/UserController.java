@@ -30,12 +30,13 @@ public class UserController {
 
       if ( session.getAttribute("userId") == null ) {
         LOG.warn(" client tried to request userInfo but the session doesn't have a userId assigned");
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown User");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to identify current user");
       }
 
       User user = users.getUser((Integer) session.getAttribute("userId"));
       if ( user == null ) {
-        return null;
+        LOG.warn(String.format(" unable to locate user from session userId %d ",session.getAttribute("userId")));
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to locate details for identified user");
       }
 
       return new UserInfo(user.getUsername(),user.isGuest());

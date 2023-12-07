@@ -29,7 +29,11 @@ public class UserService {
     }
 
     public User getUser(int id) {
-      return users.findById(id).get();
+      Optional<User> optUser = users.findById(id);
+      if ( optUser.isPresent() ) {
+        return users.findById(id).get();
+      }
+      return null;
     }
 
     public List<User> getUsers(List<Integer> ids) {

@@ -20,46 +20,47 @@ import com.keville.ReBoggled.service.LobbyService;
 @SpringBootApplication
 public class ReBoggledApplication {
 
-    @Autowired
-    private LobbyService lobbyService;
+  @Autowired
+  private LobbyService lobbyService;
 
-    public static void main(String[] args) {
-        SpringApplication.run(ReBoggledApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(ReBoggledApplication.class, args);
+  }
 
-    @Bean
-    CommandLineRunner commandLineRunner(@Autowired LobbyRepository lobbies, @Autowired UserRepository users) {
-      return args -> {
+  @Bean
+  CommandLineRunner commandLineRunner(@Autowired LobbyRepository lobbies, @Autowired UserRepository users) {
+    return args -> {
 
-        // User (info) testing data
+      // User (info) testing data
 
-        User matt = users.save(User.createUser("matt@email.com","fake"));
-        AggregateReference<User, Integer>  mattRef = AggregateReference.to(matt.getId());
+      User matt = users.save(User.createUser("matt@email.com", "fake"));
+      AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.getId());
 
-        User alice = users.save(User.createUser("alice@email.com","alice"));
-        User bob = users.save(User.createUser("bob@email.com","bob42"));
-        User charlie = users.save(User.createUser("charlie@email.com","bigCharles"));
-        User dan = users.save(User.createUser("dan@email.com","thePipesArePlaying"));
+      User alice = users.save(User.createUser("alice@email.com", "alice"));
+      User bob = users.save(User.createUser("bob@email.com", "bob42"));
+      AggregateReference<User, Integer> bobRef = AggregateReference.to(bob.getId());
+      User charlie = users.save(User.createUser("charlie@email.com", "bigCharles"));
+      User dan = users.save(User.createUser("dan@email.com", "thePipesArePlaying"));
 
-        // Lobby Testing Data
+      // Lobby Testing Data
 
-        Lobby secret = new Lobby("Secret Dungeon",4,true,mattRef);
-        secret = lobbies.save(secret);
-        lobbyService.addUserToLobby(matt.getId(),secret.id);
-        lobbyService.addUserToLobby(alice.getId(),secret.id);
+      Lobby secret = new Lobby("Secret Dungeon", 4, true, mattRef);
+      secret = lobbies.save(secret);
+      lobbyService.addUserToLobby(matt.getId(), secret.id);
+      lobbyService.addUserToLobby(alice.getId(), secret.id);
 
-        GameSettings gameSettings = new GameSettings(BoardSize.FIVE,BoardTopology.CYLINDER,FindRule.UNIQUE,120);
-        Lobby roomA = lobbies.save(new Lobby("Room A",2,false,mattRef,gameSettings));
-        lobbyService.addUserToLobby(charlie.getId(),roomA.id);
-        lobbyService.addUserToLobby(dan.getId(),roomA.id);
+      GameSettings gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.CYLINDER, FindRule.UNIQUE, 120);
+      Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, mattRef, gameSettings));
+      lobbyService.addUserToLobby(charlie.getId(), roomA.id);
+      lobbyService.addUserToLobby(dan.getId(), roomA.id);
 
-        lobbies.save(new Lobby("The Purple Lounge",12,false,mattRef));
+      lobbies.save(new Lobby("The Purple Lounge", 12, false, bobRef));
 
-      };
-    }
+    };
+  }
 
-    static AggregateReference<User, Integer> ARof(User user) {
-      return AggregateReference.to(user.getId());
-    }
+  static AggregateReference<User, Integer> ARof(User user) {
+    return AggregateReference.to(user.getId());
+  }
 
 }

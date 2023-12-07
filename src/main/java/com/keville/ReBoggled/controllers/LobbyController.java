@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.keville.ReBoggled.DTO.JoinLobbyResponseDTO;
 import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
+import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.service.LobbyService;
@@ -42,7 +44,6 @@ public class LobbyController {
 
     @GetMapping(value = {"/lobby", "/"})
     public ModelAndView view() {
-      //return the lobby template 
       ModelAndView modelAndView = new ModelAndView();
       modelAndView.setViewName("lobby");
       return modelAndView;
@@ -106,31 +107,11 @@ public class LobbyController {
         @PathVariable("id") Integer id,
         @Autowired HttpSession session) {
 
+
       LOG.info("hit /api/lobby/"+id+"/leave");
+     
       Integer userId = (Integer) session.getAttribute("userId");
-
-      LOG.info(String.format("from session with userId : %d",userId));
-
-      // Is the lobby private ?
-      Optional<Lobby> optLobby = lobbyService.getLobby(id);
-      if (!optLobby.isPresent()) {
-        LOG.warn(String.format("User %d attempted to join a non-existant lobby %d",userId,id));
-        return new JoinLobbyResponseDTO(false,"lobby not found");
-      }
-      Lobby lobby = optLobby.get();
-
-      if ( lobby.isPrivate ) {
-        LOG.warn(String.format("User %d attempted to join a private lobby %d",userId,id));
-        return new JoinLobbyResponseDTO(false,"lobby is private");
-      }
-
-      if ( lobby.users.size() == lobby.capacity ) {
-        LOG.warn(String.format("User %d attempted to join lobby %d but it's at capacity",userId,id));
-        return new JoinLobbyResponseDTO(false,"lobby is at capacity");
-      }
-
-      lobbyService.addUserToLobby(userId, id);
-      return new JoinLobbyResponseDTO(true,"");
+      return lobbyService.addUserToLobby(userId,id);
 
     }
 
@@ -143,8 +124,19 @@ public class LobbyController {
       LOG.info("hit /api/lobby/"+id+"/leave");
 
       Integer userId = (Integer) session.getAttribute("userId");
-
       lobbyService.removeUserFromLobby(userId,id);
+    }
+
+    @PostMapping("/api/lobby/{id}/update")
+    public boolean updateLobby(
+        @PathVariable("id") Integer id,
+        @RequestBody UpdateLobbyDTO updateLobbyDTO,
+        @Autowired HttpSession session) {
+
+      LOG.info("hit : POST /api/lobby/"+id+"/update");
+      Integer userId = (Integer) session.getAttribute("userId");
+      return lobbyService.update(id,userId,updateLobbyDTO);
+
     }
 
 }
