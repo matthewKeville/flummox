@@ -52,4 +52,7 @@ public class UserService {
     public void addLobby(User user) {
       users.save(user);
     }
+
+    record UserServiceResponse<D,S>(D data, S status) {}
+
 }

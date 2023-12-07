@@ -21,7 +21,7 @@ public class UserController {
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private UserService users;
+    private UserService userService;
 
     @GetMapping("/api/user/info")
     public UserInfo test(HttpSession session) {
@@ -33,9 +33,9 @@ public class UserController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to identify current user");
       }
 
-      User user = users.getUser((Integer) session.getAttribute("userId"));
+      User user = userService.getUser((Integer) session.getAttribute("userId"));
       if ( user == null ) {
-        LOG.warn(String.format(" unable to locate user from session userId %d ",session.getAttribute("userId")));
+        LOG.warn(String.format(" unable to locate user from session userId %d ", session.getAttribute("userId")));
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to locate details for identified user");
       }
 

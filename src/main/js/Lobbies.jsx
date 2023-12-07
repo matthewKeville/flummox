@@ -15,7 +15,6 @@ export default function Lobbies() {
 
   let joinLobby = async function(lobbyId) {
 
-    console.log(`this is where I would try to join lobby  ${lobbyId}`);
     const response = await fetch("/api/lobby/"+lobbyId+"/join", {
       method: "POST",
       headers: {
@@ -23,14 +22,11 @@ export default function Lobbies() {
       body: null
     });
 
-    const result = await response.json();
-
-    if ( result.success ) {
+    if (response.status == 200) {
       navigate("/lobby/" + lobbyId);
     } else {
-      console.log(result.response);
+      console.log(response.statusText)
     }
-
 
   }
 

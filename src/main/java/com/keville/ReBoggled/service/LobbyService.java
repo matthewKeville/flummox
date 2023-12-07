@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.DTO.JoinLobbyResponseDTO;
 import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.LobbyUserReference;
@@ -42,30 +41,30 @@ public class LobbyService {
       lobbies.save(lobby);
     }
 
-    public JoinLobbyResponseDTO addUserToLobby(Integer userId,Integer lobbyId) {
+    public AddUserToLobbyResponse addUserToLobby(Integer userId,Integer lobbyId) {
 
       Optional<Lobby> optLobby = lobbies.findById(lobbyId);
       if ( !optLobby.isPresent() ) {
         LOG.error(String.format("Can't add user : %d to lobby : %d, because lobby does not exist",userId,lobbyId));
-        return new JoinLobbyResponseDTO(false,"lobby not found");
+        return AddUserToLobbyResponse.ERROR;
       }
       Lobby lobby = optLobby.get();
 
       Optional<User> optUser = users.findById(userId);
       if ( !optUser.isPresent() ) {
         LOG.error(String.format("Can't add user : %d to lobby : %d, because user does not exist",userId,lobbyId));
-        return new JoinLobbyResponseDTO(false,"user not found");
+        return AddUserToLobbyResponse.ERROR;
       }
       User user = optUser.get();
 
       if( lobby.isPrivate && !lobby.owner.getId().equals(userId) ) {
         LOG.warn(String.format("Can't add user : %d to lobby : %d, because it's private",userId,lobbyId));
-        return new JoinLobbyResponseDTO(false,"lobby is private");
+        return AddUserToLobbyResponse.LOBBY_PRIVATE;
       }
 
       if( lobby.users.size() == lobby.capacity ) {
         LOG.warn(String.format("can't add user : %d to lobby : %d, because it's at capacity",userId,lobbyId));
-        return new JoinLobbyResponseDTO(false,"lobby is full");
+        return AddUserToLobbyResponse.LOBBY_FULL;
       }
 
       if ( user.lobby != null ) {
@@ -82,29 +81,29 @@ public class LobbyService {
       users.save(user);
 
       LOG.info(String.format("added user : %d to lobby : %d",userId,lobbyId));
-      return new JoinLobbyResponseDTO(true,"");
+      return AddUserToLobbyResponse.SUCCESS;
 
     }
 
-    public void removeUserFromLobby(Integer userId,Integer lobbyId) {
+    public RemoveUserFromLobbyResponse removeUserFromLobby(Integer userId,Integer lobbyId) {
 
       Optional<User> optUser = users.findById(userId);
       if ( !optUser.isPresent() ) {
         LOG.error(String.format("Can't remove user : %d from lobby : %d because user does not exist",userId,lobbyId));
-        return;
+        return RemoveUserFromLobbyResponse.ERROR;
       }
 
       User user = optUser.get();
 
       if ( user.lobby == null ) {
         LOG.error(String.format("Can't remove user : %d from lobby %d because user does not belong to a lobby",user.id));
-        return;
+        return RemoveUserFromLobbyResponse.ERROR;
       }
 
-      removeUserFromLobby(user,lobbyId);
+      return removeUserFromLobby(user,lobbyId);
     }
 
-    private void removeUserFromLobby(User user,Integer lobbyId) {
+    private RemoveUserFromLobbyResponse removeUserFromLobby(User user,Integer lobbyId) {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(user.id));
 
@@ -112,23 +111,26 @@ public class LobbyService {
       Optional<Lobby> optLobby = lobbies.findById(user.lobby.getId());
       if ( !optLobby.isPresent() ) {
         LOG.error(String.format("Can't remove user : %d from lobby : %d because lobby does not exist",user.id,lobbyId));
-        return;
+        return RemoveUserFromLobbyResponse.ERROR;
       }
 
       Lobby oldLobby = optLobby.get();
       if (!oldLobby.users.remove(userRef)) {
         LOG.warn(String.format("Can't remove user %d from lobby %d because they don't belong to it",user.id,lobbyId));
+        return RemoveUserFromLobbyResponse.USER_NOT_IN_LOBBY;
       }
+
       lobbies.save(oldLobby);
+      return RemoveUserFromLobbyResponse.SUCCESS;
 
     }
 
-    public boolean update(Integer lobbyId,Integer userId, UpdateLobbyDTO dto) {
+    public UpdateLobbyResponse update(Integer lobbyId,Integer userId, UpdateLobbyDTO dto) {
 
       Optional<Lobby>  optLobby = lobbies.findById(lobbyId);
       if ( optLobby.isEmpty() ) {
         LOG.warn(String.format("Can't find lobby %d to update",lobbyId));
-        return false;
+        return UpdateLobbyResponse.ERROR;
       }
 
       Lobby lobby = optLobby.get();
@@ -136,8 +138,10 @@ public class LobbyService {
       // It doesn't and compares the equality of a reference with a value,
       // which is a contradiction
       if ( userId != (int) lobby.owner.getId() ) { 
+
         LOG.warn(String.format("Can't update lobby %d because requesting user %d is not authorized to update lobby",lobbyId,userId));
-        return false;
+        return UpdateLobbyResponse.NOT_OWNER;
+
       }
      
       lobby.name = dto.name;
@@ -145,16 +149,39 @@ public class LobbyService {
       lobby.gameSettings = dto.gameSettings;
 
       if ( lobby.users.size() <= dto.capacity ) {
+
         lobby.capacity = dto.capacity;
+
       } else {
-        //TODO capacity change edge case by auto kicking...
+
         LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit"));
+        return UpdateLobbyResponse.CAPACITY_SHORTENING;
       }
 
       lobbies.save(lobby);
-
-      return true;
+      return UpdateLobbyResponse.SUCCESS;
       
+    }
+
+    public enum AddUserToLobbyResponse {
+      SUCCESS,
+      ERROR,              //internal
+      LOBBY_FULL,
+      LOBBY_PRIVATE,
+      GUEST_NOT_IMPLEMENT
+    }
+
+    public enum RemoveUserFromLobbyResponse {
+      SUCCESS,
+      ERROR,              //internal
+      USER_NOT_IN_LOBBY
+    }
+
+    public enum UpdateLobbyResponse {
+      SUCCESS,
+      ERROR,              //internal
+      CAPACITY_SHORTENING,
+      NOT_OWNER
     }
 
 }

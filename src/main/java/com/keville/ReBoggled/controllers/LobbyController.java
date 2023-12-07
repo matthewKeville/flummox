@@ -7,15 +7,17 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.keville.ReBoggled.DTO.JoinLobbyResponseDTO;
 import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
@@ -23,6 +25,9 @@ import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.UserService;
+import com.keville.ReBoggled.service.LobbyService.AddUserToLobbyResponse;
+import com.keville.ReBoggled.service.LobbyService.RemoveUserFromLobbyResponse;
+import com.keville.ReBoggled.service.LobbyService.UpdateLobbyResponse;
 import com.keville.ReBoggled.util.Conversions;
 
 import jakarta.servlet.http.HttpSession;
@@ -49,25 +54,6 @@ public class LobbyController {
       return modelAndView;
     }
 
-    private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
-
-      LobbyDTO lobbyDto = new LobbyDTO(lobby);
-      User owner = userService.getUser(lobby.owner.getId());
-
-      List<Integer> userIds = lobby.users.stream()
-        .map( x -> x.user.getId() )
-        .collect(Collectors.toList());
-      List<User> users = userService.getUsers(userIds);
-
-      List<LobbyUserDTO> userDtos = users.stream().
-        map( x -> new LobbyUserDTO(x))
-        .collect(Collectors.toList());
-
-      lobbyDto.owner = new LobbyUserDTO(owner);
-      lobbyDto.users = userDtos;
-
-      return lobbyDto;
-    }
 
     @GetMapping("/api/lobby")
     //public Iterable<Lobby> test(
@@ -103,40 +89,96 @@ public class LobbyController {
     }
 
     @PostMapping("/api/lobby/{id}/join")
-    public Object joinLobby(
+    public <T> ResponseEntity<T> joinLobby(
         @PathVariable("id") Integer id,
         @Autowired HttpSession session) {
 
 
       LOG.info("hit /api/lobby/"+id+"/leave");
-     
       Integer userId = (Integer) session.getAttribute("userId");
-      return lobbyService.addUserToLobby(userId,id);
+      AddUserToLobbyResponse response = lobbyService.addUserToLobby(userId,id);
+
+      switch ( response ) {
+
+        case LOBBY_FULL:
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
+        case LOBBY_PRIVATE:
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
+        case GUEST_NOT_IMPLEMENT:
+          throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "GUEST_NOT_IMPLEMENTED");
+        case SUCCESS:
+          return ResponseEntity.ok().build();
+        case ERROR:
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+        default:
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+
+      }
 
     }
 
-
     @PostMapping("/api/lobby/{id}/leave")
-    public void leaveLobby(
+    public <T> ResponseEntity<T> leaveLobby(
         @PathVariable("id") Integer id,
         @Autowired HttpSession session) {
 
       LOG.info("hit /api/lobby/"+id+"/leave");
-
       Integer userId = (Integer) session.getAttribute("userId");
-      lobbyService.removeUserFromLobby(userId,id);
+      RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId,id);
+
+      switch ( response ) {
+        case SUCCESS:
+          return ResponseEntity.ok().build();
+        case USER_NOT_IN_LOBBY:
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
+        case ERROR:
+        default:
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      }
     }
 
     @PostMapping("/api/lobby/{id}/update")
-    public boolean updateLobby(
+    public <T> ResponseEntity<T> updateLobby(
         @PathVariable("id") Integer id,
         @RequestBody UpdateLobbyDTO updateLobbyDTO,
         @Autowired HttpSession session) {
 
       LOG.info("hit : POST /api/lobby/"+id+"/update");
       Integer userId = (Integer) session.getAttribute("userId");
-      return lobbyService.update(id,userId,updateLobbyDTO);
+      UpdateLobbyResponse response = lobbyService.update(id,userId,updateLobbyDTO);
 
+      switch ( response ) {
+        case SUCCESS:
+          return ResponseEntity.ok().build();
+        case CAPACITY_SHORTENING:
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
+        case NOT_OWNER:
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
+        case ERROR:
+        default:
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      }
+
+    }
+
+    private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
+
+      LobbyDTO lobbyDto = new LobbyDTO(lobby);
+      User owner = userService.getUser(lobby.owner.getId());
+
+      List<Integer> userIds = lobby.users.stream()
+        .map( x -> x.user.getId() )
+        .collect(Collectors.toList());
+      List<User> users = userService.getUsers(userIds);
+
+      List<LobbyUserDTO> userDtos = users.stream().
+        map( x -> new LobbyUserDTO(x))
+        .collect(Collectors.toList());
+
+      lobbyDto.owner = new LobbyUserDTO(owner);
+      lobbyDto.users = userDtos;
+
+      return lobbyDto;
     }
 
 }
