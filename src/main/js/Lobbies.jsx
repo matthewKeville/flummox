@@ -57,9 +57,6 @@ export default function Lobbies() {
                 <td>{lobby.name}</td>
                 <td>{lobby.users.length} / {lobby.capacity}</td>
                 <td>{lobby.isPrivate ? "locked" : "open"}</td>
-                {/*
-                <td><Link id="join-lobby-link" to={"/lobby/"+lobby.id}>Join Lobby</Link></td>
-                */}
                 <td><button id="join-lobby-link" onClick={() => joinLobby(lobby.id)} >Join Lobby</button></td>
               </tr>
             )

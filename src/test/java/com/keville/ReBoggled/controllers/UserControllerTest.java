@@ -21,10 +21,9 @@ import com.keville.ReBoggled.controllers.UserController.UserInfo;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.service.UserService;
 
-
 @ContextConfiguration(classes = TestingContext.class)
-@WebMvcTest(UserController.class)  //flavor the MockMvc
-@Import(UserController.class) //make a minimal spring web container
+@WebMvcTest(UserController.class)
+@Import(UserController.class)//throws 404 if I don't import...
 public class UserControllerTest {
 
   @MockBean
@@ -32,18 +31,17 @@ public class UserControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  // this can spoof request , sessions , and security
 
   @Test
   @WithMockUser(username="bob@email.com", authorities = {"read"} )
   void getInfoReturnsUserInfo() throws Exception {
 
-    //setup
+    //arrange
     User user = User.createUser("bob@email.com","bob42");
     ObjectMapper mapper = new ObjectMapper();
-
     when(userService.getUser(any(Integer.class))).thenReturn(user);
 
+    //act & assert
     mockMvc.perform(
         MockMvcRequestBuilders.get("/api/user/info")
         .sessionAttr("userId", 1234)
@@ -57,6 +55,7 @@ public class UserControllerTest {
   @WithMockUser(username="bob@email.com", authorities = {"read"} )
   void getInfoThrowsWhenSessionIsEmpty() throws Exception {
 
+    //act & assert
     mockMvc.perform(
         MockMvcRequestBuilders.get("/api/user/info")
         )
@@ -68,9 +67,11 @@ public class UserControllerTest {
   @WithMockUser(username="bob@email.com", authorities = {"read"} )
   void getInfoThrowsWhenUserNotFound() throws Exception {
 
+    //arrange
     User user = User.createUser("bob@email.com","bob42");
     when(userService.getUser(any(Integer.class))).thenReturn(null);
 
+    //act & assert
     mockMvc.perform(
         MockMvcRequestBuilders.get("/api/user/info")
         .sessionAttr("userId", 1234)

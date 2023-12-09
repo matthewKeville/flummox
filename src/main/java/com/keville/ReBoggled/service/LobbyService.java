@@ -37,6 +37,14 @@ public class LobbyService {
       return lobbies.findById(id);
     }
 
+    public Integer getLobbyOwnerId(int id) {
+      Optional<Lobby> optLobby = lobbies.findById(id);
+      if ( optLobby.isEmpty() ) {
+        return null;
+      }
+      return optLobby.get().owner.getId();
+    }
+
     public void addLobby(Lobby lobby) {
       lobbies.save(lobby);
     }
@@ -125,7 +133,7 @@ public class LobbyService {
 
     }
 
-    public UpdateLobbyResponse update(Integer lobbyId,Integer userId, UpdateLobbyDTO dto) {
+    public UpdateLobbyResponse update(Integer lobbyId,UpdateLobbyDTO dto) {
 
       Optional<Lobby>  optLobby = lobbies.findById(lobbyId);
       if ( optLobby.isEmpty() ) {
@@ -134,15 +142,6 @@ public class LobbyService {
       }
 
       Lobby lobby = optLobby.get();
-      // I though the JVM would unbox the Integer when using ==
-      // It doesn't and compares the equality of a reference with a value,
-      // which is a contradiction
-      if ( userId != (int) lobby.owner.getId() ) { 
-
-        LOG.warn(String.format("Can't update lobby %d because requesting user %d is not authorized to update lobby",lobbyId,userId));
-        return UpdateLobbyResponse.NOT_OWNER;
-
-      }
      
       lobby.name = dto.name;
       lobby.isPrivate = dto.isPrivate;
@@ -181,7 +180,6 @@ public class LobbyService {
       SUCCESS,
       ERROR,              //internal
       CAPACITY_SHORTENING,
-      NOT_OWNER
     }
 
 }

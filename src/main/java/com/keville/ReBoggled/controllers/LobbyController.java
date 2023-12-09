@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.UserService;
 import com.keville.ReBoggled.service.LobbyService.AddUserToLobbyResponse;
@@ -31,6 +34,7 @@ import com.keville.ReBoggled.service.LobbyService.UpdateLobbyResponse;
 import com.keville.ReBoggled.util.Conversions;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @RestController
 public class LobbyController {
@@ -39,6 +43,9 @@ public class LobbyController {
 
     @Autowired
     private LobbyService lobbyService;
+
+    @Autowired
+    private LobbyRepository lobbies; ;
 
     @Autowired
     private UserService userService;
@@ -94,8 +101,13 @@ public class LobbyController {
         @Autowired HttpSession session) {
 
 
-      LOG.info("hit /api/lobby/"+id+"/leave");
+      LOG.info("hit /api/lobby/"+id+"/join");
       Integer userId = (Integer) session.getAttribute("userId");
+      if ( userId == null ) {
+          LOG.warn("unable to identify the userId of the current Session");
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      }
+
       AddUserToLobbyResponse response = lobbyService.addUserToLobby(userId,id);
 
       switch ( response ) {
@@ -123,6 +135,7 @@ public class LobbyController {
         @Autowired HttpSession session) {
 
       LOG.info("hit /api/lobby/"+id+"/leave");
+
       Integer userId = (Integer) session.getAttribute("userId");
       RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId,id);
 
@@ -140,20 +153,35 @@ public class LobbyController {
     @PostMapping("/api/lobby/{id}/update")
     public <T> ResponseEntity<T> updateLobby(
         @PathVariable("id") Integer id,
-        @RequestBody UpdateLobbyDTO updateLobbyDTO,
-        @Autowired HttpSession session) {
+        @Valid @RequestBody UpdateLobbyDTO updateLobbyDTO,
+        @Autowired HttpSession session,
+        @Autowired BindingResult bindingResult) {
 
       LOG.info("hit : POST /api/lobby/"+id+"/update");
+
+      if ( bindingResult.hasErrors() ) {
+          LOG.info(String.format("Invalid Request Body"));
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_BODY");
+      }
+
       Integer userId = (Integer) session.getAttribute("userId");
-      UpdateLobbyResponse response = lobbyService.update(id,userId,updateLobbyDTO);
+
+      Integer ownerId = lobbyService.getLobbyOwnerId(id);
+      if ( ownerId == null ) {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      }
+      if ( !ownerId.equals(userId) ) {
+          LOG.info(String.format("Non Lobby owner %d is trying to update lobby %d",userId,id));
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
+      }
+
+      UpdateLobbyResponse response = lobbyService.update(id,updateLobbyDTO);
 
       switch ( response ) {
         case SUCCESS:
           return ResponseEntity.ok().build();
         case CAPACITY_SHORTENING:
           throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
-        case NOT_OWNER:
-          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
         case ERROR:
         default:
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");

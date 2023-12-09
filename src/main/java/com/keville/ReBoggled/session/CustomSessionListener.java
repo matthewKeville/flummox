@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.util.GuestCreator;
 
 import jakarta.servlet.http.HttpSessionEvent;
@@ -21,11 +22,14 @@ public class CustomSessionListener implements HttpSessionListener {
 
     @Autowired
     private GuestCreator guestCreator;
+    @Autowired
+    private UserRepository users;
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {
 
         User guest = guestCreator.createGuest();
+        guest = users.save(guest);
         se.getSession().setAttribute("userId",guest.id);
         LOG.info("started guest session \n" + guest);
 

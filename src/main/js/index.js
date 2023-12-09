@@ -10,10 +10,21 @@ import Lobby, {loader as lobbyLoader }      from "./Lobby.jsx";
 import ErrorPage from "./Error.jsx";
 import Root from "./Root.jsx";
 
+async function rootLoader({params}) {
+  console.log("loading user data")
+  const userInfoResponse = await fetch("/api/user/info");
+  const userInfo = await userInfoResponse.json()
+  if ( userInfo == null ) {
+    console.log("unable to load user data")
+  }
+  return { userInfo };
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    loader: rootLoader,
     errorElement: <ErrorPage />,
     children: [
       {

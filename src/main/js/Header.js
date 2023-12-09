@@ -1,24 +1,9 @@
 import React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useLoaderData } from 'react-router-dom';
 
 export default function Header() {
 
-  const [userInfo,setUserInfo] = useState();
-
-  useEffect( () => {
-
-    async function getUserInfo() {
-      const userInfoResponse = await fetch("/api/user/info");
-      const data = await userInfoResponse.json()
-      setUserInfo(data);
-    };
-    
-    if (!userInfo) {
-      getUserInfo()
-    }
-
-  } , [] );
+  const { userInfo } = useLoaderData();
 
   return (
     <header id="header">
