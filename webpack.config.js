@@ -19,6 +19,12 @@ module.exports = {
                         presets: ["@babel/preset-env", "@babel/preset-react"]
                     }
                 }]
+            },
+            //style loader actually creates a <style> tag in 
+            //the page, not sure what css-loader does..
+            {
+                test: /\.css$/,
+                use: ['style-loader','css-loader'],
             }
         ]
     }

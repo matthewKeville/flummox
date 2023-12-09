@@ -1,5 +1,7 @@
 import React from 'react';
 import { useLoaderData, Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader({params}) {
   const lobbiesResponse = await fetch("/api/lobby");
@@ -23,9 +25,32 @@ export default function Lobbies() {
     });
 
     if (response.status == 200) {
+
       navigate("/lobby/" + lobbyId);
+      toast.success("Welcome..");
+
     } else {
-      console.log(response.statusText)
+
+      const content = await response.json()
+
+      console.log(`unable to join lobby because : ${content.message}`)
+
+      let notice = content.status + " : Unknown error"
+
+      switch(content.message) {
+        case "LOBBY_IS_FULL":
+          notice = " Unable to join lobby because it is full"
+          break;
+        case "LOBBY_IS_PRIVATE":
+          notice = " Unable to join lobby because it is private"
+          break;
+        case "INTERNAL_ERROR":
+        default:
+          //pass
+      }
+
+      toast.error(notice);
+
     }
 
   }

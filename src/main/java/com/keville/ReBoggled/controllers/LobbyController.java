@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,10 +26,10 @@ import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.service.LobbyService;
-import com.keville.ReBoggled.service.UserService;
 import com.keville.ReBoggled.service.LobbyService.AddUserToLobbyResponse;
 import com.keville.ReBoggled.service.LobbyService.RemoveUserFromLobbyResponse;
 import com.keville.ReBoggled.service.LobbyService.UpdateLobbyResponse;
+import com.keville.ReBoggled.service.UserService;
 import com.keville.ReBoggled.util.Conversions;
 
 import jakarta.servlet.http.HttpSession;
@@ -39,118 +38,114 @@ import jakarta.validation.Valid;
 @RestController
 public class LobbyController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LobbyController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LobbyController.class);
 
-    @Autowired
-    private LobbyService lobbyService;
+  @Autowired
+  private LobbyService lobbyService;
 
-    @Autowired
-    private LobbyRepository lobbies; ;
+  @Autowired
+  private LobbyRepository lobbies;;
 
-    @Autowired
-    private UserService userService;
+  @Autowired
+  private UserService userService;
 
-    public LobbyController(@Autowired LobbyService lobbies) {
-      this.lobbyService = lobbies;
-    }
+  public LobbyController(@Autowired LobbyService lobbies) {
+    this.lobbyService = lobbies;
+  }
 
-    @GetMapping(value = {"/lobby", "/"})
-    public ModelAndView view() {
-      ModelAndView modelAndView = new ModelAndView();
-      modelAndView.setViewName("lobby");
-      return modelAndView;
-    }
+  @GetMapping(value = { "/lobby", "/" })
+  public ModelAndView view() {
+    ModelAndView modelAndView = new ModelAndView();
+    modelAndView.setViewName("lobby");
+    return modelAndView;
+  }
 
+  @GetMapping("/api/lobby")
+  // public Iterable<Lobby> test(
+  public Iterable<LobbyDTO> getLobbies(
+      @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
+      HttpSession session) {
 
-    @GetMapping("/api/lobby")
-    //public Iterable<Lobby> test(
-    public Iterable<LobbyDTO> getLobbies(
-        @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
-        HttpSession session) {
+    LOG.info("hit /api/lobby");
 
-      LOG.info("hit /api/lobby");
-
-      Iterable<Lobby> lobbies = lobbyService.getLobbies();
-      List<LobbyDTO> lobbyDTOs = Conversions.iterableToList(lobbies).stream()
-        .map( lobby -> lobbyToLobbyDTO(lobby ))
+    Iterable<Lobby> lobbies = lobbyService.getLobbies();
+    List<LobbyDTO> lobbyDTOs = Conversions.iterableToList(lobbies).stream()
+        .map(lobby -> lobbyToLobbyDTO(lobby))
         .collect(Collectors.toList());
 
-      return lobbyDTOs;
+    return lobbyDTOs;
+  }
+
+  @GetMapping("/api/lobby/{id}")
+  public LobbyDTO getLobby(
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    LOG.info("hit /api/lobby/" + id);
+    Optional<Lobby> lobby = lobbyService.getLobby(id);
+
+    if (!lobby.isPresent()) {
+      LOG.warn("attempted to access a non-existant lobby " + id);
+      return null;
     }
 
-    @GetMapping("/api/lobby/{id}")
-    public LobbyDTO getLobby(
-        @PathVariable("id") Integer id,
-        @Autowired HttpSession session) {
+    return lobbyToLobbyDTO(lobby.get());
 
-      LOG.info("hit /api/lobby/" + id);
-      Optional<Lobby> lobby = lobbyService.getLobby(id);
+  }
 
-      if (!lobby.isPresent()) {
-        LOG.warn("attempted to access a non-existant lobby " + id);
-        return null;
-      } 
+  @PostMapping("/api/lobby/{id}/join")
+  public <T> ResponseEntity<T> joinLobby(
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
 
-      return lobbyToLobbyDTO(lobby.get());
-
+    LOG.info("hit /api/lobby/" + id + "/join");
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
-    @PostMapping("/api/lobby/{id}/join")
-    public <T> ResponseEntity<T> joinLobby(
-        @PathVariable("id") Integer id,
-        @Autowired HttpSession session) {
+    AddUserToLobbyResponse response = lobbyService.addUserToLobby(userId, id);
 
+    switch (response) {
 
-      LOG.info("hit /api/lobby/"+id+"/join");
-      Integer userId = (Integer) session.getAttribute("userId");
-      if ( userId == null ) {
-          LOG.warn("unable to identify the userId of the current Session");
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-      }
-
-      AddUserToLobbyResponse response = lobbyService.addUserToLobby(userId,id);
-
-      switch ( response ) {
-
-        case LOBBY_FULL:
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
-        case LOBBY_PRIVATE:
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
-        case GUEST_NOT_IMPLEMENT:
-          throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "GUEST_NOT_IMPLEMENTED");
-        case SUCCESS:
-          return ResponseEntity.ok().build();
-        case ERROR:
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-        default:
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-
-      }
+      case LOBBY_FULL:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
+      case LOBBY_PRIVATE:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
+      case SUCCESS:
+        return ResponseEntity.ok().build();
+      case ERROR:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      default:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
 
     }
 
-    @PostMapping("/api/lobby/{id}/leave")
-    public <T> ResponseEntity<T> leaveLobby(
-        @PathVariable("id") Integer id,
-        @Autowired HttpSession session) {
+  }
 
-      LOG.info("hit /api/lobby/"+id+"/leave");
+  @PostMapping("/api/lobby/{id}/leave")
+  public <T> ResponseEntity<T> leaveLobby(
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
 
-      Integer userId = (Integer) session.getAttribute("userId");
-      RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId,id);
+    LOG.info("hit /api/lobby/" + id + "/leave");
 
-      switch ( response ) {
-        case SUCCESS:
-          return ResponseEntity.ok().build();
-        case USER_NOT_IN_LOBBY:
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
-        case ERROR:
-        default:
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-      }
+    Integer userId = (Integer) session.getAttribute("userId");
+    RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId, id);
+
+    switch (response) {
+      case SUCCESS:
+        return ResponseEntity.ok().build();
+      case USER_NOT_IN_LOBBY:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
+      case ERROR:
+      default:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
+  }
 
-    @PostMapping("/api/lobby/{id}/update")
+  @PostMapping("/api/lobby/{id}/update")
     public <T> ResponseEntity<T> updateLobby(
         @PathVariable("id") Integer id,
         @Valid @RequestBody UpdateLobbyDTO updateLobbyDTO,
@@ -189,7 +184,7 @@ public class LobbyController {
 
     }
 
-    private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
+  private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
 
       LobbyDTO lobbyDto = new LobbyDTO(lobby);
       User owner = userService.getUser(lobby.owner.getId());
