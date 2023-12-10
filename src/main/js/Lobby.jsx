@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useLoaderData, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export async function loader({params}) {
   const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
@@ -25,7 +26,7 @@ export default function Lobby() {
 
   let leaveLobby = async function(lobbyId) {
 
-    console.log("where i would leave lobby")
+    console.log("leaving lobby")
 
     const response = await fetch("/api/lobby/"+lobbyId+"/leave", {
       method: "POST",
@@ -34,8 +35,32 @@ export default function Lobby() {
       body: null
     });
 
-    // const result = await response.json();
-    navigate("/lobby");
+    if ( response.status == 200 ) {
+      navigate("/lobby");
+    } else {
+    
+      const content  = await response.json();
+
+      console.log(`unable to leave lobby because : ${content.message}`)
+
+      let notice = content.status + " : Unknown error"
+
+      switch(content.message) {
+        case "LOBBY_IS_FULL":
+          notice = " Unable to join lobby because it is full"
+          break;
+        case "LOBBY_IS_PRIVATE":
+          notice = " Unable to join lobby because it is private"
+          break;
+        case "INTERNAL_ERROR":
+        default:
+          //pass
+      }
+
+      toast.error(notice);
+
+    }
+
 
   }
 
@@ -50,7 +75,8 @@ export default function Lobby() {
   }
 
   async function onApplySettingsChanges() {
-    console.log("applying settings changes")
+
+    console.log("submitting settings changes")
 
     let lobbyUpdateDTO = {
       "name":editNameRef.current.value,
@@ -65,9 +91,6 @@ export default function Lobby() {
       }
     }
 
-    console.log("submitting lobby update");
-    console.log(JSON.stringify(lobbyUpdateDTO));
-
     const response = await fetch("/api/lobby/"+lobby.id+"/update", {
       method: "POST",
       headers: {
@@ -76,9 +99,35 @@ export default function Lobby() {
       body: JSON.stringify(lobbyUpdateDTO)
     });
 
-    setEdit(!edit)
-    let url = "/lobby/" + lobby.id
-    navigate(url); //reload this route
+    if ( response.status == 200 ) {
+
+      setEdit(!edit)
+      let url = "/lobby/" + lobby.id
+      navigate(url); //reload this route
+      toast.success("Updated");
+
+    } else {
+    
+      const content  = await response.json();
+
+      console.log(`unable to update lobby because : ${content.message}`)
+
+      let notice = content.status + " : Unknown error"
+
+      switch(content.message) {
+        case "CAPACITY_SHORTENING_CONFLICT":
+          notice = "Can't shorten lobby beyond current player count."
+          break;
+        case "INTERNAL_ERROR":
+        default:
+          //pass
+      }
+
+      toast.error(notice);
+
+    }
+
+
   }
 
   function onStartGame() {

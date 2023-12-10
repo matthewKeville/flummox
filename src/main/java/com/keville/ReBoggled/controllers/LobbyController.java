@@ -173,6 +173,7 @@ public class LobbyController {
       UpdateLobbyResponse response = lobbyService.update(id,updateLobbyDTO);
 
       switch ( response ) {
+
         case SUCCESS:
           return ResponseEntity.ok().build();
         case CAPACITY_SHORTENING:

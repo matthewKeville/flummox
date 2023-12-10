@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLoaderData, Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader({params}) {
@@ -24,10 +24,10 @@ export default function Lobbies() {
       body: null
     });
 
+
     if (response.status == 200) {
 
       navigate("/lobby/" + lobbyId);
-      toast.success("Welcome..");
 
     } else {
 

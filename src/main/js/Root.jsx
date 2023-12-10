@@ -11,7 +11,7 @@ export default function Root() {
       <NavBar/>
       <Outlet />
       <ToastContainer
-        autoClose={3000}
+        autoClose={1000}
         theme="light"
       />
     </>

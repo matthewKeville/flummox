@@ -153,7 +153,7 @@ public class LobbyService {
 
       } else {
 
-        LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit"));
+        LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit",lobbyId));
         return UpdateLobbyResponse.CAPACITY_SHORTENING;
       }
 
