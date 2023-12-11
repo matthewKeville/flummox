@@ -10,25 +10,25 @@
 ---------------------------------------------------------------------------------
 
 -- https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/jdbc.html
-CREATE TABLE users(
+CREATE TABLE IF NOT EXISTS users(
   USERNAME varchar_ignorecase(50) not null primary key,
   PASSWORD varchar_ignorecase(500) not null,
   ENABLED boolean not null
 );
 
-CREATE TABLE authorities(
+CREATE TABLE IF NOT EXISTS authorities(
     USERNAME VARCHAR_IGNORECASE(50) NOT NULL,
     AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,
     CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username)
 );
 --
-CREATE UNIQUE INDEX ix_auth_username ON authorities (username,authority);
+CREATE UNIQUE INDEX IF NOT EXISTS ix_auth_username ON authorities (username,authority);
 
 ---------------------------------------------------------------------------------
 -- User Data
 ---------------------------------------------------------------------------------
 
-CREATE TABLE USERINFO (
+CREATE TABLE IF NOT EXISTS USERINFO (
   ID INT AUTO_INCREMENT PRIMARY KEY,
   EMAIL varchar_ignorecase(50),
   USERNAME varchar_ignorecase(50),
@@ -37,7 +37,7 @@ CREATE TABLE USERINFO (
   LOBBY INTEGER
 );
 
-CREATE TABLE LOBBY(
+CREATE TABLE IF NOT EXISTS LOBBY(
   ID INT AUTO_INCREMENT PRIMARY KEY,
   NAME VARCHAR(255) NOT NULL,
   CAPACITY INT NOT null,
@@ -45,7 +45,7 @@ CREATE TABLE LOBBY(
   OWNER INT
 ); 
 
-CREATE TABLE LOBBY_USER_REFERENCE(
+CREATE TABLE IF NOT EXISTS LOBBY_USER_REFERENCE(
   ID INT AUTO_INCREMENT PRIMARY KEY,
   USERINFO INT, -- I can't use USER as column name
   LOBBY INT,
@@ -53,7 +53,7 @@ CREATE TABLE LOBBY_USER_REFERENCE(
 );
 
 
-CREATE TABLE GAME_SETTINGS(
+CREATE TABLE IF NOT EXISTS GAME_SETTINGS(
   ID INT AUTO_INCREMENT PRIMARY KEY,
   BOARD_SIZE VARCHAR(40) NOT NULL,
   BOARD_TOPOLOGY VARCHAR(40) NOT NULL,

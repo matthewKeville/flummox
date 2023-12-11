@@ -1,5 +1,7 @@
 package com.keville.ReBoggled;
 
+import java.io.File;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 import com.keville.ReBoggled.model.BoardSize;
 import com.keville.ReBoggled.model.BoardTopology;
@@ -31,70 +34,71 @@ public class ReBoggledApplication {
     SpringApplication.run(ReBoggledApplication.class, args);
   }
 
-  /* 
-   * This is really a security related matter ( or security adjacent )
-   * I have this here because I want re-use the security context
-   * when performing Mvc tests, but I don't want the MvcTests to create
-   * this Bean. There is probably a better way to handle this using
-   * @WithUserDetails
-   */
   @Bean
-  public JdbcUserDetailsManager users(DataSource dataSource) {
-
-        // user authentication will always be (email,password)
-        // thus email is the bridge between User (info) & Auth (UserDetails)
-
-        UserDetails user = org.springframework.security.core.userdetails.User.builder()
-          .username("matt@email.com")
-          .password("{noop}test") //use no op password encoder
-          .roles("SA")
-          .authorities("read")
-          .build();
-
-        UserDetails alice = org.springframework.security.core.userdetails.User.builder()
-          .username("alice@email.com")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-
-        UserDetails bob = org.springframework.security.core.userdetails.User.builder()
-          .username("bob@email.com")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-
-        UserDetails charlie = org.springframework.security.core.userdetails.User.builder()
-          .username("charlie@email.com")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-
-        UserDetails dan = org.springframework.security.core.userdetails.User.builder()
-          .username("dan@email.com")
-          .password("{noop}guest") //use no op password encoder
-          .roles("user")
-          .authorities("read")
-          .build();
-    
-        JdbcUserDetailsManager users = new JdbcUserDetailsManager (dataSource);
-
-        users.createUser(user);
-        users.createUser(alice);
-        users.createUser(bob);
-        users.createUser(charlie);
-        users.createUser(dan);
-
-        return users;
+  public UserDetailsManager users(DataSource dataSource) {
+    JdbcUserDetailsManager users = new JdbcUserDetailsManager (dataSource);
+    return users;
   }
 
   @Bean
-  CommandLineRunner commandLineRunner(@Autowired LobbyRepository lobbies, @Autowired UserRepository users) {
-    return args -> {
+  CommandLineRunner populateDbIfEmpty(
+    @Autowired LobbyRepository lobbies,
+    @Autowired UserRepository users,
+    @Autowired UserDetailsManager userDetailsManager
+    ) {
 
-      // User (info) testing data
+    return args -> {
+   
+      // Quick and dirty check to see if db schema was already created
+      File dbFile = new File("tmp/reboggled.db.mv.db");
+      if ( dbFile.exists() )  {
+        return;
+      }
+
+      // Development User Auth
+
+      UserDetails mattDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("matt@email.com")
+        .password("{noop}test") //use no op password encoder
+        .roles("SA")
+        .authorities("read")
+        .build();
+
+      UserDetails aliceDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("alice@email.com")
+        .password("{noop}guest") //use no op password encoder
+        .roles("user")
+        .authorities("read")
+        .build();
+
+      UserDetails bobDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("bob@email.com")
+        .password("{noop}guest") //use no op password encoder
+        .roles("user")
+        .authorities("read")
+        .build();
+
+      UserDetails charlieDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("charlie@email.com")
+        .password("{noop}guest") //use no op password encoder
+        .roles("user")
+        .authorities("read")
+        .build();
+
+      UserDetails danDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("dan@email.com")
+        .password("{noop}guest") //use no op password encoder
+        .roles("user")
+        .authorities("read")
+        .build();
+  
+      userDetailsManager.createUser(mattDetails);
+      userDetailsManager.createUser(aliceDetails);
+      userDetailsManager.createUser(bobDetails);
+      userDetailsManager.createUser(charlieDetails);
+      userDetailsManager.createUser(danDetails);
+
+      // Development User Data
 
       User matt = users.save(User.createUser("matt@email.com", "fake"));
       AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.getId());
@@ -105,7 +109,7 @@ public class ReBoggledApplication {
       User charlie = users.save(User.createUser("charlie@email.com", "bigCharles"));
       User dan = users.save(User.createUser("dan@email.com", "thePipesArePlaying"));
 
-      // Lobby Testing Data
+      // Development Lobby Data
 
       Lobby secret = new Lobby("Secret Dungeon", 4, true, mattRef);
       secret = lobbies.save(secret);

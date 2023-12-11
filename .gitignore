@@ -2,6 +2,7 @@ HELP.md
 target/
 .mvn/
 node_modules/
+tmp/
 
 ### STS ###
 .apt_generated
