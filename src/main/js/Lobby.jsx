@@ -46,12 +46,6 @@ export default function Lobby() {
       let notice = content.status + " : Unknown error"
 
       switch(content.message) {
-        case "LOBBY_IS_FULL":
-          notice = " Unable to join lobby because it is full"
-          break;
-        case "LOBBY_IS_PRIVATE":
-          notice = " Unable to join lobby because it is private"
-          break;
         case "INTERNAL_ERROR":
         default:
           //pass
@@ -81,7 +75,7 @@ export default function Lobby() {
     let lobbyUpdateDTO = {
       "name":editNameRef.current.value,
       "capacity":editCapacityRef.current.value,
-      "isPrivate":editIsPrivateRef.current.value == "on" ? "true" : "false",
+      "isPrivate":editIsPrivateRef.current.checked,
       "gameSettings":
       {
         "boardSize":editBoardSizeRef.current.value,
@@ -142,7 +136,7 @@ export default function Lobby() {
     <div id="settings-grid">
       <div className="settings-grid-label">Name</div><div className="settings-grid-value">{lobby.name}</div>
       <div className="settings-grid-label">Capacity</div><div className="settings-grid-value">{lobby.capacity}</div>
-      <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "public" : "private"}</div>
+      <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "private" : "public"}</div>
       <div className="settings-grid-label">Size</div><div className="settings-grid-value">{lobby.gameSettings.boardSize}</div>
       <div className="settings-grid-label">Topology</div><div className="settings-grid-value">{lobby.gameSettings.boardTopology}</div>
       <div className="settings-grid-label">Find Rule</div><div className="settings-grid-value">{lobby.gameSettings.findRule}</div>
