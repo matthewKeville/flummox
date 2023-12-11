@@ -12,12 +12,18 @@ import Root from "./Root.jsx";
 
 async function rootLoader({params}) {
   console.log("loading user data")
+
   const userInfoResponse = await fetch("/api/user/info");
-  const userInfo = await userInfoResponse.json()
-  if ( userInfo == null ) {
-    console.log("unable to load user data")
+  var userInfo = await userInfoResponse.json()
+
+  if ( userInfoResponse.status != 200 || userInfo == null) {
+    console.log("there was an error getting user info")
+    userInfo = { username:"error", isGuest:true }
+    return { userInfo }
   }
+
   return { userInfo };
+
 }
 
 const router = createBrowserRouter([

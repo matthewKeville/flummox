@@ -24,30 +24,20 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 }
 
 * {
-  /*font-family: Roboto;*/
   font-family: Lato;
 }
 
 body {
-  /*background-color: #FFF;*/
   background-color: #0c0c0d;
 }
 
-#lobby-welcome-header {
-  margin-left: 20%;
-  color: white;
-}
-#lobby-name-span {
-  font-size: 24px;
-  font-style: italic;
-  color:white;
-}
+/*  --------------------------------------------------------------------  */
+/*  Lobbies                                                               */
+/*  --------------------------------------------------------------------  */
 
-#lobby-exit-button {
-  margin-left: calc(20% + 10px);
-  margin-top:  20px;
-  color: white;
-  background-color: red;
+
+#join-lobby-link {
+  color: black;
 }
 
 .lobbyTableDiv {
@@ -81,81 +71,210 @@ body {
   background-color: #FFFFFF;
 }
 
-/* header */
+/*  --------------------------------------------------------------------  */
+/*  Header                                                                */
+/*  --------------------------------------------------------------------  */
 
-#header {
+header {
   background-color: #002EAD;
 }
 
-#title-span {
-  font-size: 48px;
-  color: white;
-  width: 80%;
-  padding-left: 1%;
+.title-flex-container {
   display: inline-block;
-  vertical-align: bottom;
-  font-family: Roboto;
+  width: 50%;
 
   border: var(--dev-border-size);
   border-style: solid;
   border-color: red;
 }
 
-#username-info-span{
+/* 
+ * I can't make inline-block take 100% height of parent, nor can I center the element
+ * (not the children) in the parent. I would like this, I see that flexbox would
+ * be a workaround. This should be obvious by now, but when we need to orient an
+ * element in vertical space, inline-* is usually going to be insufficient.
+ */
+.user-cluster-flex-container {
   display: inline-block;
+  width: 49.5%;
 
   border: var(--dev-border-size);
   border-style: solid;
-  border-color: black;
+  border-color: red;
 }
 
-#username-span{
+.title-flex {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  margin-left: 10px;
+}
+
+.user-cluster-flex {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  margin-right: 10px;
+}
+
+.title-span {
+  font-size: 48px;
+  color: white;
+  display: inline-block;
+  vertical-align: bottom;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+.user-cluster {
+  display: inline-block;
+  vertical-align: bottom;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+.user-cluster-link {
+
+  color:white;
+  font-weight: bolder;
+  text-decoration: none;
+  margin-right: 10px;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+.user-cluster-link:hover {
+  color: #FFB94C;
+}
+
+.dropdown {
+  position: relative; /*enable children to position absolutely*/
+  
+  display: flex;
+  justify-content: flex-end;
+  min-width: 200px; /*so drop down has normal size*/
+
+  background-color: #002EAD;
+  border: none;
+  cursor: pointer;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+.username-span{
   font-size: 24px;
   font-weight: bold;
   color: white;
-
-  display: inline-block;
-  text-align: right;
   vertical-align: bottom;
-  margin-bottom: 14px;
-  margin-right: 10px; /*gap for name and icon*/
-  width: 14%;
+  margin-right: 10px;
 
   border: var(--dev-border-size);
   border-style: solid;
   border-color: red;
 }
 
-#profile-icon {
+.username-span:hover {
+  color: #FFB94C;
+}
+
+.user-profile-icon {
   width: 30px;
   height: 30px;
-  margin-bottom: 14px;
   vertical-align: bottom;
 
   border: var(--dev-border-size);
   border-style: solid;
   border-color: red;
-
 }
 
-#join-lobby-link {
-  color: black;
+
+.dropdown-content {
+  display: none;
+  position: absolute; /*absolute of parent*/
+
+  /* 
+   * 100% refers to parent height 
+   * Position the dropdown below the parent end of content (vertically)
+  */
+  top: 100%;
+  left: 0%;
+
+
+  width: 100%;
+  z-index: 1;
+  background-color: #002EAD;
+  color: wheat;
+
+  border: 2px;
+  border-style: solid;
+  border-color: white;
 }
 
-#nav-div {
-  margin-top: 10px;
-  margin-left: 10px;
+.logout-link {
+  color: white;
+  font-size: 24px;
+  text-decoration: none;
+}
+
+.logout-link-react {
+  color: white;
+  font-size: 24px;
+  text-decoration: none;
+}
+
+.show {
+  display:block;
+}
+
+.nav-div {
+  margin-left: 20px;
 }
 
 .nav-link {
-  text-decoration: none;
+  color: white;
   font-size: 24px;
   font-weight: bold;
-  color: white;
-  margin-left: 10px;
+  text-decoration: none;
+  margin-right: 10px;
 }
 
-/* Lobby */
+.nav-link:hover {
+  color: #FFB94C;
+}
+
+/*  --------------------------------------------------------------------  */
+/*  Lobby                                                                 */
+/*  --------------------------------------------------------------------  */
+
+
+#lobby-welcome-header {
+  margin-left: 20%;
+  color: white;
+}
+
+#lobby-name-span {
+  font-size: 24px;
+  font-style: italic;
+  color:white;
+}
+
+#lobby-exit-button {
+  margin-left: calc(20% + 10px);
+  margin-top:  20px;
+  color: white;
+  background-color: red;
+}
+
 
 #lobby-flex {
   display: flex;
@@ -165,10 +284,6 @@ body {
 
   margin-left: 20%;
   margin-right: 20%;
-
-  /* border-style: solid; */
-  /* border-color: #002EAD; */
-  /* border-width: 5px; */
 }
 
 /* Force all flex items to have equal size : see flex-basis for more */
