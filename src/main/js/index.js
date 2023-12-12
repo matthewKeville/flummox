@@ -18,7 +18,7 @@ async function rootLoader({params}) {
 
   if ( userInfoResponse.status != 200 || userInfo == null) {
     console.log("there was an error getting user info")
-    userInfo = { username:"error", isGuest:true }
+    userInfo = { id:-1, username:"error", isGuest:true }
     return { userInfo }
   }
 
@@ -31,17 +31,20 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     loader: rootLoader,
+    id:"root",
     errorElement: <ErrorPage />,
     children: [
       {
         path: "lobby",
         element: <Lobbies />,
-        loader: lobbiesLoader
+        loader: lobbiesLoader,
+        id:"lobbies"
       },
       {
         path: "lobby/:lobbyId",
         element: <Lobby />,
-        loader: lobbyLoader
+        loader: lobbyLoader,
+        id:"lobby"
       }
     ]
   },

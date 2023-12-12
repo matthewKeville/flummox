@@ -1,17 +1,24 @@
 import React, { useState, useRef } from 'react';
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import UserDisplay from "./UserDisplay.jsx";
 
 export async function loader({params}) {
   const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
   const lobby= await lobbyResponse.json();
-  const isOwner = true;
-  return { lobby , isOwner };
+  return { lobby };
 }
 
 export default function Lobby() {
 
-  const { lobby, isOwner } = useLoaderData();
+  const { lobby } = useLoaderData();
+  const { userInfo } = useRouteLoaderData("root");
+  const isOwner = (lobby.owner.id == userInfo.id);
+
+  console.log(lobby)
+  console.log(userInfo)
+  console.log(isOwner)
+
   const navigate           = useNavigate();
 
   const [edit, setEdit]    = useState(false)
@@ -57,7 +64,6 @@ export default function Lobby() {
 
 
   }
-
 
   function onChangeSettings() {
     setEdit(!edit)
@@ -128,6 +134,15 @@ export default function Lobby() {
     console.log("this is where I would start the game")
   }
 
+  /* compute a badge based on the lobby context */
+  function getContextBadge(player) {
+     if ( player.id == lobby.owner.id ) {
+       return "👑"
+     } else {
+       return ""
+     }
+  }
+
   if ( !lobby ) {
     return (<><div>no lobby data</div></>)
   }
@@ -149,34 +164,37 @@ export default function Lobby() {
       <h3 id="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
       <div id="lobby-flex">
 
-        <div id="users-flex-container">
-          <div id="users-grid">
+        <div id="players-flex-container">
+          <div className="players-flex">
             {
               lobby.users.map( (player) => {
                 return (
                   <>
-                    <div className={player.id == lobby.owner.id ? "users-grid-owner" : "users-grid-user"}>
-                      {player.username}{player.id == lobby.owner.id ? " * " : ""}
-                    </div>
-                    {
-                    isOwner ? 
-                      <>
-                        <button className="promote-player-button">Promote</button>
-                        <button className="kick-player-button">Kick</button>
-                      </>
-                    : 
-                      <></>
-                    }
+                    <UserDisplay username={player.username} contextBadge={getContextBadge(player)} />
                   </>
                 )
               })
             }
           </div>
+          {/*
+          <div className="players-grid-controls">
+            <button className="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon" : "Leave"}</button>
+            <button className="lobby-nudge-button">Nugde</button>
+          </div>
+          */}
         </div>
 
-        <div id="chat-flex-container">
-          <div id="chat-flex">
+        <div className="center-flex-container">
+
+          <div className="chat-flex">
           </div>
+
+          <div className="player-controls-flex">
+            <button className="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon" : "Leave"}</button>
+            <button className="lobby-nudge-button">Nugde</button>
+            <div className="player-controls-spacer"></div> {/* padding */}
+          </div>
+
         </div>
 
         <div id="settings-flex-container">
@@ -247,9 +265,6 @@ export default function Lobby() {
           }
         </div>
       </div>
-
-      <button id="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon Lobby" : "Leave Lobby"}</button>
-
     </>
   );
 

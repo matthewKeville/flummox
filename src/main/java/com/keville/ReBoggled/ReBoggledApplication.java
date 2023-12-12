@@ -4,11 +4,14 @@ import java.io.File;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -27,6 +30,9 @@ import com.keville.ReBoggled.service.LobbyService;
 @SpringBootApplication
 public class ReBoggledApplication {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ReBoggledApplication.class);
+  private static boolean skipCreateDevData = true;
+
   @Autowired
   private LobbyService lobbyService;
 
@@ -40,18 +46,55 @@ public class ReBoggledApplication {
     return users;
   }
 
+  @Order(value=0)
   @Bean
-  CommandLineRunner populateDbIfEmpty(
+  CommandLineRunner processArgs() {
+    return args -> {
+
+      LOG.info("Parsing Arguments");
+
+      for ( String arg : args ) {
+
+        String[] argParts = arg.split("=");
+
+        if (argParts.length != 2) {
+          LOG.warn("invalid argument : " + arg);
+          continue;
+        }
+
+        try {
+
+          String prop = argParts[0];
+          String value = argParts[1];
+
+          if ( prop.equals("--create-dev-data") ) {
+            skipCreateDevData = !Boolean.parseBoolean(value);
+          }
+
+        } catch (Exception e)  {
+
+          LOG.error("error processing argument " + arg);
+          continue;
+
+        }
+
+      }
+
+    };
+  }
+
+  @Order(value=2)
+  @Bean
+  CommandLineRunner createDevData(
     @Autowired LobbyRepository lobbies,
     @Autowired UserRepository users,
     @Autowired UserDetailsManager userDetailsManager
     ) {
 
     return args -> {
-   
-      // Quick and dirty check to see if db schema was already created
-      File dbFile = new File("tmp/reboggled.db.mv.db");
-      if ( dbFile.exists() )  {
+
+      if ( skipCreateDevData ) {
+        LOG.info("skipping creation of dev data");
         return;
       }
 

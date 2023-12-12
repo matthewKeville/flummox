@@ -38,6 +38,7 @@ public class UserControllerTest {
 
     //arrange
     User user = User.createUser("bob@email.com","bob42");
+    user.id = 1;
     ObjectMapper mapper = new ObjectMapper();
     when(userService.getUser(any(Integer.class))).thenReturn(user);
 
@@ -46,7 +47,7 @@ public class UserControllerTest {
         MockMvcRequestBuilders.get("/api/user/info")
         .sessionAttr("userId", 1234)
         )
-      .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(new UserInfo("bob42",false))))
+      .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(new UserInfo(1,"bob42",false))))
       .andExpect(MockMvcResultMatchers.status().isOk());
 
   }
