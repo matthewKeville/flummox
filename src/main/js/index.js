@@ -11,7 +11,7 @@ import ErrorPage from "./Error.jsx";
 import Root from "./Root.jsx";
 
 async function rootLoader({params}) {
-  console.log("loading user data")
+  console.log("Loading Root")
 
   const userInfoResponse = await fetch("/api/user/info");
   var userInfo = await userInfoResponse.json()

@@ -124,6 +124,34 @@ public class LobbyController {
 
   }
 
+  @PostMapping("/api/lobby/{id}/kick/{userId}")
+  public <T> ResponseEntity<T> kickPlayer(
+      @PathVariable("id") Integer id,
+      @PathVariable("userId") Integer userId, //To be kicked
+      @Autowired HttpSession session) {
+
+    LOG.info("hit /api/lobby/" + id + "/kick/" + userId);
+
+    //Is the current user authorized to perform this action?
+    Integer requesterId = (Integer) session.getAttribute("userId");
+    verifyLobbyOwner(id,requesterId);
+
+    RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId, id);
+
+    switch (response) {
+
+      case SUCCESS:
+        return ResponseEntity.ok().build();
+      case USER_NOT_IN_LOBBY:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
+      case ERROR:
+      default:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+
+    }
+
+  }
+
   @PostMapping("/api/lobby/{id}/leave")
   public <T> ResponseEntity<T> leaveLobby(
       @PathVariable("id") Integer id,
@@ -161,14 +189,7 @@ public class LobbyController {
 
       Integer userId = (Integer) session.getAttribute("userId");
 
-      Integer ownerId = lobbyService.getLobbyOwnerId(id);
-      if ( ownerId == null ) {
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-      }
-      if ( !ownerId.equals(userId) ) {
-          LOG.info(String.format("Non Lobby owner %d is trying to update lobby %d",userId,id));
-          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
-      }
+      verifyLobbyOwner(id,userId);
 
       UpdateLobbyResponse response = lobbyService.update(id,updateLobbyDTO);
 
@@ -204,5 +225,24 @@ public class LobbyController {
 
       return lobbyDto;
     }
+
+
+  /*
+   * Verify that the user is the owner of this lobby,
+   * if not throw an exception
+   */
+  private void verifyLobbyOwner(Integer lobbyId,Integer userId) {
+
+      Integer ownerId = lobbyService.getLobbyOwnerId(lobbyId);
+
+      if ( ownerId == null ) {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      }
+      if ( !ownerId.equals(userId) ) {
+          LOG.info(String.format("Non Lobby Owner %d is trying to manipulate lobby %d",userId,lobbyId));
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
+      }
+
+  }
 
 }

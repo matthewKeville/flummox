@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
 
 export async function loader({params}) {
+  console.log("Loading Lobby " + params.lobbyId)
   const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
   const lobby= await lobbyResponse.json();
   return { lobby };
@@ -14,7 +15,7 @@ export default function Lobby() {
   const navigate = useNavigate();
   const { lobby } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
-  const isOwner = (lobby.owner.id == userInfo.id);
+  const isOwner = true; //(lobby.owner.id == userInfo.id);
   const [edit, setEdit]    = useState(false)
 
   /* this should probably be a seperate component */
@@ -94,12 +95,18 @@ export default function Lobby() {
       body: JSON.stringify(lobbyUpdateDTO)
     });
 
-    if ( response.status == 200 ) {
+    const authenticateUrl = "http://localhost:8080/login"
+
+    if ( response.status == 200 && response.url != authenticateUrl ) {
 
       setEdit(!edit)
       let url = "/lobby/" + lobby.id
       navigate(url); //reload this route
       toast.success("Updated");
+
+    } else if ( response.url == authenticateUrl ) {
+
+      toast.error("Authentication Error...");
 
     } else {
     
@@ -112,6 +119,11 @@ export default function Lobby() {
       switch(content.message) {
         case "CAPACITY_SHORTENING_CONFLICT":
           notice = "Can't shorten lobby beyond current player count."
+          break;
+        /* Anyone who is not the lobby owner should never see this page,
+            is there any point handling this response? */
+        case "NOT_AUTHORIZED":
+          notice = "This is not your lobby to update."
           break;
         case "INTERNAL_ERROR":
         default:
@@ -164,7 +176,8 @@ export default function Lobby() {
               lobby.users.map( (player) => {
                 return (
                   <LobbyUserDisplay 
-                    username={player.username} 
+                    player={player} 
+                    lobby={lobby} 
                     contextBadge={getContextBadge(player)} 
                     isOwner={isOwner} 
                     isSelf={player.username == userInfo.username}

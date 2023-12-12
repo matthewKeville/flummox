@@ -114,7 +114,6 @@ public class LobbyService {
     private RemoveUserFromLobbyResponse removeUserFromLobby(User user,Integer lobbyId) {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(user.id));
-
         
       Optional<Lobby> optLobby = lobbies.findById(user.lobby.getId());
       if ( !optLobby.isPresent() ) {
@@ -128,7 +127,9 @@ public class LobbyService {
         return RemoveUserFromLobbyResponse.USER_NOT_IN_LOBBY;
       }
 
+      oldLobby.users.remove(userRef);
       lobbies.save(oldLobby);
+
       return RemoveUserFromLobbyResponse.SUCCESS;
 
     }
