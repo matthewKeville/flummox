@@ -4,11 +4,12 @@ import { useLoaderData, Link } from 'react-router-dom';
 export default function Header() {
 
   const { userInfo } = useLoaderData();
+  const dropdownRef  = useRef(null);
   const dropdownContentRef = useRef(null);
 
   const toggleDropdownContent = function(event) {
 
-    // don't toggle visibility when clicking inside dropdown content
+    // don't toggle when clicking inside the dropdown
     if ( dropdownContentRef.current.contains(event.target) ) {
       return
     }
@@ -17,26 +18,20 @@ export default function Header() {
 
   }
 
-  /*
-    * Whenever we click outside of the dropdown toggle the visibility of
-    * all dropdowns.
-    */
-  window.onclick = function(event) {
+  //close this drop down if we click outside of it
+  window.addEventListener('click', function(event) {
 
-    const dropdownContainer = event.target.closest('.dropdown')
+    const dropdown = event.target.closest('.user-info-dropdown')
 
-    if (!dropdownContainer) {
-
-      var dropdowns = document.getElementsByClassName("dropdown-content");
-      var i;
-      for (i = 0; i < dropdowns.length; i++) {
-        var openDropdown = dropdowns[i];
-        if (openDropdown.classList.contains('show')) {
-          openDropdown.classList.remove('show');
-        }
-      }
+    if (dropdown && dropdown == dropdownRef.current) {
+      return;
     }
-  } 
+
+    if (dropdownContentRef.current.classList.contains('show')) {
+      dropdownContentRef.current.classList.remove('show');
+    }
+
+  });
 
   const guestLinks = 
   <>
@@ -56,10 +51,10 @@ export default function Header() {
 
   const userDropdown  = 
     <>
-      <div id="user-info-dropdown" className="dropdown" onClick={toggleDropdownContent}>
+      <div id="user-info-dropdown" className="user-info-dropdown" onClick={toggleDropdownContent} ref={dropdownRef}>
         <span className="username-span">{userInfo.username}</span>
         <img className="user-profile-icon" src="/icons/user-profile-white-full-trans.png"/>
-        <div id="user-info-dropdown-content" className="dropdown-content" ref={dropdownContentRef}>
+        <div id="user-info-dropdown-content" className="user-info-dropdown-content" ref={dropdownContentRef}>
           {userInfo.isGuest ? guestDropdownContent : dropdownContent }
         </div>
       </div>

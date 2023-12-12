@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
-import UserDisplay from "./UserDisplay.jsx";
+import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
 
 export async function loader({params}) {
   const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
@@ -11,18 +11,13 @@ export async function loader({params}) {
 
 export default function Lobby() {
 
+  const navigate = useNavigate();
   const { lobby } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
   const isOwner = (lobby.owner.id == userInfo.id);
-
-  console.log(lobby)
-  console.log(userInfo)
-  console.log(isOwner)
-
-  const navigate           = useNavigate();
-
   const [edit, setEdit]    = useState(false)
 
+  /* this should probably be a seperate component */
   const editNameRef = useRef(null)
   const editCapacityRef = useRef(null)
   const editIsPrivateRef = useRef(null)
@@ -127,7 +122,6 @@ export default function Lobby() {
 
     }
 
-
   }
 
   function onStartGame() {
@@ -169,19 +163,16 @@ export default function Lobby() {
             {
               lobby.users.map( (player) => {
                 return (
-                  <>
-                    <UserDisplay username={player.username} contextBadge={getContextBadge(player)} />
-                  </>
+                  <LobbyUserDisplay 
+                    username={player.username} 
+                    contextBadge={getContextBadge(player)} 
+                    isOwner={isOwner} 
+                    isSelf={player.username == userInfo.username}
+                  />
                 )
               })
             }
           </div>
-          {/*
-          <div className="players-grid-controls">
-            <button className="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon" : "Leave"}</button>
-            <button className="lobby-nudge-button">Nugde</button>
-          </div>
-          */}
         </div>
 
         <div className="center-flex-container">

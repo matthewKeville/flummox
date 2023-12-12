@@ -155,7 +155,7 @@ header {
   color: #FFB94C;
 }
 
-.dropdown {
+.user-info-dropdown {
   position: relative; /*enable children to position absolutely*/
   
   display: flex;
@@ -198,7 +198,7 @@ header {
 }
 
 
-.dropdown-content {
+.user-info-dropdown-content {
   display: none;
   position: absolute; /*absolute of parent*/
 
@@ -232,9 +232,6 @@ header {
   text-decoration: none;
 }
 
-.show {
-  display:block;
-}
 
 .nav-div {
   margin-left: 20px;
@@ -425,6 +422,58 @@ header {
   color:white;
 }
 
+.user-display-self {
+  color:hotpink;
+}
+
 .user-display * {
   display: inline-block;
+}
+
+.user-action-dropdown {
+  position: relative; /*enable children to position absolutely*/
+  
+  display: flex;
+  justify-content: flex-end;
+  min-width: 200px; /*so drop down has normal size*/
+
+  background-color: #002EAD;
+  border: none;
+  cursor: pointer;
+
+  border: var(--dev-border-size);
+  border-style: solid;
+  border-color: red;
+}
+
+.user-action-dropdown-content {
+  display: none;
+  position: absolute; /*absolute of parent*/
+
+  /* 
+   * 100% refers to parent height 
+   * Position the dropdown below the parent end of content (vertically)
+  */
+  top: 0%;
+  left: 100%;
+
+
+  width: 100%;
+  z-index: 1;
+  background-color: #002EAD;
+  color: wheat;
+
+  border: 2px;
+  border-style: solid;
+  border-color: white;
+}
+
+.user-action-dropdown-content-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+/* this must appear before elements that use it */
+.show {
+  display:block;
 }
