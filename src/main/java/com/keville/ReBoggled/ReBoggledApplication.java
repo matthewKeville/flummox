@@ -26,6 +26,7 @@ import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.LobbyService;
+import com.keville.ReBoggled.service.LobbyService.LobbyServiceException;
 
 @SpringBootApplication
 public class ReBoggledApplication {
@@ -134,6 +135,14 @@ public class ReBoggledApplication {
         .roles("user")
         .authorities("read")
         .build();
+
+      UserDetails meDetails = org.springframework.security.core.userdetails.User.builder()
+        .username("emily@email.com")
+        .password("{noop}guest") //use no op password encoder
+        .roles("user")
+        .authorities("read")
+        .build();
+  
   
       userDetailsManager.createUser(mattDetails);
       userDetailsManager.createUser(aliceDetails);
@@ -142,29 +151,42 @@ public class ReBoggledApplication {
       userDetailsManager.createUser(danDetails);
 
       // Development User Data
+      //
+      try {
 
       User matt = users.save(User.createUser("matt@email.com", "fake"));
       AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.getId());
 
       User alice = users.save(User.createUser("alice@email.com", "alice"));
       User bob = users.save(User.createUser("bob@email.com", "bob42"));
+
       AggregateReference<User, Integer> bobRef = AggregateReference.to(bob.getId());
       User charlie = users.save(User.createUser("charlie@email.com", "bigCharles"));
       User dan = users.save(User.createUser("dan@email.com", "thePipesArePlaying"));
+      User emily = users.save(User.createUser("emily@email.com", "empemjem"));
 
       // Development Lobby Data
 
-      Lobby secret = new Lobby("Secret Dungeon", 4, true, mattRef);
+      //if we add users to any private lobby we throw here TBD
+
+      Lobby secret = new Lobby("Secret Dungeon", 4, false, mattRef);
       secret = lobbies.save(secret);
       lobbyService.addUserToLobby(matt.getId(), secret.id);
       lobbyService.addUserToLobby(alice.getId(), secret.id);
 
       GameSettings gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.CYLINDER, FindRule.UNIQUE, 120);
-      Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, mattRef, gameSettings));
+      Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, AggregateReference.to(charlie.getId()), gameSettings));
       lobbyService.addUserToLobby(charlie.getId(), roomA.id);
       lobbyService.addUserToLobby(dan.getId(), roomA.id);
 
       lobbies.save(new Lobby("The Purple Lounge", 12, false, bobRef));
+
+      Lobby single = lobbies.save(new Lobby("The Single", 1, false, AggregateReference.to(emily.getId())));
+      lobbyService.addUserToLobby(emily.getId(), single.id);
+
+      } catch ( LobbyServiceException lse) {
+        LOG.error(lse.getMessage());
+      }
 
     };
   }

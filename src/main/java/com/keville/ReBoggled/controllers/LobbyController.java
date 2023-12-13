@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -24,33 +26,28 @@ import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
 import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
-import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.service.LobbyService;
-import com.keville.ReBoggled.service.LobbyService.AddUserToLobbyResponse;
-import com.keville.ReBoggled.service.LobbyService.RemoveUserFromLobbyResponse;
-import com.keville.ReBoggled.service.LobbyService.UpdateLobbyResponse;
+import com.keville.ReBoggled.service.LobbyService.LobbyServiceException;
+import com.keville.ReBoggled.service.LobbyService.LobbyServiceResponse;
 import com.keville.ReBoggled.service.UserService;
 import com.keville.ReBoggled.util.Conversions;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+@RestControllerAdvice
 @RestController
 public class LobbyController {
 
   private static final Logger LOG = LoggerFactory.getLogger(LobbyController.class);
 
-  @Autowired
   private LobbyService lobbyService;
-
-  @Autowired
-  private LobbyRepository lobbies;;
-
-  @Autowired
   private UserService userService;
 
-  public LobbyController(@Autowired LobbyService lobbies) {
-    this.lobbyService = lobbies;
+  public LobbyController(@Autowired LobbyService lobbyService,
+      @Autowired UserService userService) {
+    this.lobbyService = lobbyService;
+    this.userService = userService;
   }
 
   @GetMapping(value = { "/lobby", "/" })
@@ -61,7 +58,6 @@ public class LobbyController {
   }
 
   @GetMapping("/api/lobby")
-  // public Iterable<Lobby> test(
   public Iterable<LobbyDTO> getLobbies(
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
       HttpSession session) {
@@ -94,7 +90,7 @@ public class LobbyController {
   }
 
   @PostMapping("/api/lobby/{id}/join")
-  public <T> ResponseEntity<T> joinLobby(
+  public <T> ResponseEntity<T> joinLobby (
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
@@ -105,22 +101,13 @@ public class LobbyController {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
-    AddUserToLobbyResponse response = lobbyService.addUserToLobby(userId, id);
-
-    switch (response) {
-
-      case LOBBY_FULL:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
-      case LOBBY_PRIVATE:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
-      case SUCCESS:
-        return ResponseEntity.ok().build();
-      case ERROR:
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-      default:
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-
+    try {
+      LobbyServiceResponse<Lobby> response = lobbyService.addUserToLobby(userId, id);
+    } catch (LobbyServiceException e)  {
+      handleLobbyServiceException(e);
     }
+
+    return ResponseEntity.ok().build();
 
   }
 
@@ -136,19 +123,33 @@ public class LobbyController {
     Integer requesterId = (Integer) session.getAttribute("userId");
     verifyLobbyOwner(id,requesterId);
 
-    RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId, id);
-
-    switch (response) {
-
-      case SUCCESS:
-        return ResponseEntity.ok().build();
-      case USER_NOT_IN_LOBBY:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
-      case ERROR:
-      default:
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-
+    try {
+      LobbyServiceResponse<Lobby> response = lobbyService.removeUserFromLobby(userId, id);
+    } catch (LobbyServiceException e) {
+      handleLobbyServiceException(e);
     }
+    return ResponseEntity.ok().build();
+
+  }
+
+  @PostMapping("/api/lobby/{id}/promote/{userId}")
+  public <T> ResponseEntity<T> promotePlayer(
+      @PathVariable("id") Integer id,
+      @PathVariable("userId") Integer userId, //To be kicked
+      @Autowired HttpSession session) {
+
+    LOG.info("hit /api/lobby/" + id + "/promote/" + userId);
+
+    //Is the current user authorized to perform this action?
+    Integer requesterId = (Integer) session.getAttribute("userId");
+    verifyLobbyOwner(id,requesterId);
+
+    try {
+      LobbyServiceResponse<Lobby> response = lobbyService.transferLobbyOwnership(id,requesterId,userId);
+    } catch (LobbyServiceException e) {
+      handleLobbyServiceException(e);
+    }
+    return ResponseEntity.ok().build();
 
   }
 
@@ -160,17 +161,15 @@ public class LobbyController {
     LOG.info("hit /api/lobby/" + id + "/leave");
 
     Integer userId = (Integer) session.getAttribute("userId");
-    RemoveUserFromLobbyResponse response = lobbyService.removeUserFromLobby(userId, id);
 
-    switch (response) {
-      case SUCCESS:
-        return ResponseEntity.ok().build();
-      case USER_NOT_IN_LOBBY:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
-      case ERROR:
-      default:
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    try { 
+      LobbyServiceResponse<Lobby> response = lobbyService.removeUserFromLobby(userId, id);
+    } catch (LobbyServiceException e) {
+      handleLobbyServiceException(e);
     }
+    
+    return ResponseEntity.ok().build();
+
   }
 
   @PostMapping("/api/lobby/{id}/update")
@@ -188,23 +187,76 @@ public class LobbyController {
       }
 
       Integer userId = (Integer) session.getAttribute("userId");
-
       verifyLobbyOwner(id,userId);
 
-      UpdateLobbyResponse response = lobbyService.update(id,updateLobbyDTO);
-
-      switch ( response ) {
-
-        case SUCCESS:
-          return ResponseEntity.ok().build();
-        case CAPACITY_SHORTENING:
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
-        case ERROR:
-        default:
-          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+      try {
+        LobbyServiceResponse response = lobbyService.update(id,updateLobbyDTO);
+      } catch (LobbyServiceException e) {
+        handleLobbyServiceException(e);
       }
 
+      return ResponseEntity.ok().build();
+
     }
+
+  @DeleteMapping("/api/lobby/{id}")
+    public <T> ResponseEntity<T> deleteLobby(
+        @PathVariable("id") Integer id,
+        @Autowired HttpSession session) {
+
+      LOG.info("hit : DELETE /api/lobby/"+id);
+
+      Integer userId = (Integer) session.getAttribute("userId");
+      verifyLobbyOwner(id,userId);
+
+      try {
+        LobbyServiceResponse response = lobbyService.delete(id);
+      } catch (LobbyServiceException e) {
+        handleLobbyServiceException(e);
+      }
+
+      return ResponseEntity.ok().build();
+
+    }
+
+
+  // I really wanted to allow my controller routes to throw LobbServiceExceptions
+  // and transform them into rethrown ResponseStatusException so I can filter
+  // and modify what errors get sent to the client without engineering a custom
+  // error response. However, this can't work the way I want. The default mechanism
+  // to handle ResponseStatusException (ResponseStatusExceptionHandler) listens on scope
+  // of controller methods. 
+  //
+  // A method of class with @ExceptionHandler exists outside the scope, that is
+  // a ResponseStatusException is thrown inside a custom @ExceptionHandler does not
+  // get caught by the default mechanism.
+  //
+  // I could write my own custom errror response using ResponseEntity, however
+  // I want to leverage springs (more so boot) builtin error response. So we
+  // opt for try catch and explict handler invocation.
+  //
+  // We could also find a way to register the default implementation 
+  // @ResponseStatusExceptionHandler as a @ExceptionHandler in the proper scope
+  // but currently I am fed up with this task am moving on with the above solution.
+  public ResponseEntity<?> handleLobbyServiceException(LobbyServiceException e) {
+
+    switch (e.error) {
+      case LOBBY_FULL:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
+      case LOBBY_PRIVATE:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
+      case GUEST_NOT_IMPLEMENT:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_NOT_IMPLEMENT");
+      case USER_NOT_IN_LOBBY:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
+      case CAPACITY_SHORTENING:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
+      case ERROR:
+      default:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+  }
 
   private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
 

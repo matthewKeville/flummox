@@ -68,6 +68,9 @@ export default function LobbyUserDisplay(props) {
         case "NOT_IN_LOBBY":
           notice = " Kick target is not in lobby "
           break;
+        case "NOT_AUTHORIZED":
+          notice = "You are not the lobby owner "
+          break;
         default:
         case "INTERNAL_ERROR":
           //pass
@@ -109,6 +112,9 @@ export default function LobbyUserDisplay(props) {
       switch(content.message) {
         case "NOT_IN_LOBBY":
           notice = " Kick target is not in lobby "
+          break;
+        case "NOT_AUTHORIZED":
+          notice = "You are not the lobby owner "
           break;
         default:
         case "INTERNAL_ERROR":

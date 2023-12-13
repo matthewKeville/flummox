@@ -15,7 +15,7 @@ export default function Lobby() {
   const navigate = useNavigate();
   const { lobby } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
-  const isOwner = true; //(lobby.owner.id == userInfo.id);
+  const isOwner = (lobby.owner.id == userInfo.id);
   const [edit, setEdit]    = useState(false)
 
   /* this should probably be a seperate component */
@@ -60,6 +60,42 @@ export default function Lobby() {
 
 
   }
+
+  let deleteLobby = async function(lobbyId) {
+
+      console.log("deleting lobby")
+
+      const response = await fetch("/api/lobby/"+lobbyId, {
+        method: "DELETE",
+        body: null
+      });
+
+      if ( response.status == 200 ) {
+
+        navigate("/lobby");
+        toast.info(`${lobby.name} has been successfully deleted`);
+
+      } else {
+      
+        const content  = await response.json();
+
+        console.log(`unable to delete lobby because : ${content.message}`)
+
+        let notice = content.status + " : Unknown error"
+
+        switch(content.message) {
+          case "INTERNAL_ERROR":
+          default:
+            //pass
+        }
+
+        toast.error(notice);
+
+      }
+
+
+    }
+
 
   function onChangeSettings() {
     setEdit(!edit)
@@ -194,7 +230,7 @@ export default function Lobby() {
           </div>
 
           <div className="player-controls-flex">
-            <button className="lobby-exit-button" onClick={() => leaveLobby(lobby.id)} >{isOwner ? "Abandon" : "Leave"}</button>
+            <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
             <button className="lobby-nudge-button">Nugde</button>
             <div className="player-controls-spacer"></div> {/* padding */}
           </div>
