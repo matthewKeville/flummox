@@ -217,6 +217,7 @@ export default function Lobby() {
                     contextBadge={getContextBadge(player)} 
                     isOwner={isOwner} 
                     isSelf={player.username == userInfo.username}
+                    key={player.id}
                   />
                 )
               })

@@ -26,8 +26,7 @@ export default function Header() {
     if (dropdown && dropdown == dropdownRef.current) {
       return;
     }
-
-    if (dropdownContentRef.current.classList.contains('show')) {
+    if (dropdownContentRef.current && dropdownContentRef.current.classList.contains('show')) {
       dropdownContentRef.current.classList.remove('show');
     }
 

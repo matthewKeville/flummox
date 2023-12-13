@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 export async function loader({params}) {
   const lobbiesResponse = await fetch("/api/lobby");
   const lobbies = await lobbiesResponse.json()
-  console.log(`loading lobby data ${lobbies.toString()}`)
+  console.log(`loading lobby data`)
   return { lobbies };
 }
 

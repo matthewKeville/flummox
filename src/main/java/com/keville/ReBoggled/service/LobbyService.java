@@ -65,6 +65,9 @@ public class LobbyService {
       }
       User user = optUser.get();
 
+
+      //can user join this lobby?
+
       if( lobby.isPrivate && !lobby.owner.getId().equals(userId) ) {
         LOG.warn(String.format("Can't add user : %d to lobby : %d, because it's private",userId,lobbyId));
         throw new LobbyServiceException(LobbyServiceError.LOBBY_PRIVATE);
@@ -75,8 +78,17 @@ public class LobbyService {
         throw new LobbyServiceException(LobbyServiceError.LOBBY_FULL);
       }
 
+      // remove the user from there previous lobby
       if ( user.lobby != null ) {
-        removeUserFromLobby(user,lobby);
+
+        Optional<Lobby> optUserLobby = lobbies.findById(user.lobby.getId());
+        if ( !optUserLobby.isPresent() ) {
+          LOG.error(String.format("Can't find lobby %d", lobby.id));
+          throw new LobbyServiceException(LobbyServiceError.LOBBY_NOT_FOUND);
+        }
+        Lobby userLobby = optUserLobby.get();
+
+        userLobby = removeUserFromLobby(user,userLobby); /* previous */
       }
 
       // add user to new lobby
@@ -117,10 +129,11 @@ public class LobbyService {
 
       Lobby lobby = optLobby.get();
 
-      return removeUserFromLobby(user,lobby);
+      lobby = removeUserFromLobby(user,lobby);
+      return new LobbyServiceResponse<Lobby>(lobby);
     }
 
-    private LobbyServiceResponse<Lobby> removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
+    private Lobby removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(user.id));
         
@@ -134,7 +147,7 @@ public class LobbyService {
       user = users.save(user);
       lobby = lobbies.save(lobby);
 
-      return new LobbyServiceResponse<Lobby>(lobby);
+      return lobby;
 
     }
 
