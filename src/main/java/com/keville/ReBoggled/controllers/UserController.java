@@ -39,7 +39,7 @@ public class UserController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to locate details for identified user");
       }
 
-      return new UserInfo(user.id,user.getUsername(),user.isGuest());
+      return new UserInfo(user.id,user.username,user.guest);
     }
 
     public record UserInfo(Integer id,String username,boolean isGuest) {};

@@ -232,7 +232,6 @@ export default function Lobby() {
 
           <div className="player-controls-flex">
             <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
-            <button className="lobby-nudge-button">Nugde</button>
             <div className="player-controls-spacer"></div> {/* padding */}
           </div>
 
@@ -241,39 +240,39 @@ export default function Lobby() {
         <div id="settings-flex-container">
           { edit ? 
             ( 
-              <div id="edit-settings-grid">
+              <div id="settings-grid">
 
                 <div className="settings-grid-label">Name</div>
-                  <input ref={editNameRef} type="text" defaultValue={lobby.name}/>
+                <input ref={editNameRef} type="text" defaultValue={lobby.name}/>
 
                 <div className="settings-grid-label">Capacity</div>
-                  <input ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
+                <input ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
 
                 <div className="settings-grid-label">Private</div>
-                  <input ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
+                <input ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
               
                 <div className="settings-grid-label">Size</div>
-                  <select ref={editBoardSizeRef} name="size" defaultValue={lobby.gameSettings.boardSize}>
-                    <option value="FOUR">4 x 4</option>
-                    <option value="FIVE">5 x 5</option>
-                  </select>
+                <select ref={editBoardSizeRef} name="size" defaultValue={lobby.gameSettings.boardSize}>
+                  <option value="FOUR">4 x 4</option>
+                  <option value="FIVE">5 x 5</option>
+                </select>
 
                 <div className="settings-grid-label">Topology</div>
-                  <select ref={editBoardTopologyRef} name="topology" defaultValue={lobby.gameSettings.boardTopology}>
-                    <option value="PLANE">Plane</option>
-                    <option value="CYLINDER">Cylinder</option>
-                    <option value="TORUS">Torus</option>
-                  </select>
+                <select ref={editBoardTopologyRef} name="topology" defaultValue={lobby.gameSettings.boardTopology}>
+                  <option value="PLANE">Plane</option>
+                  <option value="CYLINDER">Cylinder</option>
+                  <option value="TORUS">Torus</option>
+                </select>
                  
                 <div className="settings-grid-label">Find Rule</div>
-                  <select ref={editFindRuleRef} name="find" defaultValue={lobby.gameSettings.findRule}>
-                    <option value="ANY">Any</option>
-                    <option value="UNIQUE">Unique</option>
-                    <option value="FIRST">First</option>
-                  </select>
+                <select ref={editFindRuleRef} name="find" defaultValue={lobby.gameSettings.findRule}>
+                  <option value="ANY">Any</option>
+                  <option value="UNIQUE">Unique</option>
+                  <option value="FIRST">First</option>
+                </select>
 
                 <div className="settings-grid-label">Time Limit</div>
-                  <input ref={editDurationRef} type="number" name="time" min="60" max="300" step="30" defaultValue={lobby.gameSettings.duration}/>
+                <input ref={editDurationRef} type="number" name="time" min="60" max="300" step="30" defaultValue={lobby.gameSettings.duration}/>
 
                 <button id="save-settings-button" onClick={onApplySettingsChanges}>Save</button>
                 <button id="discard-settings-button" onClick={onDiscardSettingsChanges}>Discard</button>

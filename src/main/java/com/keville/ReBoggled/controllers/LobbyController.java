@@ -28,7 +28,6 @@ import com.keville.ReBoggled.model.Lobby;
 import com.keville.ReBoggled.model.User;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.LobbyService.LobbyServiceException;
-import com.keville.ReBoggled.service.LobbyService.LobbyServiceResponse;
 import com.keville.ReBoggled.service.UserService;
 import com.keville.ReBoggled.util.Conversions;
 
@@ -102,7 +101,7 @@ public class LobbyController {
     }
 
     try {
-      LobbyServiceResponse<Lobby> response = lobbyService.addUserToLobby(userId, id);
+      Lobby response = lobbyService.addUserToLobby(userId, id);
     } catch (LobbyServiceException e)  {
       handleLobbyServiceException(e);
     }
@@ -124,7 +123,7 @@ public class LobbyController {
     verifyLobbyOwner(id,requesterId);
 
     try {
-      LobbyServiceResponse<Lobby> response = lobbyService.removeUserFromLobby(userId, id);
+      Lobby response = lobbyService.removeUserFromLobby(userId, id);
     } catch (LobbyServiceException e) {
       handleLobbyServiceException(e);
     }
@@ -145,7 +144,7 @@ public class LobbyController {
     verifyLobbyOwner(id,requesterId);
 
     try {
-      LobbyServiceResponse<Lobby> response = lobbyService.transferLobbyOwnership(id,requesterId,userId);
+      Lobby response = lobbyService.transferLobbyOwnership(id,requesterId,userId);
     } catch (LobbyServiceException e) {
       handleLobbyServiceException(e);
     }
@@ -163,7 +162,7 @@ public class LobbyController {
     Integer userId = (Integer) session.getAttribute("userId");
 
     try { 
-      LobbyServiceResponse<Lobby> response = lobbyService.removeUserFromLobby(userId, id);
+      Lobby response = lobbyService.removeUserFromLobby(userId, id);
     } catch (LobbyServiceException e) {
       handleLobbyServiceException(e);
     }
@@ -190,12 +189,40 @@ public class LobbyController {
       verifyLobbyOwner(id,userId);
 
       try {
-        LobbyServiceResponse response = lobbyService.update(id,updateLobbyDTO);
+        Lobby response = lobbyService.update(id,updateLobbyDTO);
       } catch (LobbyServiceException e) {
         handleLobbyServiceException(e);
       }
 
       return ResponseEntity.ok().build();
+
+    }
+
+  @PostMapping("/api/lobby/create")
+    public Lobby  createLobby(
+        @Autowired HttpSession session) {
+
+      LOG.info("hit : POST /api/lobby/create");
+
+      Integer userId = (Integer) session.getAttribute("userId");
+      User user = userService.getUser(userId);
+      if ( user.guest ) {
+        LOG.warn(String.format("Guest %d is trying to create a lobby."));
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_CANT_CREATE_LOBBY");
+      }
+
+      try {
+
+        Lobby response = lobbyService.createNew(userId);
+        return response;
+
+      } catch (LobbyServiceException e) {
+
+        handleLobbyServiceException(e);
+
+      }
+
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "");
 
     }
 
@@ -210,7 +237,7 @@ public class LobbyController {
       verifyLobbyOwner(id,userId);
 
       try {
-        LobbyServiceResponse response = lobbyService.delete(id);
+        Boolean response = lobbyService.delete(id);
       } catch (LobbyServiceException e) {
         handleLobbyServiceException(e);
       }

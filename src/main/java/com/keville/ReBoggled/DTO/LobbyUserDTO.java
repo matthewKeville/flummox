@@ -10,8 +10,8 @@ public class LobbyUserDTO {
     public String username;
 
     public LobbyUserDTO(User user) {
-      this.id = user.getId();
-      this.username = user.getUsername();
+      this.id = user.id;
+      this.username = user.username;
     }
 
 }

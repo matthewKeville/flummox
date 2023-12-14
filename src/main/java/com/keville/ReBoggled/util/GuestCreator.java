@@ -69,9 +69,9 @@ public class GuestCreator {
 
     public User createGuest() {
       User user = new User();
-      user.setVerified(false);
-      user.setGuest(true);
-      user.setUsername(makeGuestName());
+      user.verified = false;
+      user.guest = true;
+      user.username = makeGuestName();
       return user;
     }
 

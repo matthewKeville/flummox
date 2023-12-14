@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLoaderData, Link, useNavigate } from "react-router-dom";
+import { useLoaderData, useRouteLoaderData, Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,6 +13,7 @@ export async function loader({params}) {
 export default function Lobbies() {
 
   const { lobbies } = useLoaderData();
+  const { userInfo } = useRouteLoaderData("root");
   const navigate    = useNavigate();
 
   let joinLobby = async function(lobbyId) {
@@ -55,6 +56,47 @@ export default function Lobbies() {
 
   }
 
+  let createLobby = async function() {
+
+    console.log("creating lobby")
+
+    const response = await fetch("/api/lobby/create", {
+      method: "POST",
+      headers: {
+      },
+      body: null
+    });
+
+    const content  = await response.json();
+
+    if ( response.status == 200 ) {
+
+      console.log(content)
+
+      navigate("/lobby/" + content.id);
+
+    } else {
+
+      console.log(`unable to create lobby because : ${content.message}`)
+
+      let notice = content.status + " : Unknown error"
+
+      switch(content.message) {
+        case "INTERNAL_ERROR":
+        default:
+          //pass
+      }
+
+      toast.error(notice);
+
+    }
+
+
+  }
+
+
+
+
   if ( !lobbies ) {
     return (<><div>no lobbies</div></>)
   }
@@ -90,6 +132,13 @@ export default function Lobbies() {
         </tbody>
       </table>
     </div>
+
+    { userInfo.isGuest ? <></> : 
+      <div className="lobbies-controls">
+        <button id="create-lobby-button" onClick={createLobby}>New Lobby</button>
+      </div>
+    }
+
     </>
   );
 

@@ -49,7 +49,7 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
         while ( iterator.hasNext() ) {
 
           User user = iterator.next();
-          if ( user.getEmail().equals(userDetails.getUsername())) {
+          if ( user.email.equals(userDetails.getUsername())) {
             session.setAttribute("userId",user.id);
             LOG.info("Authenticated User Session started for \n" + user);
             break;

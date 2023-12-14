@@ -155,12 +155,12 @@ public class ReBoggledApplication {
       try {
 
       User matt = users.save(User.createUser("matt@email.com", "fake"));
-      AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.getId());
+      AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.id);
 
       User alice = users.save(User.createUser("alice@email.com", "alice"));
       User bob = users.save(User.createUser("bob@email.com", "bob42"));
 
-      AggregateReference<User, Integer> bobRef = AggregateReference.to(bob.getId());
+      AggregateReference<User, Integer> bobRef = AggregateReference.to(bob.id);
       User charlie = users.save(User.createUser("charlie@email.com", "bigCharles"));
       User dan = users.save(User.createUser("dan@email.com", "thePipesArePlaying"));
       User emily = users.save(User.createUser("emily@email.com", "empemjem"));
@@ -169,20 +169,20 @@ public class ReBoggledApplication {
 
       //if we add users to any private lobby we throw here TBD
 
-      Lobby secret = new Lobby("Secret Dungeon", 4, false, mattRef);
-      secret = lobbies.save(secret);
-      lobbyService.addUserToLobby(matt.getId(), secret.id);
-      lobbyService.addUserToLobby(alice.getId(), secret.id);
+      //Lobby secret = new Lobby("Secret Dungeon", 4, false, mattRef);
+      Lobby secret = lobbyService.createNew(matt.id);
+      lobbyService.addUserToLobby(matt.id, secret.id);
+      lobbyService.addUserToLobby(alice.id, secret.id);
 
       GameSettings gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.CYLINDER, FindRule.UNIQUE, 120);
-      Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, AggregateReference.to(charlie.getId()), gameSettings));
-      lobbyService.addUserToLobby(charlie.getId(), roomA.id);
-      lobbyService.addUserToLobby(dan.getId(), roomA.id);
+      Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, AggregateReference.to(charlie.id), gameSettings));
+      lobbyService.addUserToLobby(charlie.id, roomA.id);
+      lobbyService.addUserToLobby(dan.id, roomA.id);
 
       lobbies.save(new Lobby("The Purple Lounge", 12, false, bobRef));
 
-      Lobby single = lobbies.save(new Lobby("The Single", 1, false, AggregateReference.to(emily.getId())));
-      lobbyService.addUserToLobby(emily.getId(), single.id);
+      Lobby single = lobbies.save(new Lobby("The Single", 1, false, AggregateReference.to(emily.id)));
+      lobbyService.addUserToLobby(emily.id, single.id);
 
       } catch ( LobbyServiceException lse) {
         LOG.error(lse.getMessage());
@@ -192,7 +192,7 @@ public class ReBoggledApplication {
   }
 
   static AggregateReference<User, Integer> ARof(User user) {
-    return AggregateReference.to(user.getId());
+    return AggregateReference.to(user.id);
   }
 
 }

@@ -27,7 +27,6 @@ import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.UserService;
-import com.keville.ReBoggled.service.LobbyService.LobbyServiceResponse;
 
 
 @ContextConfiguration(classes = { TestingContext.class , SecurityConfig.class, LobbyController.class, AuthenticationSuccessHandlerImpl.class })
@@ -97,7 +96,7 @@ public class LobbyControllerTest {
     when(userService.getUser(any(Integer.class))).thenReturn(user);
     when(lobbyService.getLobbyOwnerId(any(Integer.class))).thenReturn(1234);
     when(lobbyService.update(any(Integer.class),any(UpdateLobbyDTO.class)))
-      .thenReturn(new LobbyServiceResponse(true));
+      .thenReturn(null);
 
     //act & assert
     mockMvc.perform(

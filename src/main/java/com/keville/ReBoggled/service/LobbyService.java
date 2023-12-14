@@ -49,7 +49,7 @@ public class LobbyService {
       lobbies.save(lobby);
     }
 
-    public LobbyServiceResponse<Lobby> addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
+    public Lobby addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
 
       Optional<Lobby> optLobby = lobbies.findById(lobbyId);
       if ( !optLobby.isPresent() ) {
@@ -79,16 +79,9 @@ public class LobbyService {
       }
 
       // remove the user from there previous lobby
-      if ( user.lobby != null ) {
-
-        Optional<Lobby> optUserLobby = lobbies.findById(user.lobby.getId());
-        if ( !optUserLobby.isPresent() ) {
-          LOG.error(String.format("Can't find lobby %d", lobby.id));
-          throw new LobbyServiceException(LobbyServiceError.LOBBY_NOT_FOUND);
-        }
-        Lobby userLobby = optUserLobby.get();
-
-        userLobby = removeUserFromLobby(user,userLobby); /* previous */
+      Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
+      if ( optUserLobby.isPresent()) {
+        removeUserFromLobby(user,optUserLobby.get()); /* previous */
       }
 
       // add user to new lobby
@@ -96,17 +89,13 @@ public class LobbyService {
       lobby.users.add(userRef);
       lobby = lobbies.save(lobby);
 
-      // update users's reference
-      user.lobby = AggregateReference.to(lobby.id);
-      users.save(user);
-
       LOG.info(String.format("added user : %d to lobby : %d",userId,lobbyId));
 
-      return new LobbyServiceResponse<Lobby>(lobby);
+      return lobby;
 
     }
 
-    public LobbyServiceResponse<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
+    public Lobby removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
 
       Optional<User> optUser = users.findById(userId);
       if ( !optUser.isPresent() ) {
@@ -114,23 +103,14 @@ public class LobbyService {
         throw new LobbyServiceException(LobbyServiceError.USER_NOT_FOUND);
       }
 
-      User user = optUser.get();
-
-      if ( user.lobby == null ) {
-        LOG.error(String.format("Can't remove user : %d from lobby %d because user does not belong to a lobby",user.id));
-        throw new LobbyServiceException(LobbyServiceError.USER_NOT_IN_LOBBY);
-      }
-
-      Optional<Lobby> optLobby = lobbies.findById(user.lobby.getId());
+      Optional<Lobby> optLobby = lobbies.findById(lobbyId);
       if ( !optLobby.isPresent() ) {
-        LOG.error(String.format("Can't remove user : %d from lobby : %d because lobby does not exist",user.id,lobbyId));
+        LOG.error(String.format("Can't remove user : %d from lobby : %d because lobby does not exist",userId,lobbyId));
         throw new LobbyServiceException(LobbyServiceError.ERROR);
       }
 
-      Lobby lobby = optLobby.get();
-
-      lobby = removeUserFromLobby(user,lobby);
-      return new LobbyServiceResponse<Lobby>(lobby);
+      Lobby lobby = removeUserFromLobby(optUser.get(),optLobby.get());
+      return lobby;
     }
 
     private Lobby removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
@@ -143,15 +123,13 @@ public class LobbyService {
       }
 
       lobby.users.remove(userRef);
-      user.lobby = null;
-      user = users.save(user);
       lobby = lobbies.save(lobby);
 
       return lobby;
 
     }
 
-    public LobbyServiceResponse<Lobby> transferLobbyOwnership(Integer lobbyId,Integer ownerId, Integer userId) throws LobbyServiceException {
+    public Lobby transferLobbyOwnership(Integer lobbyId,Integer ownerId, Integer userId) throws LobbyServiceException {
 
       Optional<Lobby> optLobby = lobbies.findById(lobbyId);
       if ( !optLobby.isPresent() ) {
@@ -174,17 +152,16 @@ public class LobbyService {
       }
       User user = optUser.get();
 
-
       lobby.owner = AggregateReference.to(userId);
       lobby = lobbies.save(lobby);
 
       LOG.info(String.format("transfered lobby %d ownership from %d to %d",lobbyId,ownerId,userId));
 
-      return new LobbyServiceResponse<Lobby>(lobby);
+      return lobby;
 
     }
 
-    public LobbyServiceResponse<Lobby> update(Integer lobbyId,UpdateLobbyDTO dto) throws LobbyServiceException {
+    public Lobby update(Integer lobbyId,UpdateLobbyDTO dto) throws LobbyServiceException {
 
       Optional<Lobby>  optLobby = lobbies.findById(lobbyId);
       if ( optLobby.isEmpty() ) {
@@ -207,12 +184,12 @@ public class LobbyService {
       }
 
       lobby = lobbies.save(lobby);
-      return new LobbyServiceResponse<Lobby>(lobby);
+      return lobby;
       
     }
 
     //delete the lobby and remove all user references to it
-    public LobbyServiceResponse<Boolean> delete(Integer lobbyId) throws LobbyServiceException {
+    public Boolean delete(Integer lobbyId) throws LobbyServiceException {
 
       Optional<Lobby>  optLobby = lobbies.findById(lobbyId);
       if ( optLobby.isEmpty() ) {
@@ -221,28 +198,47 @@ public class LobbyService {
       }
       Lobby lobby = optLobby.get();
 
-      // for each lobby user we must change there lobby reference before
-      // deleting the lobby.
-
-      for ( LobbyUserReference userRef : lobby.users ) {
-        Optional<User> optUser = users.findById(userRef.user.getId());
-        if ( optUser.isEmpty() ) {
-          LOG.warn(String.format("Unable to find User %d which is a LobbyUserReference for lobby %d being deleted",userRef.id,lobbyId));
-        } else {
-          User user = optUser.get();
-          user.lobby = null;
-          users.save(user);
-        }
-      }
-
       lobbies.delete(lobby);
 
-      return new LobbyServiceResponse<Boolean>(true);
+      return true;
       
     }
 
+    public Lobby createNew(Integer userId) throws LobbyServiceException {
 
-    public record LobbyServiceResponse<T>(T t) {}
+      if (!users.existsById(userId)) {
+        LOG.warn(String.format("Can't create new lobby for user %d because they don't exist",userId));
+        throw new LobbyServiceException(LobbyServiceError.USER_NOT_FOUND);
+      }
+      User user = (users.findById(userId)).get();
+
+      Optional<Lobby> optOwnedLobby = lobbies.findOwnedLobby(userId);
+      if ( optOwnedLobby.isPresent() ) {
+        LOG.warn(String.format("User %d is trying to create a new lobby, but they already have one  %d",userId,optOwnedLobby.get().id));
+        throw new LobbyServiceException(LobbyServiceError.LOBBY_ALREADY_OWNED);
+      }
+
+      //Is user in another lobby?
+      Optional<Lobby> optUserLobby = lobbies.findOwnedLobby(userId);
+      if ( optUserLobby.isPresent() ) {
+        removeUserFromLobby(userId,optUserLobby.get().id);
+      }
+
+
+      //Add User To Lobby
+
+      Lobby lobby = lobbies.save(new Lobby(user.username+"\'s lobby",6,false,AggregateReference.to(userId)));
+      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(userId));
+      lobby.users.add(userRef);
+
+      //Set Lobby's Owner
+      
+      lobby.owner = AggregateReference.to(user.id);
+      lobbies.save(lobby);
+
+      return lobby;
+      
+    }
 
     public enum LobbyServiceError {
       SUCCESS,
@@ -251,6 +247,7 @@ public class LobbyService {
       USER_NOT_FOUND,
       LOBBY_FULL,
       LOBBY_PRIVATE,
+      LOBBY_ALREADY_OWNED,
       GUEST_NOT_IMPLEMENT,
       USER_NOT_IN_LOBBY,
       CAPACITY_SHORTENING
