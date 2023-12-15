@@ -1,12 +1,12 @@
 package com.keville.ReBoggled.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -34,10 +34,12 @@ import com.keville.ReBoggled.util.Conversions;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-@RestControllerAdvice
+
 @RestController
+@RequestMapping("/api/lobby")
 public class LobbyController {
 
+  public static final String baseRoute = "/api/lobby";
   private static final Logger LOG = LoggerFactory.getLogger(LobbyController.class);
 
   private LobbyService lobbyService;
@@ -49,51 +51,49 @@ public class LobbyController {
     this.userService = userService;
   }
 
-  @GetMapping(value = { "/lobby", "/" })
-  public ModelAndView view() {
-    ModelAndView modelAndView = new ModelAndView();
-    modelAndView.setViewName("lobby");
-    return modelAndView;
-  }
-
-  @GetMapping("/api/lobby")
-  public Iterable<LobbyDTO> getLobbies(
+  @GetMapping("")
+  public ResponseEntity<?> getLobbies(
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
       HttpSession session) {
 
-    LOG.info("hit /api/lobby");
+    logReq("get","");
 
-    Iterable<Lobby> lobbies = lobbyService.getLobbies();
-    List<LobbyDTO> lobbyDTOs = Conversions.iterableToList(lobbies).stream()
-        .map(lobby -> lobbyToLobbyDTO(lobby))
-        .collect(Collectors.toList());
-
-    return lobbyDTOs;
-  }
-
-  @GetMapping("/api/lobby/{id}")
-  public LobbyDTO getLobby(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
-
-    LOG.info("hit /api/lobby/" + id);
-    Optional<Lobby> lobby = lobbyService.getLobby(id);
-
-    if (!lobby.isPresent()) {
-      LOG.warn("attempted to access a non-existant lobby " + id);
-      return null;
+    try {
+      List<LobbyDTO> lobbyDTOs = lobbyService.getLobbyDTOs();
+      return new ResponseEntity<List<LobbyDTO>>(lobbyDTOs,HttpStatus.OK);
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
     }
 
-    return lobbyToLobbyDTO(lobby.get());
 
   }
 
-  @PostMapping("/api/lobby/{id}/join")
-  public <T> ResponseEntity<T> joinLobby (
+  @GetMapping("/{id}")
+  public ResponseEntity<?> getLobby(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    LOG.info("hit /api/lobby/" + id + "/join");
+    logReq("get","/"+id);
+
+    try {  
+      //Lobby lobby = lobbyService.getLobby(id);
+      //return new ResponseEntity<LobbyDTO>(lobbyToLobbyDTO(lobby),HttpStatus.OK);
+      LobbyDTO lobbyDTO = lobbyService.getLobbyDTO(id);
+      return new ResponseEntity<LobbyDTO>(lobbyDTO,HttpStatus.OK);
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
+    }
+
+
+  }
+
+  @PostMapping("/{id}/join")
+  public ResponseEntity<?> joinLobby (
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    logReq("post",String.format("/%d/join",id));
+
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
       LOG.warn("unable to identify the userId of the current Session");
@@ -101,108 +101,105 @@ public class LobbyController {
     }
 
     try {
-      Lobby response = lobbyService.addUserToLobby(userId, id);
+      Lobby lobby = lobbyService.addUserToLobby(userId, id);
+      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e)  {
       handleLobbyServiceException(e);
+      return ResponseEntity.internalServerError().build();
     }
 
-    return ResponseEntity.ok().build();
 
   }
 
-  @PostMapping("/api/lobby/{id}/kick/{userId}")
-  public <T> ResponseEntity<T> kickPlayer(
+  @PostMapping("/{id}/kick/{userId}")
+  public ResponseEntity<?> kickPlayer(
       @PathVariable("id") Integer id,
       @PathVariable("userId") Integer userId, //To be kicked
       @Autowired HttpSession session) {
 
-    LOG.info("hit /api/lobby/" + id + "/kick/" + userId);
-
-    //Is the current user authorized to perform this action?
-    Integer requesterId = (Integer) session.getAttribute("userId");
-    verifyLobbyOwner(id,requesterId);
+    logReq("post",String.format("/%d/kick/%d",id,userId));
 
     try {
+      Integer requesterId = (Integer) session.getAttribute("userId");
+      verifyLobbyOwner(id,requesterId);
+
       Lobby response = lobbyService.removeUserFromLobby(userId, id);
+      return ResponseEntity.ok().build();
     } catch (LobbyServiceException e) {
-      handleLobbyServiceException(e);
+      return handleLobbyServiceException(e);
     }
-    return ResponseEntity.ok().build();
 
   }
 
-  @PostMapping("/api/lobby/{id}/promote/{userId}")
-  public <T> ResponseEntity<T> promotePlayer(
+  @PostMapping("/{id}/promote/{userId}")
+  public ResponseEntity<?> promotePlayer(
       @PathVariable("id") Integer id,
       @PathVariable("userId") Integer userId, //To be kicked
       @Autowired HttpSession session) {
 
-    LOG.info("hit /api/lobby/" + id + "/promote/" + userId);
-
-    //Is the current user authorized to perform this action?
-    Integer requesterId = (Integer) session.getAttribute("userId");
-    verifyLobbyOwner(id,requesterId);
+    logReq("post",String.format("/%d/promote/%d",id,userId));
 
     try {
-      Lobby response = lobbyService.transferLobbyOwnership(id,requesterId,userId);
+      Integer requesterId = (Integer) session.getAttribute("userId");
+      verifyLobbyOwner(id,requesterId);
+
+      Lobby lobby = lobbyService.transferLobbyOwnership(id,requesterId,userId);
+      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e) {
-      handleLobbyServiceException(e);
+      return handleLobbyServiceException(e);
     }
-    return ResponseEntity.ok().build();
 
   }
 
-  @PostMapping("/api/lobby/{id}/leave")
-  public <T> ResponseEntity<T> leaveLobby(
+  @PostMapping("/{id}/leave")
+  public ResponseEntity<?> leaveLobby(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    LOG.info("hit /api/lobby/" + id + "/leave");
+    logReq("post",String.format("/%d/leave",id));
 
     Integer userId = (Integer) session.getAttribute("userId");
 
     try { 
-      Lobby response = lobbyService.removeUserFromLobby(userId, id);
+      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
+      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e) {
-      handleLobbyServiceException(e);
+      return handleLobbyServiceException(e);
     }
-    
-    return ResponseEntity.ok().build();
 
   }
 
-  @PostMapping("/api/lobby/{id}/update")
-    public <T> ResponseEntity<T> updateLobby(
+  @PostMapping("/{id}/update")
+    public ResponseEntity<?> updateLobby(
         @PathVariable("id") Integer id,
         @Valid @RequestBody UpdateLobbyDTO updateLobbyDTO,
         @Autowired HttpSession session,
         @Autowired BindingResult bindingResult) {
 
-      LOG.info("hit : POST /api/lobby/"+id+"/update");
+      logReq("post",String.format("/%d/update",id));
 
       if ( bindingResult.hasErrors() ) {
           LOG.info(String.format("Invalid Request Body"));
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_BODY");
       }
 
-      Integer userId = (Integer) session.getAttribute("userId");
-      verifyLobbyOwner(id,userId);
-
       try {
-        Lobby response = lobbyService.update(id,updateLobbyDTO);
-      } catch (LobbyServiceException e) {
-        handleLobbyServiceException(e);
-      }
+        Integer userId = (Integer) session.getAttribute("userId");
+        verifyLobbyOwner(id,userId);
 
-      return ResponseEntity.ok().build();
+        Lobby lobby = lobbyService.update(id,updateLobbyDTO);
+        return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+      } catch (LobbyServiceException e) {
+        return handleLobbyServiceException(e);
+      }
 
     }
 
-  @PostMapping("/api/lobby/create")
-    public Lobby  createLobby(
+  @PostMapping("/create")
+    public ResponseEntity<?>  createLobby(
         @Autowired HttpSession session) {
 
-      LOG.info("hit : POST /api/lobby/create");
+      logReq("post","/create");
 
       Integer userId = (Integer) session.getAttribute("userId");
       User user = userService.getUser(userId);
@@ -212,59 +209,62 @@ public class LobbyController {
       }
 
       try {
-
-        Lobby response = lobbyService.createNew(userId);
-        return response;
-
+        Lobby lobby = lobbyService.createNew(userId);
+        return new ResponseEntity<Lobby>(lobby,HttpStatus.CREATED);
       } catch (LobbyServiceException e) {
-
-        handleLobbyServiceException(e);
-
+        return handleLobbyServiceException(e);
       }
-
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "");
 
     }
 
-  @DeleteMapping("/api/lobby/{id}")
-    public <T> ResponseEntity<T> deleteLobby(
+  @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteLobby(
         @PathVariable("id") Integer id,
         @Autowired HttpSession session) {
 
-      LOG.info("hit : DELETE /api/lobby/"+id);
-
-      Integer userId = (Integer) session.getAttribute("userId");
-      verifyLobbyOwner(id,userId);
+      logReq("delete","/"+id);
 
       try {
-        Boolean response = lobbyService.delete(id);
-      } catch (LobbyServiceException e) {
-        handleLobbyServiceException(e);
-      }
+        Integer userId = (Integer) session.getAttribute("userId");
+        verifyLobbyOwner(id,userId);
 
-      return ResponseEntity.ok().build();
+        lobbyService.delete(id);
+        return ResponseEntity.ok().build();
+      } catch (LobbyServiceException e) {
+        return handleLobbyServiceException(e);
+      }
 
     }
 
 
-  // I really wanted to allow my controller routes to throw LobbServiceExceptions
-  // and transform them into rethrown ResponseStatusException so I can filter
-  // and modify what errors get sent to the client without engineering a custom
-  // error response. However, this can't work the way I want. The default mechanism
-  // to handle ResponseStatusException (ResponseStatusExceptionHandler) listens on scope
-  // of controller methods. 
-  //
-  // A method of class with @ExceptionHandler exists outside the scope, that is
-  // a ResponseStatusException is thrown inside a custom @ExceptionHandler does not
-  // get caught by the default mechanism.
-  //
-  // I could write my own custom errror response using ResponseEntity, however
-  // I want to leverage springs (more so boot) builtin error response. So we
-  // opt for try catch and explict handler invocation.
-  //
-  // We could also find a way to register the default implementation 
-  // @ResponseStatusExceptionHandler as a @ExceptionHandler in the proper scope
-  // but currently I am fed up with this task am moving on with the above solution.
+  /*
+  I really wanted to allow my controller routes to throw LobbServiceExceptions
+  and transform them into rethrown ResponseStatusException so I can filter
+  and modify what errors get sent to the client without engineering a custom
+  error response. However, this can't work the way I want. The default mechanism
+  to handle ResponseStatusException (ResponseStatusExceptionHandler) listens on scope
+  of controller methods. 
+
+  A method of class with @ExceptionHandler exists outside the scope, that is
+  a ResponseStatusException is thrown inside a custom @ExceptionHandler does not
+  get caught by the default mechanism.
+
+  I could write my own custom errror response using ResponseEntity, however
+  I want to leverage springs (more so boot) builtin error response. So we
+  opt for try catch and explict handler invocation.
+
+  We could also find a way to register the default implementation 
+  @ResponseStatusExceptionHandler as a @ExceptionHandler in the proper scope
+  but currently I am fed up with this task am moving on with the above solution.
+
+  FIXME : This is very hacky 
+
+  The way I have controller methods returning
+  a ResponseEntity<?> , but if they fail they catch and return 
+  handleLobbyServiceException(e) with the false expectation of ever getting
+  a ResponseEntity<?> when this method will always throw and be handled by 
+  springs default ResponseStatusException handler.
+  */
   public ResponseEntity<?> handleLobbyServiceException(LobbyServiceException e) {
 
     switch (e.error) {
@@ -285,43 +285,28 @@ public class LobbyController {
 
   }
 
-  private LobbyDTO lobbyToLobbyDTO(Lobby lobby) {
-
-      LobbyDTO lobbyDto = new LobbyDTO(lobby);
-      User owner = userService.getUser(lobby.owner.getId());
-
-      List<Integer> userIds = lobby.users.stream()
-        .map( x -> x.user.getId() )
-        .collect(Collectors.toList());
-      List<User> users = userService.getUsers(userIds);
-
-      List<LobbyUserDTO> userDtos = users.stream().
-        map( x -> new LobbyUserDTO(x))
-        .collect(Collectors.toList());
-
-      lobbyDto.owner = new LobbyUserDTO(owner);
-      lobbyDto.users = userDtos;
-
-      return lobbyDto;
-    }
-
-
   /*
    * Verify that the user is the owner of this lobby,
    * if not throw an exception
    */
-  private void verifyLobbyOwner(Integer lobbyId,Integer userId) {
+  private void verifyLobbyOwner(Integer lobbyId,Integer userId) throws LobbyServiceException {
 
       Integer ownerId = lobbyService.getLobbyOwnerId(lobbyId);
 
       if ( ownerId == null ) {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
       }
+
       if ( !ownerId.equals(userId) ) {
           LOG.info(String.format("Non Lobby Owner %d is trying to manipulate lobby %d",userId,lobbyId));
           throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
       }
 
+  }
+
+  private void logReq(String type,String route) {
+    type = type.toUpperCase();
+    LOG.info(type + "\t" + baseRoute + route);
   }
 
 }

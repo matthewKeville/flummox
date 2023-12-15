@@ -69,7 +69,7 @@ export default function Lobbies() {
 
     const content  = await response.json();
 
-    if ( response.status == 200 ) {
+    if ( response.status == 201 ) {
 
       console.log(content)
 
