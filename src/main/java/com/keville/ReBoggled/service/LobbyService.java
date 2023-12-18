@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
@@ -140,7 +141,25 @@ public class LobbyService {
       }
 
       if ( lobbyUpdate.gameSettings.isPresent() ) {
-        lobby.gameSettings = lobbyUpdate.gameSettings.get();
+
+        GameSettings gameSettings = lobbyUpdate.gameSettings.get();
+
+        if ( gameSettings.boardTopology != null ) {
+          lobby.gameSettings.boardTopology = gameSettings.boardTopology;
+        }
+
+        if ( gameSettings.boardSize != null ) {
+          lobby.gameSettings.boardSize = gameSettings.boardSize;
+        }
+
+        if ( gameSettings.findRule != null ) {
+          lobby.gameSettings.findRule = gameSettings.findRule;
+        }
+          
+        if ( gameSettings.duration != null ) {
+          lobby.gameSettings.duration = gameSettings.duration;
+        }
+
       }
 
       if ( lobbyUpdate.capacity.isPresent() ) {

@@ -111,25 +111,52 @@ export default function Lobby() {
 
     console.log("submitting settings changes")
 
-    let lobbyUpdateDTO = {
-      "name":editNameRef.current.value,
-      "capacity":editCapacityRef.current.value,
-      "isPrivate":editIsPrivateRef.current.checked,
-      "gameSettings":
-      {
-        "boardSize":editBoardSizeRef.current.value,
-        "boardTopology":editBoardTopologyRef.current.value,
-        "findRule":editFindRuleRef.current.value,
-        "duration":editDurationRef.current.value
-      }
+    let lobbyUpdate = {}
+
+    let newName = editNameRef.current.value 
+    if ( newName != lobby.name ) {
+      lobbyUpdate.name = newName
     }
+
+    let newCapacity = editCapacityRef.current.value 
+    if ( newCapacity != lobby.capacity ) {
+      lobbyUpdate.capacity = newCapacity
+    }
+
+    let newGameSettings = {}
+
+    let newBoardSize = editBoardSizeRef.current.value;
+    if ( newBoardSize != lobby.gameSettings.boardSize ) {
+      newGameSettings.boardSize = newBoardSize
+    }
+
+    let newBoardTopology = editBoardTopologyRef.current.value;
+    if ( newBoardTopology != lobby.gameSettings.boardTopology ) {
+      newGameSettings.boardTopology = newBoardTopology
+    }
+
+    let newFindRule = editFindRuleRef.current.value;
+    if ( newFindRule != lobby.gameSettings.findRule ) {
+      newGameSettings.findRule = newFindRule
+    }
+
+    let newDuration = editDurationRef.current.value;
+    if ( newDuration != lobby.gameSettings.duration ) {
+      newGameSettings.duration = newDuration
+    }
+
+    if (newGameSettings != {}) {
+      lobbyUpdate.gameSettings = newGameSettings
+    }
+
+    console.log(JSON.stringify(lobbyUpdate,null,2))
 
     const response = await fetch("/api/lobby/"+lobby.id+"/update", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(lobbyUpdateDTO)
+      body: JSON.stringify(lobbyUpdate)
     });
 
     const authenticateUrl = "http://localhost:8080/login"
