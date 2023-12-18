@@ -4,7 +4,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.user.User;
 
 @Component
 public class GuestCreator {

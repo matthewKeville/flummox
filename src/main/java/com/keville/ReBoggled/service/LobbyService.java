@@ -6,20 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.DTO.LobbyDTO;
-import com.keville.ReBoggled.DTO.LobbyUserDTO;
-import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
-import com.keville.ReBoggled.model.Lobby;
-import com.keville.ReBoggled.model.LobbyUserReference;
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.model.lobby.LobbyUpdate;
+import com.keville.ReBoggled.model.lobby.LobbyUserReference;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.util.Conversions;
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException.LobbyServiceError;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class LobbyService {
@@ -39,25 +35,9 @@ public class LobbyService {
       return lobbies.findAll();
     }
 
-    // FIXME This is wrong, my use of the model and this DTO in inconsistent
-    public List<LobbyDTO> getLobbyDTOs() throws LobbyServiceException {
-      Iterable<Lobby> allLobbies = lobbies.findAll();
-      List<LobbyDTO> allLobbiesList = new LinkedList<LobbyDTO>();
-      for ( Lobby lobby : allLobbies ) {
-        allLobbiesList.add(lobbyToLobbyDTO(lobby));
-      }
-      return allLobbiesList;
-    }
-
     public Lobby getLobby(int id) throws LobbyServiceException {
       Lobby lobby = findLobbyById(id);
       return lobby;
-    }
-
-    // FIXME This is wrong, my use of the model and this DTO in inconsistent
-    public LobbyDTO getLobbyDTO(int id) throws LobbyServiceException {
-      Lobby lobby = findLobbyById(id);
-      return lobbyToLobbyDTO(lobby);
     }
 
     public Integer getLobbyOwnerId(int id) throws LobbyServiceException {
@@ -75,7 +55,6 @@ public class LobbyService {
 
       Lobby lobby = findLobbyById(lobbyId);
       User user = findUserById(userId);
-
 
       // can user join?
 
@@ -125,41 +104,53 @@ public class LobbyService {
     }
 
 
-    public Lobby transferLobbyOwnership(Integer lobbyId,Integer ownerId, Integer userId) throws LobbyServiceException {
+    public Lobby transferLobbyOwnership(Integer lobbyId,Integer userId) throws LobbyServiceException {
 
       // Find entities
 
       Lobby lobby = findLobbyById(lobbyId);
       verifyUserExists(userId);
+      verifyUserNotGuest(userId);
 
       // Transfer Lobby
 
       lobby.owner = AggregateReference.to(userId);
       lobby = lobbies.save(lobby);
 
-      LOG.info(String.format("transfered lobby %d ownership from %d to %d",lobbyId,ownerId,userId));
+      LOG.info(String.format("transfered lobby %d ownership to %d",lobbyId,userId));
 
       return lobby;
 
     }
 
-    public Lobby update(Integer lobbyId,UpdateLobbyDTO dto) throws LobbyServiceException {
+    public Lobby update(LobbyUpdate lobbyUpdate) throws LobbyServiceException {
 
       // Find entities
 
-      Lobby lobby = findLobbyById(lobbyId);
+      Lobby lobby = findLobbyById(lobbyUpdate.id);
 
       // Update lobby
-     
-      lobby.name = dto.name;
-      lobby.isPrivate = dto.isPrivate;
-      lobby.gameSettings = dto.gameSettings;
+    
+      if ( lobbyUpdate.name.isPresent() ) {
+        lobby.name = lobbyUpdate.name.get();
+      }
 
-      if ( lobby.users.size() <= dto.capacity ) {
-        lobby.capacity = dto.capacity;
-      } else {
-        LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit",lobbyId));
-        throw new LobbyServiceException(LobbyServiceError.CAPACITY_SHORTENING);
+      if ( lobbyUpdate.isPrivate.isPresent() ) {
+        lobby.isPrivate = lobbyUpdate.isPrivate.get();
+      }
+
+      if ( lobbyUpdate.gameSettings.isPresent() ) {
+        lobby.gameSettings = lobbyUpdate.gameSettings.get();
+      }
+
+      if ( lobbyUpdate.capacity.isPresent() ) {
+        int newCap = lobbyUpdate.capacity.get();
+        if ( lobby.users.size() <= newCap ) {
+          lobby.capacity = newCap;
+        } else {
+          LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit",lobbyUpdate.id));
+          throw new LobbyServiceException(LobbyServiceError.CAPACITY_SHORTENING);
+        }
       }
 
       lobby = lobbies.save(lobby);
@@ -215,35 +206,6 @@ public class LobbyService {
       
     }
 
-    /* FIXME : I don't like this at all */
-    private LobbyDTO lobbyToLobbyDTO(Lobby lobby) throws LobbyServiceException {
-
-      LobbyDTO lobbyDto = new LobbyDTO(lobby);
-      //User owner = userService.getUser(lobby.owner.getId());
-      Optional<User> ownerOpt = users.findById(lobby.owner.getId());
-      if ( ownerOpt.isEmpty() ) {
-        throw new LobbyServiceException(LobbyServiceError.USER_NOT_FOUND);
-      }
-      User owner = ownerOpt.get();
-
-      List<Integer> userIds = lobby.users.stream()
-        .map( x -> x.user.getId() )
-        .collect(Collectors.toList());
-      Iterable<User> lobbyUsers =  users.findAllById(userIds);
-      List<User> lobbyUsersList = Conversions.iterableToList(lobbyUsers);
-
-      List<LobbyUserDTO> userDtos = lobbyUsersList.stream().
-        map( x -> new LobbyUserDTO(x))
-        .collect(Collectors.toList());
-
-      lobbyDto.owner = new LobbyUserDTO(owner);
-      lobbyDto.users = userDtos;
-
-      return lobbyDto;
-
-    }
-
-
     private Lobby findLobbyById(Integer lobbyId) throws LobbyServiceException {
 
       Optional<Lobby>  optLobby = lobbies.findById(lobbyId);
@@ -259,6 +221,16 @@ public class LobbyService {
       if (!users.existsById(userId)) {
         LOG.error(String.format("No such user %d exists",userId));
         throw new LobbyServiceException(LobbyServiceError.ERROR);
+      }
+    }
+
+    //@Pre : users.exists(userId)
+    private void verifyUserNotGuest(Integer userId) throws LobbyServiceException {
+      Optional<User> optUser = users.findById(userId);
+      User user = optUser.get();
+      if (user.guest) {
+        LOG.error(String.format("Guest user %d not applicable",userId));
+        throw new LobbyServiceException(LobbyServiceError.GUEST_NOT_ALLOWED);
       }
     }
 
@@ -286,36 +258,5 @@ public class LobbyService {
       return lobby;
 
     }
-
-
-    public enum LobbyServiceError {
-      SUCCESS,
-      ERROR,              //internal
-      LOBBY_NOT_FOUND,
-      USER_NOT_FOUND,
-      LOBBY_FULL,
-      LOBBY_PRIVATE,
-      LOBBY_ALREADY_OWNED,
-      GUEST_NOT_IMPLEMENT,
-      USER_NOT_IN_LOBBY,
-      CAPACITY_SHORTENING
-    }
-
-    public class LobbyServiceException extends Exception {
-
-      public LobbyServiceError error;
-
-      public LobbyServiceException(LobbyServiceError error) {
-        this.error = error;
-      }
-
-      @Override
-      public String getMessage() {
-        return error.toString();
-      }
-
-    }
-
-
 
 }

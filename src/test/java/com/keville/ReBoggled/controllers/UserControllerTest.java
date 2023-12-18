@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keville.ReBoggled.context.TestingContext;
 import com.keville.ReBoggled.controllers.UserController.UserInfo;
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.UserService;
 
 @ContextConfiguration(classes = TestingContext.class)

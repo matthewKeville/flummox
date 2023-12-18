@@ -1,12 +1,8 @@
 package com.keville.ReBoggled.controllers;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,21 +15,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.keville.ReBoggled.DTO.LobbyDTO;
-import com.keville.ReBoggled.DTO.LobbyUserDTO;
-import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
-import com.keville.ReBoggled.model.Lobby;
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
+import com.keville.ReBoggled.DTO.LobbyViewDTO;
+import com.keville.ReBoggled.model.lobby.LobbyUpdate;
+import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.LobbyService;
-import com.keville.ReBoggled.service.LobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.UserService;
-import com.keville.ReBoggled.util.Conversions;
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
+import com.keville.ReBoggled.service.view.LobbyViewService;
+import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/api/lobby")
@@ -45,26 +40,22 @@ public class LobbyController {
   private LobbyService lobbyService;
   private UserService userService;
 
+  private LobbyViewService lobbyViewService;
+
   public LobbyController(@Autowired LobbyService lobbyService,
-      @Autowired UserService userService) {
+      @Autowired UserService userService,@Autowired LobbyViewService lobbyViewService) {
     this.lobbyService = lobbyService;
     this.userService = userService;
+    this.lobbyViewService = lobbyViewService;
   }
 
   @GetMapping("")
-  public ResponseEntity<?> getLobbies(
-      @RequestParam(required = false, name = "publicOnly") boolean publicOnly,
-      HttpSession session) {
+  public ResponseEntity<?> getLobbies(HttpSession session) {
 
     logReq("get","");
 
-    try {
-      List<LobbyDTO> lobbyDTOs = lobbyService.getLobbyDTOs();
-      return new ResponseEntity<List<LobbyDTO>>(lobbyDTOs,HttpStatus.OK);
-    } catch (LobbyServiceException e) {
-      return handleLobbyServiceException(e);
-    }
-
+    Iterable<Lobby> lobbies = lobbyService.getLobbies();
+    return new ResponseEntity<Iterable<Lobby>>(lobbies,HttpStatus.OK);
 
   }
 
@@ -76,14 +67,42 @@ public class LobbyController {
     logReq("get","/"+id);
 
     try {  
-      //Lobby lobby = lobbyService.getLobby(id);
-      //return new ResponseEntity<LobbyDTO>(lobbyToLobbyDTO(lobby),HttpStatus.OK);
-      LobbyDTO lobbyDTO = lobbyService.getLobbyDTO(id);
-      return new ResponseEntity<LobbyDTO>(lobbyDTO,HttpStatus.OK);
+      Lobby lobby = lobbyService.getLobby(id);
+      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
 
+  }
+
+  @GetMapping("/view/lobby")
+  public ResponseEntity<?> getLobbyViews(HttpSession session,
+      @RequestParam(required = false, name = "publicOnly") boolean publicOnly
+      ) {
+
+    logReq("get","/view/lobby");
+
+    try { 
+    Iterable<LobbyViewDTO> lobbies = lobbyViewService.getLobbyViewDTOs();
+    return new ResponseEntity<Iterable<LobbyViewDTO>>(lobbies,HttpStatus.OK);
+    } catch (LobbyViewServiceException e) {
+      return handleLobbyViewServiceException(e);
+    }
+
+  }
+
+  @GetMapping("/{id}/view/lobby")
+  public ResponseEntity<?> getLobbyView(@PathVariable("id") Integer id,
+      HttpSession session) {
+
+    logReq("get",id+"/view/lobby");
+
+    try { 
+      LobbyViewDTO lobby = lobbyViewService.getLobbyViewDTO(id);
+      return new ResponseEntity<LobbyViewDTO>(lobby,HttpStatus.OK);
+    } catch (LobbyViewServiceException e) {
+      return handleLobbyViewServiceException(e);
+    }
 
   }
 
@@ -122,9 +141,8 @@ public class LobbyController {
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
-
-      Lobby response = lobbyService.removeUserFromLobby(userId, id);
-      return ResponseEntity.ok().build();
+      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
+      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
@@ -142,8 +160,7 @@ public class LobbyController {
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
-
-      Lobby lobby = lobbyService.transferLobbyOwnership(id,requesterId,userId);
+      Lobby lobby = lobbyService.transferLobbyOwnership(id,userId);
       return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
@@ -172,7 +189,7 @@ public class LobbyController {
   @PostMapping("/{id}/update")
     public ResponseEntity<?> updateLobby(
         @PathVariable("id") Integer id,
-        @Valid @RequestBody UpdateLobbyDTO updateLobbyDTO,
+        @Valid @RequestBody LobbyUpdateDTO lobbyUpdateDTO,
         @Autowired HttpSession session,
         @Autowired BindingResult bindingResult) {
 
@@ -184,11 +201,16 @@ public class LobbyController {
       }
 
       try {
+
         Integer userId = (Integer) session.getAttribute("userId");
         verifyLobbyOwner(id,userId);
 
-        Lobby lobby = lobbyService.update(id,updateLobbyDTO);
+        //Map DTO to Domain 
+        LobbyUpdate lobbyUpdate= new LobbyUpdate(id,lobbyUpdateDTO);
+
+        Lobby lobby = lobbyService.update(lobbyUpdate);
         return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+
       } catch (LobbyServiceException e) {
         return handleLobbyServiceException(e);
       }
@@ -204,7 +226,7 @@ public class LobbyController {
       Integer userId = (Integer) session.getAttribute("userId");
       User user = userService.getUser(userId);
       if ( user.guest ) {
-        LOG.warn(String.format("Guest %d is trying to create a lobby."));
+        LOG.warn(String.format("Guest %d is trying to create a lobby.",userId));
         throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_CANT_CREATE_LOBBY");
       }
 
@@ -272,8 +294,8 @@ public class LobbyController {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_FULL");
       case LOBBY_PRIVATE:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_IS_PRIVATE");
-      case GUEST_NOT_IMPLEMENT:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_NOT_IMPLEMENT");
+      case GUEST_NOT_ALLOWED:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_NOT_ALLOWED");
       case USER_NOT_IN_LOBBY:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
       case CAPACITY_SHORTENING:
@@ -285,9 +307,23 @@ public class LobbyController {
 
   }
 
+  public ResponseEntity<?> handleLobbyViewServiceException(LobbyViewServiceException e) {
+
+    switch (e.error) {
+      case USER_NOT_FOUND:
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND");
+      case LOBBY_NOT_FOUND:
+      default:
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "LOBBY_NOT_FOUND");
+    }
+
+  }
+
   /*
    * Verify that the user is the owner of this lobby,
-   * if not throw an exception
+   * if not throw an exception. 
+   * TODO  : Consider putting this into lobbyService 
+   *  ex. lobbyService.isOwner(Integer lobbyId,Integer userId)
    */
   private void verifyLobbyOwner(Integer lobbyId,Integer userId) throws LobbyServiceException {
 

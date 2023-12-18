@@ -1,7 +1,5 @@
 package com.keville.ReBoggled;
 
-import java.io.File;
-
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -17,16 +15,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 
-import com.keville.ReBoggled.model.BoardSize;
-import com.keville.ReBoggled.model.BoardTopology;
-import com.keville.ReBoggled.model.FindRule;
-import com.keville.ReBoggled.model.GameSettings;
-import com.keville.ReBoggled.model.Lobby;
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.game.BoardSize;
+import com.keville.ReBoggled.model.game.BoardTopology;
+import com.keville.ReBoggled.model.game.FindRule;
+import com.keville.ReBoggled.model.game.GameSettings;
+import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.LobbyService;
-import com.keville.ReBoggled.service.LobbyService.LobbyServiceException;
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
 
 @SpringBootApplication
 public class ReBoggledApplication {

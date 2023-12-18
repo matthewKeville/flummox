@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model;
+package com.keville.ReBoggled.model.game;
 
 import java.time.Duration;
 

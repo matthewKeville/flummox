@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.util.GuestCreator;
 

@@ -5,7 +5,8 @@ import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
 
 export async function loader({params}) {
   console.log("Loading Lobby " + params.lobbyId)
-  const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
+  //const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
+  const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId+"/view/lobby");
   const lobby= await lobbyResponse.json();
   return { lobby };
 }

@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
 
 import jakarta.servlet.ServletException;

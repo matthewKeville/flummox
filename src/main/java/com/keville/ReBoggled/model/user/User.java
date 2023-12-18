@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model;
+package com.keville.ReBoggled.model.user;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;

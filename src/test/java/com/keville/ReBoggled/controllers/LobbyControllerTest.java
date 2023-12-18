@@ -1,43 +1,45 @@
 package com.keville.ReBoggled.controllers;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
-import com.keville.ReBoggled.DTO.UpdateLobbyDTO;
+import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.config.SecurityConfig;
 import com.keville.ReBoggled.context.TestingContext;
-import com.keville.ReBoggled.model.GameSettings;
-import com.keville.ReBoggled.model.Lobby;
-import com.keville.ReBoggled.model.LobbyUserReference;
-import com.keville.ReBoggled.model.User;
+import com.keville.ReBoggled.model.game.GameSettings;
+import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.model.lobby.LobbyUserReference;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.UserService;
-import com.keville.ReBoggled.util.Conversions;
-
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
+import com.keville.ReBoggled.service.exceptions.LobbyServiceException.LobbyServiceError;
+import com.keville.ReBoggled.service.view.LobbyViewService;
 
 @ContextConfiguration(classes = { TestingContext.class , SecurityConfig.class, LobbyController.class, AuthenticationSuccessHandlerImpl.class })
 @WebMvcTest(LobbyController.class)
@@ -49,6 +51,9 @@ public class LobbyControllerTest {
   @MockBean
   private LobbyService lobbyService;
   @MockBean
+  private LobbyViewService lobbyViewService;
+
+  @MockBean
   private LobbyRepository lobbies;
   @MockBean
   private UserRepository users;
@@ -56,255 +61,341 @@ public class LobbyControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
-  private static String validUpdateDTOJson;
-  private static String invalidUpdateDTOJson;
-  private static ObjectMapper mapper = new ObjectMapper();
-
-  private static User userA;
-  private static User userB;
-  private static Lobby roomA;
-  private static Lobby roomB;
-  private static LobbyDTO roomADto;
-  private static LobbyDTO roomBDto;
-  private static List<LobbyDTO> lobbyDTOs;
-  public static String lobbyDTOsJson;
-
-
-  @BeforeAll
-  static void createTestingData() throws JsonProcessingException {
-
-    //USERS
-
-    userA = new User();
-    userA.id = 0;
-    userA.email = "userA@email.com";
-    userA.username = "userA";
-    userA.verified = false;
-    userA.guest = false;
-
-    userB = new User();
-    userB.id = 1;
-    userB.email = "userB@email.com";
-    userB.username = "userB";
-    userB.verified = false;
-    userB.guest = false;
-
-    //LOBBY
-
-    roomA = new Lobby();
-    roomA.id = 0;
-    roomA.name = "roomA";
-    roomA.capacity = 6;
-    roomA.isPrivate = false;
-    roomA.gameSettings = new GameSettings();
-    roomA.owner = AggregateReference.to(0);
-    HashSet<LobbyUserReference> roomAUsers = new HashSet<LobbyUserReference>();
-    roomAUsers.add(new LobbyUserReference(AggregateReference.to(0)));
-    roomAUsers.add(new LobbyUserReference(AggregateReference.to(1)));
-    roomA.users = roomAUsers;
-
-    roomB = new Lobby();
-    roomA.id = 1;
-    roomA.name = "roomB";
-    roomA.capacity = 6;
-    roomA.isPrivate = false;
-    roomA.gameSettings = new GameSettings();
-    roomA.owner = AggregateReference.to(1);
-    HashSet<LobbyUserReference> roomBUsers = new HashSet<LobbyUserReference>();
-    roomA.users = roomBUsers;
-
-    //DTOS
-
-    roomADto = new LobbyDTO(roomA);
-    roomADto.owner = new LobbyUserDTO(userA);
-    List<LobbyUserDTO> roomADtoLobbyUsers = new ArrayList<LobbyUserDTO>();
-    roomADtoLobbyUsers.add(new LobbyUserDTO(userA));
-    roomADtoLobbyUsers.add(new LobbyUserDTO(userB));
-    roomADto.users = roomADtoLobbyUsers;
-
-    roomBDto = new LobbyDTO(roomB);
-    roomBDto.owner = new LobbyUserDTO(userB);
-    List<LobbyUserDTO> roomBDtoLobbyUsers = new ArrayList<LobbyUserDTO>();
-    roomBDto.users = roomBDtoLobbyUsers;
-
-    List<LobbyDTO> lobbyDTOs = new ArrayList<LobbyDTO>();
-    lobbyDTOs.add(roomADto);
-    lobbyDTOs.add(roomBDto);
-
-    /*
-    lobbyDTOsJson = """
-    [
-      {
-        \"id\":1,\"name\":\"roomA\",\"capacity\":6,\"isPrivate\":false,
-        \"gameSettings\":{\"boardSize\":\"FOUR\",\"boardTopology\":\"PLANE\",\"findRule\":\"ANY\",\"duration\":180},
-        \"owner\":{\"id\":0,\"username\":\"userA\"},
-        \"users\":[
-          {\"id\":0,\"username\":\"userA\"},
-          {\"id\":1,\"username\":\"userB\"}]
-      },
-      { 
-        \"id\":2,\"name\":\"roomB\",\"capacity\":6,\"isPrivate\":false,
-        \"gameSettings\":{\"boardSize\":\"FOUR\",\"boardTopology\":\"PLANE\",\"findRule\":\"ANY\",\"duration\":180},
-        \"owner\":{\"id\":1,\"username\":\"userB\"},
-        \"users\":[]
-      }
-    ]
-    """;
-    */
-    lobbyDTOsJson = "{}";
-
-    /*
-    lobbyDTOsJson = """
-    [
-      {
-        "id":1,"name":"roomA","capacity":6,"isPrivate":false,
-        "gameSettings":{"boardSize":"FOUR","boardTopology":"PLANE","findRule":"ANY","duration":180},
-        "owner":{"id":0,"username":"userA"},
-        "users":[
-          {"id":0,"username":"userA"},
-          {"id":1,"username":"userB"}]
-      },
-      { 
-        "id":2,"name":"roomB","capacity":6,"isPrivate":false,
-        "gameSettings":{"boardSize":"FOUR","boardTopology":"PLANE","findRule":"ANY","duration":180},
-        "owner":{"id":1,"username":"userB"},
-        "users":[]
-      }
-    ]
-    """;
-    */
-
-    /*
-    lobbyDTOsJson = """
-    [
-      {
-        \\"id\\":1,\\"name\\":\\"roomA\\",\\"capacity\\":6,\\"isPrivate\\":false,
-        \\"gameSettings\\":{\\"boardSize\\":\\"FOUR\\",\\"boardTopology\\":\\"PLANE\\",\\"findRule\\":\\"ANY\\",\\"duration\\":180},
-        \\"owner\\":{\\"id\\":0,\\"username\\":\\"userA\\"},
-        \\"users\\":[
-          {\\"id\\":0,\\"username\\":\\"userA\\"},
-          {\\"id\\":1,\\"username\\":\\"userB\\"}]
-      },
-      { 
-        \\"id\\":2,\\"name\\":\\"roomB\\",\\"capacity\\":6,\\"isPrivate\\":false,
-        \\"gameSettings\\":{\\"boardSize\\":\\"FOUR\\",\\"boardTopology\\":\\"PLANE\\",\\"findRule\\":\\"ANY\\",\\"duration\\":180},
-        \\"owner\\":{\\"id\\":1,\\"username\\":\\"userB\\"},
-        \\"users\\":[]
-      }
-    ]
-    """;
-    */
-    
-  }
-
   @Test
-  @WithMockUser(username="bob@email.com", authorities = {"read","write"} )
-  void getLobbyReturnsLobbies() throws Exception {
+  void getLobbyViewReturnsLobbyViews() throws Exception {
 
-    System.out.println("json raw");
-    System.out.println(lobbyDTOsJson);
-    System.out.println("json raw");
+    Fixture fixture = new Fixture();
 
-    System.out.println("json fake");
-    System.out.println(mapper.writeValueAsString(lobbyDTOsJson));
-    System.out.println("json fake");
+    when(lobbyViewService.getLobbyViewDTOs()).thenReturn(fixture.lobbyDTOs);
 
-    when(lobbyService.getLobbyDTOs()).thenReturn(lobbyDTOs);
-
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/lobby"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/lobby/view/lobby"))
       .andExpect(MockMvcResultMatchers.status().is(200))
       .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
-      //.andExpect(MockMvcResultMatchers.content().json(lobbyDTOsJson));
-      //.andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(lobbyDTOsJson)));
-      //.andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(lobbyDTOsJson))); //what in the fuck
-      .andDo( x -> { System.out.println("hello"); System.out.println(x.getResponse().getContentAsString()); } );
-      //.andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(userA))); //what in the fuck
+
+      .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("roomA"))
+      //...
+
+      .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(1))
+      .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("roomB"));
+      //...
   };
 
-  /*
   @Test
-  void joinLobbyReturnsLobby() {};
+  void getLobbyViewReturnsLobbyView() throws Exception {
 
-  @Test
-  void kickPlayerReturnsLobby() {};
+    Fixture fixture = new Fixture();
 
-  @Test
-  void promotePlayerReturnsLobby() {};
+    when(lobbyViewService.getLobbyViewDTO(0)).thenReturn(fixture.roomADto);
 
-  @Test
-  void leaveLobbyReturnsLobby() {};
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/lobby/0/view/lobby"))
+      .andExpect(MockMvcResultMatchers.status().is(200))
+      .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
 
-  @Test
-  void updateLobbyReturnsLobby() {};
-
-  @Test
-  void createLobbyReturnsLobby() {};
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+      //...
+  };
 
   @Test
-  void deleteLobbyReturnsOk() {};
-  */
+  void joinLobbyReturnsLobby() throws Exception {
 
-  //
-  /*
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    when(lobbyService.addUserToLobby(userId,0)).thenReturn(fixture.roomA);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/join")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().is(200))
+      .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
+
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+  };
+
+
+  private static Stream<Arguments> provideErrorsForJoinLobby() {
+    return Stream.of(
+      Arguments.of(LobbyServiceError.LOBBY_PRIVATE,HttpStatus.CONFLICT,"LOBBY_IS_PRIVATE"),
+      Arguments.of(LobbyServiceError.LOBBY_FULL,HttpStatus.CONFLICT,"LOBBY_IS_FULL")
+    );
+  }
+
+   
+    // Note : MockMvc's error response (what is generated from ResponseStatusException) is different
+    // than Spring Boots (which generates a json response body).
+   
+  @ParameterizedTest
+  @MethodSource("provideErrorsForJoinLobby")
+  void joinLobbyReturnsReasonForFailure(LobbyServiceError error,HttpStatus status,String msg) throws Exception {
+
+    LobbyServiceException exception = new LobbyServiceException(error);
+    Integer userId = 1234;
+
+    when(lobbyService.addUserToLobby(userId,0)).thenThrow(exception);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/join")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().is(status.value()))
+      .andExpect(MockMvcResultMatchers.status().reason(msg));
+  };
+
   @Test
-  @WithMockUser(username="bob@email.com", authorities = {"read","write"} )
-  void nonOwnerCantUpdateLobby() throws Exception {
+  @WithMockUser(username = "user@email.com")
+  void kickPlayerReturnsLobby() throws Exception {
 
-    //arrange
-    User user = User.createUser("bob@email.com","bob42");
-    user.id = 1234;
+    Fixture fixture = new Fixture();
 
-    when(userService.getUser(any(Integer.class))).thenReturn(user);
-    when(lobbyService.getLobbyOwnerId(any(Integer.class))).thenReturn(4321);
+    Integer userId = 1234;
 
-    //act & assert
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/lobby/1/update")
-        .sessionAttr("userId", 1234)
-        .header("Content-Type", "application/json")
-        .content(validUpdateDTOJson)
-        )
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(userId);
+    when(lobbyService.removeUserFromLobby(1,0)).thenReturn(fixture.roomA);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/kick/1")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().isOk())
+      .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
+
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+
+  };
+
+  @Test
+  @WithMockUser(username = "user@email.com")
+  void kickPlayerFailsWhenNotOwner() throws Exception {
+
+    Integer userId = 1234;
+
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(4321);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/kick/1")
+      .sessionAttr("userId",userId))
       .andExpect(MockMvcResultMatchers.status().isForbidden());
-  }
+
+  };
 
   @Test
-  @WithMockUser(username="bob@email.com", authorities = {"write"} )
-  void ownerCanUpdateLobby() throws Exception {
+  void leaveLobbyReturnsLobby() throws Exception {
 
-    //arrange
-    User user = User.createUser("bob@email.com","bob42");
-    user.id = 1234;
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
 
-    when(userService.getUser(any(Integer.class))).thenReturn(user);
-    when(lobbyService.getLobbyOwnerId(any(Integer.class))).thenReturn(1234);
-    when(lobbyService.update(any(Integer.class),any(UpdateLobbyDTO.class)))
-      .thenReturn(null);
+    when(lobbyService.removeUserFromLobby(userId,0)).thenReturn(fixture.roomA);
 
-    //act & assert
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/lobby/1/update")
-        .header("Content-Type", "application/json")
-        .content(validUpdateDTOJson)
-        .sessionAttr("userId", 1234)
-        )
-      .andExpect(MockMvcResultMatchers.status().isOk());
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/leave")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().is(200))
+      .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
 
-  }
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+
+  };
 
   @Test
-  @WithMockUser(username="bob@email.com", authorities = {"read","write"} )
-  void invalidRequestBodyThrows415() throws Exception {
+  @WithMockUser(username = "user@email.com")
+  void promotePlayerReturnsLobby() throws Exception {
 
-    //act & assert
-    mockMvc.perform(
-        MockMvcRequestBuilders.post("/api/lobby/1/update")
-        .header("Content-Type", "application/json")
-        .content(invalidUpdateDTOJson)
-        .sessionAttr("userId", 1234)
-        )
-      .andExpect(MockMvcResultMatchers.status().is(400));
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
 
+    User user = User.createUser("user@email.com", "user");
+    user.id = userId;
+
+    when(userService.getUser(0)).thenReturn(user);
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(userId);
+    when(lobbyService.transferLobbyOwnership(0,1)).thenReturn(fixture.roomA);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/promote/1")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().isOk())
+      .andExpect(MockMvcResultMatchers.header().stringValues("Content-type", "application/json"))
+
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+
+  };
+
+  @Test
+  @WithMockUser(username = "user@email.com")
+  void promotePlayerFailsWhenNotOwner() throws Exception {
+
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    User user = User.createUser("user@email.com", "user");
+    user.id = userId;
+
+    when(userService.getUser(0)).thenReturn(user);
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(4321);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/0/promote/1")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+  };
+
+  @Test
+  @Disabled
+  void updateLobbyReturnsLobby() {};
+  @Test
+  @Disabled
+  void updateLobbyFailsWhenMalformedBody() {};
+  @Test
+  @Disabled
+  void updateLobbyFailsWhenNotOwner() {};
+  @Test
+  @Disabled
+  void updateLobbyReturnsReasonForFailure() {};
+
+  @Test
+  @WithMockUser(username = "user@email.com")
+  void createLobbyReturnsLobby() throws Exception {
+
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    User user = User.createUser("user@email.com","user");
+
+    when(userService.getUser(userId)).thenReturn(user);
+    when(lobbyService.createNew(userId)).thenReturn(fixture.roomA);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/create")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().isCreated())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
+
+  };
+
+  @Test
+  @WithMockUser(username = "guest@email.com")
+  void createLobbyFailsIfUserIsGuest() throws Exception {
+
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    User guest = User.createUser("guest@email.com","guest");
+    guest.guest = true;
+
+    when(userService.getUser(userId)).thenReturn(guest);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/lobby/create")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().isConflict())
+      .andExpect(MockMvcResultMatchers.status().reason("GUEST_CANT_CREATE_LOBBY"));
+
+  };
+
+  @Test
+  @WithMockUser(username = "user@email.com")
+  void deleteLobbyReturnsOk() throws Exception {
+
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    when(lobbyService.delete(0)).thenReturn(true);
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(userId);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/lobby/0")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().is(200));
+
+  };
+
+  @Test
+  @WithMockUser(username = "user@email.com")
+  void deleteLobbyFailsWhenNotOwner() throws Exception {
+
+    Fixture fixture = new Fixture();
+    Integer userId = 1234;
+
+    when(lobbyService.getLobbyOwnerId(0)).thenReturn(5678);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/lobby/0")
+      .sessionAttr("userId",userId))
+      .andExpect(MockMvcResultMatchers.status().is(403));
+
+  };
+
+  public class Fixture {
+
+    public User userA;
+    public User userB;
+    public Lobby roomA;
+    public Lobby roomB;
+    public LobbyViewDTO roomADto;
+    public LobbyViewDTO roomBDto;
+    public List<LobbyViewDTO> lobbyDTOs;
+    public String lobbyDTOsJson;
+
+    public Fixture() {
+
+      //USERS
+
+      userA = new User();
+      userA.id = 0;
+      userA.email = "userA@email.com";
+      userA.username = "userA";
+      userA.verified = false;
+      userA.guest = false;
+
+      userB = new User();
+      userB.id = 1;
+      userB.email = "userB@email.com";
+      userB.username = "userB";
+      userB.verified = false;
+      userB.guest = false;
+
+      //LOBBY
+
+      roomA = new Lobby();
+      roomA.id = 0;
+      roomA.name = "roomA";
+      roomA.capacity = 6;
+      roomA.isPrivate = false;
+      roomA.gameSettings = new GameSettings();
+      roomA.owner = AggregateReference.to(0);
+
+      HashSet<LobbyUserReference> roomAUsers = new HashSet<LobbyUserReference>();
+      roomAUsers.add(new LobbyUserReference(AggregateReference.to(0)));
+      roomAUsers.add(new LobbyUserReference(AggregateReference.to(1)));
+      roomA.users = roomAUsers;
+
+      roomB = new Lobby();
+      roomB.id = 1;
+      roomB.name = "roomB";
+      roomB.capacity = 6;
+      roomB.isPrivate = false;
+      roomB.gameSettings = new GameSettings();
+      roomB.owner = AggregateReference.to(1);
+      HashSet<LobbyUserReference> roomBUsers = new HashSet<LobbyUserReference>();
+      roomB.users = roomBUsers;
+
+      //DTOS
+
+      roomADto = new LobbyViewDTO(roomA);
+      roomADto.owner = new LobbyUserDTO(userA);
+      List<LobbyUserDTO> roomADtoLobbyUsers = new ArrayList<LobbyUserDTO>();
+      roomADtoLobbyUsers.add(new LobbyUserDTO(userA));
+      roomADtoLobbyUsers.add(new LobbyUserDTO(userB));
+      roomADto.users = roomADtoLobbyUsers;
+
+      roomBDto = new LobbyViewDTO(roomB);
+      roomBDto.owner = new LobbyUserDTO(userB);
+      List<LobbyUserDTO> roomBDtoLobbyUsers = new ArrayList<LobbyUserDTO>();
+      roomBDto.users = roomBDtoLobbyUsers;
+
+      lobbyDTOs = new ArrayList<LobbyViewDTO>();
+      lobbyDTOs.add(roomADto);
+      lobbyDTOs.add(roomBDto);
+
+
+      // Expected JSON response
+      
+    }
   }
-  */
 
 }

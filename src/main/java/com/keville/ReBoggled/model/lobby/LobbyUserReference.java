@@ -1,8 +1,10 @@
-package com.keville.ReBoggled.model;
+package com.keville.ReBoggled.model.lobby;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
+
+import com.keville.ReBoggled.model.user.User;
 
 public class LobbyUserReference {
   
