@@ -300,8 +300,6 @@ public class LobbyController {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
       case CAPACITY_SHORTENING:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
-      case ALREADY_IN_LOBBY:
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_IN_LOBBY");
       case ERROR:
       default:
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");

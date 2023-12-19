@@ -74,8 +74,7 @@ public class LobbyService {
       Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
       if ( optUserLobby.isPresent()) {
         if ( optUserLobby.get().id == lobbyId ) {
-          LOG.warn(String.format("can't add user : %d to lobby : %d, because they are already in.",userId,lobbyId));
-          throw new LobbyServiceException(LobbyServiceError.ALREADY_IN_LOBBY);
+          return lobby;
         }
         removeUserFromLobby(user,optUserLobby.get());
       }
