@@ -46,6 +46,9 @@ export default function Lobbies() {
         case "LOBBY_IS_PRIVATE":
           notice = " Unable to join lobby because it is private"
           break;
+        case "ALREADY_IN_LOBBY":
+          navigate("/lobby/" + lobbyId);
+          return;
         case "INTERNAL_ERROR":
         default:
           //pass

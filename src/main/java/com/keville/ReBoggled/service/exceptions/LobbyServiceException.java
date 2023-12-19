@@ -23,7 +23,8 @@ package com.keville.ReBoggled.service.exceptions;
         LOBBY_ALREADY_OWNED,
         GUEST_NOT_ALLOWED,
         USER_NOT_IN_LOBBY,
-        CAPACITY_SHORTENING
+        CAPACITY_SHORTENING,
+        ALREADY_IN_LOBBY
       }
 
     }

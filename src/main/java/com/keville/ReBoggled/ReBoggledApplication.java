@@ -169,7 +169,6 @@ public class ReBoggledApplication {
 
       //Lobby secret = new Lobby("Secret Dungeon", 4, false, mattRef);
       Lobby secret = lobbyService.createNew(matt.id);
-      lobbyService.addUserToLobby(matt.id, secret.id);
       lobbyService.addUserToLobby(alice.id, secret.id);
 
       GameSettings gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.CYLINDER, FindRule.UNIQUE, 120);
