@@ -99,8 +99,6 @@ public class LobbyService {
 
       lobby = removeUserFromLobby(user,lobby);
 
-      LOG.info(String.format("removed user : %d from lobby : %d",userId,lobbyId));
-
       return lobby;
     }
 
@@ -273,6 +271,8 @@ public class LobbyService {
 
       lobby.users.remove(userRef);
       lobby = lobbies.save(lobby);
+
+      LOG.info(String.format("removed user : %d from lobby : %d",user.id,lobby.id));
 
       return lobby;
 

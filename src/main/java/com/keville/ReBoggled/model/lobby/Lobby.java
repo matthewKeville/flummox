@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -18,6 +19,8 @@ public class Lobby {
     public String name;
     public int capacity;
     public Boolean isPrivate;
+
+    @Embedded.Nullable
     public GameSettings gameSettings;
 
     public AggregateReference<User, Integer> owner ;
@@ -25,7 +28,6 @@ public class Lobby {
     @MappedCollection(idColumn = "LOBBY")
     public Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
 
-    // Err: if no nargs cons
     public Lobby(){}
 
     public Lobby(String name, int capacity, boolean isPrivate, AggregateReference<User, Integer> owner) {
