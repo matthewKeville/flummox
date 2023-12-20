@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.jdbc.repository.config.EnableJdbcAuditing;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -27,6 +28,7 @@ import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
 
 @SpringBootApplication
+@EnableJdbcAuditing
 public class ReBoggledApplication {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReBoggledApplication.class);
@@ -184,6 +186,8 @@ public class ReBoggledApplication {
       } catch ( LobbyServiceException lse) {
         LOG.error(lse.getMessage());
       }
+      
+      System.exit(0);
 
     };
   }

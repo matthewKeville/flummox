@@ -1,22 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
 
 export async function loader({params}) {
-  console.log("Loading Lobby " + params.lobbyId)
-  //const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId);
-  const lobbyResponse = await fetch("/api/lobby/"+params.lobbyId+"/view/lobby");
-  const lobby= await lobbyResponse.json();
-  return { lobby };
+  const lobbyId = params.lobbyId
+  return  { lobbyId };
+}
+
+async function loadLobbyData(lobbyId) {
+  console.log("Loading Lobby " + lobbyId)
+  const lobbyResponse = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
+  return lobbyResponse.json();
 }
 
 export default function Lobby() {
 
   const navigate = useNavigate();
-  const { lobby } = useLoaderData();
+  const { lobbyId } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
-  const isOwner = (lobby.owner.id == userInfo.id);
+
+  const [lobby,setLobby] = useState(null)
   const [edit, setEdit]    = useState(false)
 
   /* this should probably be a seperate component */
@@ -27,6 +31,39 @@ export default function Lobby() {
   const editBoardTopologyRef = useRef(null)
   const editFindRuleRef = useRef(null)
   const editDurationRef = useRef(null)
+
+  //https://devtrium.com/posts/async-functions-useeffect
+  useEffect(() => {
+
+    const fetchInitialLobby = async () => {
+      const newLobby = await loadLobbyData(lobbyId)
+      setLobby(newLobby)
+    }
+    fetchInitialLobby()
+
+    console.log("setting up lobby source")
+    const evtSource = new EventSource("/api/lobby/"+lobbyId+"/view/lobby/sse")
+
+    evtSource.addEventListener("lobby change", (e) => {
+      console.log("lobby change recieved");
+      let newLobbyData = JSON.parse(e.data)
+      setLobby(newLobbyData)
+    });
+
+    //cleanup (when unmount)
+    return () => {
+      console.log("closing the event source") 
+      evtSource.close()
+    }
+
+  }, []);
+
+  //  We need useEffect to load inital data ...
+  if (lobby == null) {
+    return
+  }
+
+  const isOwner = (lobby.owner.id == userInfo.id);
 
   let leaveLobby = async function(lobbyId) {
 
@@ -164,8 +201,6 @@ export default function Lobby() {
     if ( response.status == 200 && response.url != authenticateUrl ) {
 
       setEdit(!edit)
-      let url = "/lobby/" + lobby.id
-      navigate(url); //reload this route
       toast.success("Updated");
 
     } else if ( response.url == authenticateUrl ) {

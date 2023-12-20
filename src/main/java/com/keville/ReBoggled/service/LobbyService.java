@@ -16,6 +16,7 @@ import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
 import com.keville.ReBoggled.service.exceptions.LobbyServiceException.LobbyServiceError;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -224,6 +225,15 @@ public class LobbyService {
 
       return lobby;
       
+    }
+
+    // TODO : this could probably be stuffed further back into a db query to avoid pulling out unec. data
+    public boolean isOutdated(Integer lobbyId,LocalDateTime lastTime) throws LobbyServiceException {
+
+      // do query
+      Lobby lobby = findLobbyById(lobbyId);
+      return lobby.lastModifiedDate.isAfter(lastTime);
+
     }
 
     private Lobby findLobbyById(Integer lobbyId) throws LobbyServiceException {

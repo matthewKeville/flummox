@@ -1,10 +1,13 @@
 package com.keville.ReBoggled.model.lobby;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
@@ -27,6 +30,10 @@ public class Lobby {
 
     @MappedCollection(idColumn = "LOBBY")
     public Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
+
+    @LastModifiedDate
+    @Column("LAST_MODIFIED")
+    public LocalDateTime lastModifiedDate;
 
     public Lobby(){}
 
