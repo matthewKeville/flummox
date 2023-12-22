@@ -11,7 +11,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.user.User;
 
@@ -27,10 +26,7 @@ public class Lobby {
     @Embedded.Nullable
     public GameSettings gameSettings;
 
-    public LobbyState state; 
-
     public AggregateReference<User, Integer> owner ;
-    public AggregateReference<Game, Integer> game ;
 
     @MappedCollection(idColumn = "LOBBY")
     public Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
@@ -46,7 +42,6 @@ public class Lobby {
       this.capacity = capacity;
       this.isPrivate = isPrivate;
       this.owner = owner;
-      this.state = LobbyState.LOBBY;
       this.gameSettings = new GameSettings();
     }
 
@@ -56,13 +51,7 @@ public class Lobby {
       this.capacity = capacity;
       this.isPrivate = isPrivate;
       this.owner = owner;
-      this.state = LobbyState.LOBBY;
       this.gameSettings = gameSettings;
-    }
-
-    public enum LobbyState {
-      LOBBY,
-      GAME
     }
 
 }

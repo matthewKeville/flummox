@@ -29,7 +29,7 @@ export default function Lobbies() {
 
     if (response.status == 200) {
 
-      navigate("/lobby/" + lobbyId);
+      navigate("/lobby/" + lobbyId+"/pregame");
 
     } else {
 

@@ -13,8 +13,6 @@ public class LobbyUserReference {
   @Column("USERINFO") //rem H2 only has UPPERCASE COLUMSN AND TABLES
   public AggregateReference<User, Integer> user;
 
-  //public LobbyUserReference(){}
-
   public LobbyUserReference(AggregateReference<User, Integer> user){
     this.user = user;
   }

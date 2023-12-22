@@ -6,13 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
+import com.keville.ReBoggled.model.lobby.Lobby.LobbyState;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
+import com.keville.ReBoggled.service.exceptions.GameServiceException;
 import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
 import com.keville.ReBoggled.service.exceptions.LobbyServiceException.LobbyServiceError;
 
@@ -24,13 +27,15 @@ public class LobbyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbyService.class);
 
+    private GameService gameService;
     private LobbyRepository lobbies;
     private UserRepository users;
 
     public LobbyService(@Autowired LobbyRepository lobbies,
-        @Autowired UserRepository users) {
+        @Autowired UserRepository users,@Autowired GameService gameService) {
       this.lobbies = lobbies;
       this.users = users;
+      this.gameService = gameService;
     }
 
     public Iterable<Lobby> getLobbies() {
@@ -234,6 +239,25 @@ public class LobbyService {
       Lobby lobby = findLobbyById(lobbyId);
       return lobby.lastModifiedDate.isAfter(lastTime);
 
+    }
+
+    public Lobby startGame(Integer lobbyId) throws LobbyServiceException {
+      Lobby lobby = findLobbyById(lobbyId);
+      lobby.state = LobbyState.GAME;
+      try {
+
+        Game game = gameService.createGame();
+        lobby.game = AggregateReference.to(game.id);
+        lobbies.save(lobby);
+        return lobby;
+
+      } catch (GameServiceException exception) {
+        throw new LobbyServiceException(LobbyServiceError.START_GAME_FAILURE);
+      }
+    }
+
+    public boolean exists (Integer lobbyId) {
+      return lobbies.existsById(lobbyId);
     }
 
     private Lobby findLobbyById(Integer lobbyId) throws LobbyServiceException {

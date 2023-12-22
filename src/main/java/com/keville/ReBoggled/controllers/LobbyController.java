@@ -24,7 +24,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
+import com.keville.ReBoggled.background.LobbyEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
+import com.keville.ReBoggled.model.lobby.Lobby.LobbyState;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.LobbyService;
@@ -47,12 +49,17 @@ public class LobbyController {
   private UserService userService;
 
   private LobbyViewService lobbyViewService;
+  private LobbyEventDispatcher lobbyEventDispatcher;
 
   public LobbyController(@Autowired LobbyService lobbyService,
-      @Autowired UserService userService,@Autowired LobbyViewService lobbyViewService) {
+      @Autowired UserService userService,
+      @Autowired LobbyViewService lobbyViewService,
+      @Autowired LobbyEventDispatcher lobbyEventDispatcher) {
+
     this.lobbyService = lobbyService;
     this.userService = userService;
     this.lobbyViewService = lobbyViewService;
+    this.lobbyEventDispatcher = lobbyEventDispatcher;
   }
 
   @GetMapping("")
@@ -82,6 +89,7 @@ public class LobbyController {
   }
 
   //https://www.baeldung.com/spring-server-sent-events
+  /*
   @GetMapping("/{id}/view/lobby/sse")
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
@@ -89,7 +97,6 @@ public class LobbyController {
 
     logReq("get","/"+id+"/view/lobby/sse");
 
-    /* Not sure what an appropriate value is for timeout */
     SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
     //emitter.onCompletion( ()    -> LOG.info(id+"/view/lobby/sse completed") );
@@ -121,14 +128,31 @@ public class LobbyController {
           if ( outdated ) {
 
             LOG.info("lobby " + id + " has updated, resending ");
-            lobby = lobbyViewService.getLobbyViewDTO(id);
+            LobbyViewDTO lobbyUpdated = lobbyViewService.getLobbyViewDTO(id);
 
             SseEventBuilder event = SseEmitter.event()
               .id(String.valueOf(id))
-              .name("lobby change")
+              .name("lobby_change")
               .data(lobby);
             emitter.send(event);
+            
+            if ( lobby.state == LobbyState.LOBBY && lobbyUpdated.state == LobbyState.GAME ) {
+
+              LOG.info("lobby " + id + " has started a game");
+
+              event = SseEmitter.event()
+                .id(String.valueOf(id))
+                .name("lobby_start");
+              emitter.send(event);
+
+            }
+
+            LOG.info("fuck after start gate");
+
+            lobby = lobbyUpdated;
+
           }
+
 
           Thread.sleep(5000);
 
@@ -141,6 +165,50 @@ public class LobbyController {
       }
 
     });
+
+    return emitter;
+
+  }
+  */
+
+  //https://www.baeldung.com/spring-server-sent-events
+  @GetMapping("/{id}/view/lobby/sse")
+  public SseEmitter getLobbySSE(
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    logReq("get","/"+id+"/view/lobby/sse");
+
+    //assemble emitter
+
+    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+
+    Runnable cleanup = () -> {
+      LOG.info("cleaning up sse emitter");
+      lobbyEventDispatcher.unregister(id,emitter);
+    };
+
+    //shouldn't happen : see cons
+    //emitter.onTimeout(    ()    -> LOG.info(id+"/view/lobby/sse timed out"));
+
+    emitter.onError(      (ex)  -> {
+      LOG.info(id+"/view/lobby/sse error ");
+      if ( ex instanceof IOException ) {
+        LOG.info("IOException caught, likely client destroyed event source ...");
+      } else {
+        LOG.warn("Unexpected error ...");
+        LOG.error(ex.getMessage());
+      }
+      cleanup.run();
+    });
+    emitter.onCompletion( ()    -> {
+      LOG.info(id+"/view/lobby/sse completed");
+      cleanup.run();
+    });
+
+    // wire to dispatcher
+
+    lobbyEventDispatcher.register(id,emitter);
 
     return emitter;
 
@@ -280,6 +348,27 @@ public class LobbyController {
         LobbyUpdate lobbyUpdate= new LobbyUpdate(id,lobbyUpdateDTO);
 
         Lobby lobby = lobbyService.update(lobbyUpdate);
+        return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+
+      } catch (LobbyServiceException e) {
+        return handleLobbyServiceException(e);
+      }
+
+    }
+
+    @PostMapping("/{id}/start")
+    public ResponseEntity<?> startGame(
+        @PathVariable("id") Integer id,
+        @Autowired HttpSession session ) {
+
+      logReq("post",String.format("/%d/start",id));
+
+      try {
+
+        Integer userId = (Integer) session.getAttribute("userId");
+        verifyLobbyOwner(id,userId);
+
+        Lobby lobby = lobbyService.startGame(id);
         return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
 
       } catch (LobbyServiceException e) {

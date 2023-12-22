@@ -75,6 +75,7 @@ public class LobbyViewService {
 
       lobbyDto.owner = new LobbyUserDTO(owner);
       lobbyDto.users = userDtos;
+      lobbyDto.state = lobby.state;
 
       return lobbyDto;
 

@@ -24,6 +24,7 @@ package com.keville.ReBoggled.service.exceptions;
         GUEST_NOT_ALLOWED,
         USER_NOT_IN_LOBBY,
         CAPACITY_SHORTENING,
+        START_GAME_FAILURE
       }
 
     }
