@@ -1,29 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useRouteLoaderData, useNavigate, useOutletContext, useOutlet } from "react-router-dom";
 import { toast } from 'react-toastify';
 import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
-
-export async function loader({params}) {
-  const lobbyId = params.lobbyId
-  return  { lobbyId };
-}
-
-async function loadLobbyData(lobbyId) {
-  console.log("Loading Lobby " + lobbyId)
-  const lobbyResponse = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
-  return lobbyResponse.json();
-}
 
 export default function PreGame() {
 
   const navigate = useNavigate();
-  const { lobbyId } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
+  const [lobby] = useOutletContext(null)
 
-  const [lobby,setLobby] = useState(null)
+  // Don't render if API error
+  if (lobby == null) {
+    return
+  }
+
+  const isOwner = (lobby.owner.id == userInfo.id);
+
+  /* this should be a seperate component */
   const [edit, setEdit]    = useState(false)
-
-  /* this should probably be a seperate component */
   const editNameRef = useRef(null)
   const editCapacityRef = useRef(null)
   const editIsPrivateRef = useRef(null)
@@ -31,44 +25,6 @@ export default function PreGame() {
   const editBoardTopologyRef = useRef(null)
   const editFindRuleRef = useRef(null)
   const editDurationRef = useRef(null)
-
-  //https://devtrium.com/posts/async-functions-useeffect
-  useEffect(() => {
-
-    const fetchInitialLobby = async () => {
-      const newLobby = await loadLobbyData(lobbyId)
-      setLobby(newLobby)
-    }
-    fetchInitialLobby()
-
-    console.log("setting up lobby source")
-    const evtSource = new EventSource("/api/lobby/"+lobbyId+"/view/lobby/sse")
-
-    evtSource.addEventListener("lobby_change", (e) => {
-      console.log("lobby change recieved");
-      let newLobbyData = JSON.parse(e.data)
-      setLobby(newLobbyData)
-    });
-
-    evtSource.addEventListener("lobby_start", (e) => {
-      console.log("lobby start recieved");
-      toast.info("game is started");
-    });
-
-    //cleanup (when unmount)
-    return () => {
-      console.log("closing the event source") 
-      evtSource.close()
-    }
-
-  }, []);
-
-  //  We need useEffect to load inital data ...
-  if (lobby == null) {
-    return
-  }
-
-  const isOwner = (lobby.owner.id == userInfo.id);
 
   let leaveLobby = async function(lobbyId) {
 
@@ -82,13 +38,13 @@ export default function PreGame() {
     });
 
     if ( response.status == 200 ) {
+
       navigate("/lobby");
+
     } else {
     
       const content  = await response.json();
-
       console.log(`unable to leave lobby because : ${content.message}`)
-
       let notice = content.status + " : Unknown error"
 
       switch(content.message) {
@@ -100,8 +56,6 @@ export default function PreGame() {
       toast.error(notice);
 
     }
-
-
   }
 
   let deleteLobby = async function(lobbyId) {
@@ -121,9 +75,7 @@ export default function PreGame() {
       } else {
       
         const content  = await response.json();
-
         console.log(`unable to delete lobby because : ${content.message}`)
-
         let notice = content.status + " : Unknown error"
 
         switch(content.message) {
@@ -135,8 +87,6 @@ export default function PreGame() {
         toast.error(notice);
 
       }
-
-
     }
 
 
@@ -244,10 +194,10 @@ export default function PreGame() {
 
     //This is for testing,  rework later
     if ( lobby.state == "GAME" ) {
-      navigate("/lobby/" + lobbyId + "/game");
+      navigate("/lobby/" + lobby.id + "/game");
     }
 
-    const response = await fetch("/api/lobby/"+lobbyId+"/start", {
+    const response = await fetch("/api/lobby/"+lobby.id+"/start", {
       method: "POST",
       headers: {
       },
@@ -273,7 +223,6 @@ export default function PreGame() {
       toast.error(notice);
 
     }
-
   }
 
   /* compute a badge based on the lobby context */
@@ -288,17 +237,6 @@ export default function PreGame() {
   if ( !lobby ) {
     return (<><div>no lobby data</div></>)
   }
-
-  const settingsGrid = 
-    <div id="settings-grid">
-      <div className="settings-grid-label">Name</div><div className="settings-grid-value">{lobby.name}</div>
-      <div className="settings-grid-label">Capacity</div><div className="settings-grid-value">{lobby.capacity}</div>
-      <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "private" : "public"}</div>
-      <div className="settings-grid-label">Size</div><div className="settings-grid-value">{lobby.gameSettings.boardSize}</div>
-      <div className="settings-grid-label">Topology</div><div className="settings-grid-value">{lobby.gameSettings.boardTopology}</div>
-      <div className="settings-grid-label">Find Rule</div><div className="settings-grid-value">{lobby.gameSettings.findRule}</div>
-      <div className="settings-grid-label">Time Limit</div><div className="settings-grid-value">{lobby.gameSettings.duration}</div>
-    </div>
 
   return (
     <>
@@ -327,8 +265,7 @@ export default function PreGame() {
 
         <div className="center-flex-container">
 
-          <div className="chat-flex">
-          </div>
+          <div className="chat-flex"></div>
 
           <div className="player-controls-flex">
             <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>

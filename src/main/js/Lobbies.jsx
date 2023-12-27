@@ -4,11 +4,14 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader({params}) {
-  //const lobbiesResponse = await fetch("/api/lobby");
+
+  console.log(`loading lobbies list`)
+
   const lobbiesResponse = await fetch("/api/lobby/view/lobby");
   const lobbies = await lobbiesResponse.json()
-  console.log(`loading lobby data`)
+
   return { lobbies };
+
 }
 
 export default function Lobbies() {
@@ -25,7 +28,6 @@ export default function Lobbies() {
       },
       body: null
     });
-
 
     if (response.status == 200) {
 
@@ -97,8 +99,6 @@ export default function Lobbies() {
 
 
   }
-
-
 
 
   if ( !lobbies ) {

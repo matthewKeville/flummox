@@ -13,7 +13,7 @@ import ErrorPage                                  from "./Error.jsx";
 import Root                                       from "./Root.jsx";
 
 async function rootLoader({params}) {
-  console.log("Loading Root")
+  console.log("loading root")
 
   const userInfoResponse = await fetch("/api/user/info");
   var userInfo = await userInfoResponse.json()
