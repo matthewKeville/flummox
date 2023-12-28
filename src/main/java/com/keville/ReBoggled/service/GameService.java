@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.Game;
+import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.service.exceptions.GameServiceException;
 import com.keville.ReBoggled.service.exceptions.GameServiceException.GameServiceError;
@@ -31,8 +32,8 @@ public class GameService {
       return games.findAll();
     }
 
-    public Game createGame() throws GameServiceException {
-      Game game = new Game();
+    public Game createGame(Lobby lobby) throws GameServiceException {
+      Game game = new Game(lobby.gameSettings);
       games.save(game);
       return game;
     }

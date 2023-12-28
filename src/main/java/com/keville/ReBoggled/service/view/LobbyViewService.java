@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
+import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
+import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.util.Conversions;
@@ -25,11 +27,13 @@ public class LobbyViewService {
 
     private LobbyRepository lobbies;
     private UserRepository users;
+    private GameRepository games;
 
     public LobbyViewService(@Autowired LobbyRepository lobbies,
-        @Autowired UserRepository users) {
+        @Autowired UserRepository users, @Autowired GameRepository games) {
       this.lobbies = lobbies;
       this.users = users;
+      this.games = games;
     }
 
     public List<LobbyViewDTO> getLobbyViewDTOs() throws LobbyViewServiceException {
@@ -56,6 +60,8 @@ public class LobbyViewService {
 
       LobbyViewDTO lobbyDto = new LobbyViewDTO(lobby);
 
+      // join users
+
       Optional<User> ownerOpt = users.findById(lobby.owner.getId());
       if ( ownerOpt.isEmpty() ) {
         throw new LobbyViewServiceException(LobbyViewServiceError.USER_NOT_FOUND);
@@ -75,7 +81,26 @@ public class LobbyViewService {
 
       lobbyDto.owner = new LobbyUserDTO(owner);
       lobbyDto.users = userDtos;
-      lobbyDto.state = lobby.state;
+
+      // join game
+
+      if ( lobby.game != null ) {
+
+        Optional<Game> gameOpt = games.findById(lobby.game.getId());
+
+        if ( gameOpt.isEmpty() ) {
+          throw new LobbyViewServiceException(LobbyViewServiceError.GAME_NOT_FOUND);
+        }
+
+        Game game = gameOpt.get();
+
+        lobbyDto.gameStart = game.start;
+        lobbyDto.gameEnd = game.end;
+        lobbyDto.gameId = game.id;
+
+        LOG.info("assigned game attribs ");
+
+      }
 
       return lobbyDto;
 
@@ -85,7 +110,8 @@ public class LobbyViewService {
       SUCCESS,
       ERROR,
       LOBBY_NOT_FOUND,
-      USER_NOT_FOUND
+      USER_NOT_FOUND,
+      GAME_NOT_FOUND
     }
 
     public class LobbyViewServiceException extends Exception {

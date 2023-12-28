@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
-import com.keville.ReBoggled.model.lobby.Lobby.LobbyState;
 
 public class LobbyViewDTO {
 
@@ -16,7 +15,10 @@ public class LobbyViewDTO {
     public GameSettings gameSettings;
     public LocalDateTime lastModifiedDate;
 
-    public LobbyState state;
+    public Integer gameId;
+    public LocalDateTime gameStart;
+    public LocalDateTime gameEnd;
+
     public LobbyUserDTO owner;
     public List<LobbyUserDTO> users;
 

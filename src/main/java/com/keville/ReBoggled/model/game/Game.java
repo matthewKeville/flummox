@@ -25,7 +25,7 @@ public class Game {
   public LocalDateTime end;
 
   @MappedCollection(idColumn = "GAME")
-  public Set<GameAnswer> users = new HashSet<GameAnswer>();
+  public Set<GameAnswer> answers = new HashSet<GameAnswer>();
 
   @Embedded.Nullable
   public GameSettings gameSettings;
@@ -40,6 +40,7 @@ public class Game {
   public Game(GameSettings gameSettings)  {
     this();
     this.gameSettings = gameSettings;
+    this.end = this.start.plusSeconds(gameSettings.duration);
   }
 
 

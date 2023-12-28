@@ -3,11 +3,10 @@ import { useLoaderData, useRouteLoaderData, useNavigate, useOutletContext, useOu
 import { toast } from 'react-toastify';
 import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
 
-export default function PreGame() {
+export default function PreGame({lobby}) {
 
   const navigate = useNavigate();
   const { userInfo } = useRouteLoaderData("root");
-  const [lobby] = useOutletContext(null)
 
   // Don't render if API error
   if (lobby == null) {
@@ -193,9 +192,11 @@ export default function PreGame() {
   async function onStartGame() {
 
     //This is for testing,  rework later
+    /*
     if ( lobby.state == "GAME" ) {
       navigate("/lobby/" + lobby.id + "/game");
     }
+    */
 
     const response = await fetch("/api/lobby/"+lobby.id+"/start", {
       method: "POST",

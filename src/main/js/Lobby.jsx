@@ -1,5 +1,8 @@
 import React, { useState, useEffect, } from 'react';
-import { Outlet , useLoaderData } from "react-router-dom";
+import { Outlet , useLoaderData, useNavigate } from "react-router-dom";
+import PreGame from "./PreGame.jsx";
+import Game from "./Game.jsx";
+import PostGame from "./PostGame.jsx";
 
 export async function loader({params}) {
   console.log("loading lobby " + params.lobbyId)
@@ -16,12 +19,24 @@ export default function Lobby() {
 
   const lobbyId = useLoaderData();
   const [lobby,setLobby] = useState(null)
+  const [lobbyState,setLobbyState] = useState(null)
+  const navigate = useNavigate();
 
   useEffect(() => {
 
     const fetchInitialLobby = async () => {
       const newLobby = await loadLobbyData(lobbyId)
       setLobby(newLobby)
+
+      let gameStart = Date.parse(newLobby.gameStart)
+      let gameEnd = Date.parse(newLobby.gameEnd)
+
+      if ( gameEnd > Date.now() && gameStart < Date.now() ) {
+        setLobbyState("game")
+      } else {
+        setLobbyState("pregame")
+      }
+
     }
     fetchInitialLobby()
 
@@ -36,6 +51,7 @@ export default function Lobby() {
 
     evtSource.addEventListener("lobby_start", (e) => {
       console.log("lobby start recieved");
+      setLobbyState("game")
     });
 
     //cleanup (when unmount)
@@ -51,10 +67,32 @@ export default function Lobby() {
     return
   }
 
-  return (
-  <>
-      <Outlet context={[lobby]}/>
-  </>
-  )
+  console.log("lobby state is " + lobbyState)
+
+  if ( lobbyState == "pregame" ) {
+    return (
+      <>
+          <PreGame lobby={lobby} />
+      </>
+    )
+  } else if (lobbyState == "game") {
+    return (
+      <>
+          <Game lobby={lobby} onGameEnd={() => { setLobbyState("postgame"); console.log("triggered game end")}}/>
+      </>
+    )
+  } else if ( lobbyState == "postgame" ) {
+    return (
+      <>
+          <PostGame lobby={lobby} onReturnToLobby={() => {setLobbyState("pregame")}}/>
+      </>
+    )
+  } else {
+    return (
+      <>
+        <div style={{color: "red"}}> Oops </div>
+      </>
+    )
+  }
 
 }

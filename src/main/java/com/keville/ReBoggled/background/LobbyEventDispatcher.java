@@ -20,7 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
-import com.keville.ReBoggled.model.lobby.Lobby.LobbyState;
 import com.keville.ReBoggled.service.LobbyService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
 
@@ -165,7 +164,10 @@ public class LobbyEventDispatcher implements Runnable {
 
         //other events
        
-        if ( prevLobby.state == LobbyState.LOBBY && lobby.state == LobbyState.GAME ) {
+        if ( 
+              prevLobby.game != null && !prevLobby.game.getId().equals(lobby.game.getId()) ||
+              prevLobby.game == null && lobby.game != null )
+        {
 
           LOG.info("queueing lobby_start");
           events.add(SseEmitter.event()

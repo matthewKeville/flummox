@@ -31,7 +31,8 @@ export default function Lobbies() {
 
     if (response.status == 200) {
 
-      navigate("/lobby/" + lobbyId+"/pregame");
+      //navigate("/lobby/" + lobbyId+"/pregame");
+      navigate("/lobby/" + lobbyId+"/");
 
     } else {
 

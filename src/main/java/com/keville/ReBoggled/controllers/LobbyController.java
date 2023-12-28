@@ -26,7 +26,6 @@ import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.background.LobbyEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
-import com.keville.ReBoggled.model.lobby.Lobby.LobbyState;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.LobbyService;
@@ -88,90 +87,6 @@ public class LobbyController {
 
   }
 
-  //https://www.baeldung.com/spring-server-sent-events
-  /*
-  @GetMapping("/{id}/view/lobby/sse")
-  public SseEmitter getLobbySSE(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
-
-    logReq("get","/"+id+"/view/lobby/sse");
-
-    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-
-    //emitter.onCompletion( ()    -> LOG.info(id+"/view/lobby/sse completed") );
-    emitter.onTimeout(    ()    -> LOG.info(id+"/view/lobby/sse timed out"));
-    emitter.onError(      (ex)  -> {
-      LOG.info(id+"/view/lobby/sse error ");
-      if ( ex instanceof IOException ) {
-        LOG.info("IOException caught, likely client destroyed event source ...");
-      } else {
-        LOG.warn("Unexpected error ...");
-        LOG.error(ex.getMessage());
-      }
-    });
-
-    ExecutorService  sseMvcExecutor = Executors.newSingleThreadExecutor();
-
-    sseMvcExecutor.execute( () -> {
-
-      try {
-
-        boolean shouldRun = true;
-
-        LobbyViewDTO lobby = lobbyViewService.getLobbyViewDTO(id);
-
-        while ( shouldRun ) {
-
-          boolean outdated = lobbyService.isOutdated(id,lobby.lastModifiedDate);
-
-          if ( outdated ) {
-
-            LOG.info("lobby " + id + " has updated, resending ");
-            LobbyViewDTO lobbyUpdated = lobbyViewService.getLobbyViewDTO(id);
-
-            SseEventBuilder event = SseEmitter.event()
-              .id(String.valueOf(id))
-              .name("lobby_change")
-              .data(lobby);
-            emitter.send(event);
-            
-            if ( lobby.state == LobbyState.LOBBY && lobbyUpdated.state == LobbyState.GAME ) {
-
-              LOG.info("lobby " + id + " has started a game");
-
-              event = SseEmitter.event()
-                .id(String.valueOf(id))
-                .name("lobby_start");
-              emitter.send(event);
-
-            }
-
-            LOG.info("fuck after start gate");
-
-            lobby = lobbyUpdated;
-
-          }
-
-
-          Thread.sleep(5000);
-
-        }
-
-        emitter.complete();
-
-      } catch (Exception e) {
-        emitter.completeWithError(e);
-      }
-
-    });
-
-    return emitter;
-
-  }
-  */
-
-  //https://www.baeldung.com/spring-server-sent-events
   @GetMapping("/{id}/view/lobby/sse")
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
@@ -195,6 +110,7 @@ public class LobbyController {
       LOG.info(id+"/view/lobby/sse error ");
       if ( ex instanceof IOException ) {
         LOG.info("IOException caught, likely client destroyed event source ...");
+        LOG.info(ex.getMessage());
       } else {
         LOG.warn("Unexpected error ...");
         LOG.error(ex.getMessage());

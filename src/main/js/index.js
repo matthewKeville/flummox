@@ -7,8 +7,6 @@ import {
 
 import Lobbies, {loader as lobbiesLoader }        from "./Lobbies.jsx";
 import Lobby, {loader as lobbyLoader }            from "./Lobby.jsx";
-import PreGame, {loader as lobbyPreGameLoader }   from "./PreGame.jsx";
-import Game, {loader as lobbyGameLoader }         from "./Game.jsx";
 import ErrorPage                                  from "./Error.jsx";
 import Root                                       from "./Root.jsx";
 
@@ -47,20 +45,7 @@ const router = createBrowserRouter([
         element: <Lobby />,
         loader: lobbyLoader,
         id:"lobby",
-        children: [
-          {
-            path: "pregame",
-            element: <PreGame />,
-            loader: lobbyPreGameLoader,
-            id:"pregame"
-          },
-          {
-            path: "game",
-            element: <Game />,
-            loader: lobbyGameLoader,
-            id:"game"
-          }
-        ]
+        children: []
       }
     ]
   },

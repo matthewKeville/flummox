@@ -27,8 +27,6 @@ public class Lobby {
     @Embedded.Nullable
     public GameSettings gameSettings;
 
-    public LobbyState state; 
-
     public AggregateReference<User, Integer> owner ;
     public AggregateReference<Game, Integer> game ;
 
@@ -46,7 +44,6 @@ public class Lobby {
       this.capacity = capacity;
       this.isPrivate = isPrivate;
       this.owner = owner;
-      this.state = LobbyState.LOBBY;
       this.gameSettings = new GameSettings();
     }
 
@@ -56,13 +53,7 @@ public class Lobby {
       this.capacity = capacity;
       this.isPrivate = isPrivate;
       this.owner = owner;
-      this.state = LobbyState.LOBBY;
       this.gameSettings = gameSettings;
-    }
-
-    public enum LobbyState {
-      LOBBY,
-      GAME
     }
 
 }

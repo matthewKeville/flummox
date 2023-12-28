@@ -1,18 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-// import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
-// import { toast } from 'react-toastify';
+import GameTimer from "./GameTimer.jsx";
 
 export async function loader({params}) {
   const lobbyId = params.lobbyId
   return  { lobbyId };
 }
 
-export default function Game({params}) {
+export default function Game({lobby,onGameEnd}) {
   return ( 
     <>
       <div style={{color: "red"}}> Under Construction </div>
-      <div> Game for lobby</div>
+      <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
     </>
   )
 }
