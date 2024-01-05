@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
-import UserDisplay from "./UserDisplay.jsx";
 import { useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
+
+import UserDisplay from "../common/UserDisplay.jsx";
 
 export default function LobbyUserDisplay(props) {
 

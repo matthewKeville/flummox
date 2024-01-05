@@ -295,6 +295,8 @@ public class LobbyService {
       }
     }
 
+    //fixme : GameService employs a similar method, should each service have
+    //this utility defined in there own way?.... Probably not
     private User findUserById(Integer userId) throws LobbyServiceException {
       Optional<User> optUser = users.findById(userId);
       if ( !optUser.isPresent() ) {

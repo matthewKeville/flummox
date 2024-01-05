@@ -15,7 +15,8 @@ package com.keville.ReBoggled.service.exceptions;
 
       public enum GameServiceError {
         ERROR,
-        GAME_NOT_FOUND
+        GAME_NOT_FOUND,
+        USER_NOT_FOUND
       }
 
     }

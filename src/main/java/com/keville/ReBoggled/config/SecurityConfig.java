@@ -76,6 +76,9 @@ public class SecurityConfig {
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/view/user/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/view/user")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer")).permitAll()
 
         .anyRequest().authenticated()
 

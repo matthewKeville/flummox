@@ -12,4 +12,8 @@ public class GameAnswer {
   public String answer;
 
   public  GameAnswer() {}
+  public  GameAnswer(Integer userId,String answer) {
+    this.user = AggregateReference.to(userId);
+    this.answer = answer;
+  }
 }

@@ -1,7 +1,5 @@
 package com.keville.ReBoggled.background;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -102,10 +100,21 @@ public class LobbyEventDispatcher implements Runnable {
 
           try {
             for ( Integer lobbyId : lobbyEmitters.keySet() ) {
-              pulseCheck(lobbyId);
+
+              //pulse check
+
+              lobbyEmitters.get(lobbyId).forEach( emitter -> {
+                EventDispatchUtil.ssePulseCheck(emitter,
+                    String.format("pulse check failed for emitter on lobby %d ",lobbyId));
+              });
+
+
+
               //FIXME : In the future, this should be an active system
               //where this class subscribes to events from the EventService
+              
               detect(lobbyId);
+
             }
             Thread.sleep(5000);
           } catch (Exception e) {
@@ -202,35 +211,6 @@ public class LobbyEventDispatcher implements Runnable {
 
       }
 
-
-    }
-
-    /*
-     * Send a pulse event to all emitters for a given lobby.
-     * If they fail, we assume the client's event source is gone and we should dispose
-     * of the emitter.
-     */
-    private void pulseCheck(Integer lobbyId) {
-
-      Set<SseEmitter> emitters = lobbyEmitters.get(lobbyId);
-
-      LOG.trace(String.format("detecting dead listeners on lobby %d",lobbyId));
-
-      LOG.trace("queueing lobby_pulse");
-      SseEventBuilder event = SseEmitter.event()
-        .id(String.valueOf(lobbyId))
-        .name("lobby_change");
-
-      emitters.forEach ( emitter -> {
-
-        try {
-          emitter.send(event);
-        } catch (IOException e) {
-          LOG.info(String.format("pulse check failed for emitter on lobby %d",lobbyId));
-          emitter.completeWithError(e);
-        }
-
-      });
 
     }
 

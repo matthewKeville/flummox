@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
@@ -29,6 +30,10 @@ public class Game {
 
   @Embedded.Nullable
   public GameSettings gameSettings;
+
+  @LastModifiedDate
+  @Column("LAST_MODIFIED")
+  public LocalDateTime lastModifiedDate;
 
   public  Game() {
     this.boardString = "auxdfpceaufgsase";

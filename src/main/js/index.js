@@ -5,9 +5,9 @@ import {
   RouterProvider
 } from "react-router-dom";
 
-import Lobbies, {loader as lobbiesLoader }        from "./Lobbies.jsx";
-import Lobby, {loader as lobbyLoader }            from "./Lobby.jsx";
-import ErrorPage                                  from "./Error.jsx";
+import Lobbies, {loader as lobbiesLoader }        from "./lobby/Lobbies.jsx";
+import Lobby, {loader as lobbyLoader }            from "./lobby/Lobby.jsx";
+import ErrorPage                                  from "./common/Error.jsx";
 import Root                                       from "./Root.jsx";
 
 async function rootLoader({params}) {

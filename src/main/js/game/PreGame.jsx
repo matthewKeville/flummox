@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate, useOutletContext, useOutlet } from "react-router-dom";
 import { toast } from 'react-toastify';
-import LobbyUserDisplay from "./LobbyUserDisplay.jsx";
+
+import LobbyUserDisplay from "../lobby/LobbyUserDisplay.jsx";
 
 export default function PreGame({lobby}) {
 

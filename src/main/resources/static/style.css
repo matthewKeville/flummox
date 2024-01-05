@@ -2,6 +2,7 @@
 
 https://mycolor.space/?hex=%23002EAD&sub=1
 
+  #0096FF
   #002EAD
   #AC109D
   #F13078
@@ -88,9 +89,11 @@ body {
   background-color: green;
 }
 
-/*  --------------------------------------------------------------------  */
-/*  Header                                                                */
-/*  --------------------------------------------------------------------  */
+/* 
+ *
+ * header 
+ *
+ */
 
 header {
   background-color: #002EAD;
@@ -266,9 +269,11 @@ header {
   color: #FFB94C;
 }
 
-/*  --------------------------------------------------------------------  */
-/*  Lobby                                                                 */
-/*  --------------------------------------------------------------------  */
+/* 
+ *
+ * lobby 
+ *
+ */
 
 
 #lobby-welcome-header {
@@ -483,4 +488,85 @@ header {
 /* this must appear before elements that use it */
 .show {
   display:block;
+}
+
+
+/* 
+ *
+ * game 
+ *
+ */
+
+/*
+ * timer
+ */
+
+
+/*
+ * board
+ */
+
+.game-flex {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 20px;
+
+  margin-top: 20px;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.die {
+  background: #fff;
+  float: left;
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+  height: 80px;
+  width: 80px;
+  margin: 4px;
+  padding: 0;
+  border: 1px solid #999;
+  border-radius: 20px;
+  /*box-shadow: -2px -4px 8px rgb(255 255 255 / 60%), 2px 4px 8px rgb(0 0 0 / 30%);*/
+}
+
+.board {
+  display: table;
+
+  background: #002EAD;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+.board-row {
+  display: table-row;
+  background: #002EAD;
+}
+
+/*
+ * word input
+ */
+
+.word-input-container {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.word-columns {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+.found-word {
+  display: block;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px;
+  /*position: relative;*/
 }

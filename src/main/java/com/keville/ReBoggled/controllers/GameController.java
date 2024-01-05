@@ -1,5 +1,7 @@
 package com.keville.ReBoggled.controllers;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,14 +9,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.keville.ReBoggled.DTO.GameAnswerDTO;
+import com.keville.ReBoggled.DTO.GameUserViewDTO;
+import com.keville.ReBoggled.background.GameEventDispatcher;
 import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.GameService;
 import com.keville.ReBoggled.service.exceptions.GameServiceException;
+import com.keville.ReBoggled.service.exceptions.GameViewServiceException;
+import com.keville.ReBoggled.service.view.GameViewService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -26,10 +36,15 @@ public class GameController {
   public static final String baseRoute = "/api/game";
   private static final Logger LOG = LoggerFactory.getLogger(GameController.class);
   private RequestLogger rlog = new RequestLogger(baseRoute,LOG);
-  private GameService gameService;
 
-  public GameController(@Autowired GameService gameService) {
+  private GameService gameService;
+  private GameViewService gameViewService;
+  private GameEventDispatcher gameEventDispatcher;
+
+  public GameController(@Autowired GameService gameService,@Autowired GameViewService gameViewService, @Autowired GameEventDispatcher gameEventDispatcher) {
     this.gameService = gameService;
+    this.gameViewService = gameViewService;
+    this.gameEventDispatcher = gameEventDispatcher;
   }
 
   @GetMapping("")
@@ -59,13 +74,13 @@ public class GameController {
   }
 
 
-  /*
   @PostMapping("/{id}/answer")
   public ResponseEntity<?> answer (
       @PathVariable("id") Integer id,
+      @Valid @RequestBody GameAnswerDTO gameAnswerDTO,
       @Autowired HttpSession session) {
 
-    rlog.log("post",String.format("/%d/join",id));
+    rlog.log("post",String.format("/%d/answer",id));
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -74,82 +89,85 @@ public class GameController {
     }
 
     try {
-      //Lobby lobby = lobbyService.addUserToLobby(userId, id);
-      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
-    } catch (LobbyServiceException e)  {
-      handleLobbyServiceException(e);
+      Game game = gameService.addGameAnswer(id, userId, gameAnswerDTO.answer);
+      return new ResponseEntity<Game>(game,HttpStatus.OK);
+    } catch (GameServiceException e)  {
+      handleGameServiceException(e);
       return ResponseEntity.internalServerError().build();
     }
 
 
   }
-  */
 
-  //https://www.baeldung.com/spring-server-sent-events
-  /*
-  @GetMapping("/{id}/view/lobby/sse")
-  public SseEmitter getLobbySSE(
+  @GetMapping("/{id}/view/user")
+  public ResponseEntity<?> getUserView (
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    logReq("get","/"+id+"/view/lobby/sse");
+    logReq("get","/"+id+"/view/user");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    try {  
+      GameUserViewDTO gameUserViewDTO = gameViewService.getGameUserViewDTO(id, userId);
+      return new ResponseEntity<GameUserViewDTO>(gameUserViewDTO,HttpStatus.OK);
+    } catch (GameViewServiceException e) {
+      return handleGameViewServiceException(e);
+    }
+    
+  }
+
+  /* Register a Server Side Event Emitter to communicate changes to the game model for
+   * the user registered. (In-Game) */
+  @GetMapping("/{id}/view/user/sse")
+  public SseEmitter getGameSSEForUser (
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    logReq("get","/"+id+"/view/user/sse");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    //assemble emitter
 
     SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
-    //emitter.onCompletion( ()    -> LOG.info(id+"/view/lobby/sse completed") );
-    emitter.onTimeout(    ()    -> LOG.info(id+"/view/lobby/sse timed out"));
+    Runnable cleanup = () -> {
+      LOG.info("cleaning up game sse emitter");
+      gameEventDispatcher.unregister(id, userId, emitter);
+    };
+
     emitter.onError(      (ex)  -> {
-      LOG.info(id+"/view/lobby/sse error ");
+      LOG.info(id+"/view/user/sse error ");
       if ( ex instanceof IOException ) {
         LOG.info("IOException caught, likely client destroyed event source ...");
+        LOG.info(ex.getMessage());
       } else {
         LOG.warn("Unexpected error ...");
         LOG.error(ex.getMessage());
       }
+      cleanup.run();
     });
 
-    ExecutorService  sseMvcExecutor = Executors.newSingleThreadExecutor();
-
-    sseMvcExecutor.execute( () -> {
-
-      try {
-
-        boolean shouldRun = true;
-
-        LobbyViewDTO lobby = lobbyViewService.getLobbyViewDTO(id);
-
-        while ( shouldRun ) {
-
-          boolean outdated = lobbyService.isOutdated(id,lobby.lastModifiedDate);
-
-          if ( outdated ) {
-
-            LOG.info("lobby " + id + " has updated, resending ");
-            lobby = lobbyViewService.getLobbyViewDTO(id);
-
-            SseEventBuilder event = SseEmitter.event()
-              .id(String.valueOf(id))
-              .name("lobby change")
-              .data(lobby);
-            emitter.send(event);
-          }
-
-          Thread.sleep(5000);
-
-        }
-
-        emitter.complete();
-
-      } catch (Exception e) {
-        emitter.completeWithError(e);
-      }
-
+    emitter.onCompletion( ()    -> {
+      LOG.info(id+"/view/user/sse completed");
+      cleanup.run();
     });
+
+    // wire to dispatcher
+    gameEventDispatcher.register(id,userId,emitter);
 
     return emitter;
 
   }
-  */
 
   public ResponseEntity<?> handleGameServiceException(GameServiceException e) {
 
@@ -161,6 +179,21 @@ public class GameController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
+  }
+
+  public ResponseEntity<?> handleGameViewServiceException(GameViewServiceException e) {
+
+    switch (e.error) {
+      case ERROR:
+      default:
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+  }
+
+  private void logReq(String type,String route) {
+    type = type.toUpperCase();
+    LOG.info(type + "\t" + baseRoute + route);
   }
 
 }
