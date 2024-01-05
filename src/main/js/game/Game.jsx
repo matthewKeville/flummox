@@ -99,7 +99,7 @@ export default function Game({lobby,onGameEnd}) {
     <>
       <div className="game-flex">
         <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
-        <Board dice={game.gameViewDTO.boardString.split("")} />
+        <Board dice={game.gameViewDTO.tiles.map( tile => String.fromCharCode(tile.code) )} />
         <WordInput onWordInput={onSubmitAnswer}/>
         <AnswerDisplay words={game.answers.map( answer => answer.answer)} />
       </div>
