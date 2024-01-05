@@ -23,7 +23,7 @@ import com.keville.ReBoggled.service.view.GameViewService;
 @Component
 public class GameEventDispatcher implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LobbyEventDispatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GameEventDispatcher.class);
 
     private Map<Integer,Map<Integer,SseEmitter>> gameEmitters = new HashMap<Integer,Map<Integer,SseEmitter>>();
     private Map<Integer,Game> gameCache = new HashMap<Integer,Game>();
@@ -87,7 +87,7 @@ public class GameEventDispatcher implements Runnable {
 
         if ( gameUserEmitters.keySet().size() == 0 ) {
           gameUserEmitters.remove(gameId);
-          LOG.error(String.format("can't unregister emitter, not set for game %d",gameId));
+          LOG.info(String.format("no more emitters registered for game %d",gameId));
         }
 
       } else {

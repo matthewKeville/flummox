@@ -71,10 +71,6 @@ export default function Game({lobby,onGameEnd}) {
 
       toast.success("nice");
 
-    } else if ( response.url == authenticateUrl ) {
-
-      toast.error("incorrect");
-
     } else {
     
       const content  = await response.json();
@@ -83,6 +79,8 @@ export default function Game({lobby,onGameEnd}) {
       let notice = content.status + " : Unknown error"
 
       switch(content.message) {
+        //case "": //already found
+        //case "": //not found
         case "INTERNAL_ERROR":
         default:
           //pass

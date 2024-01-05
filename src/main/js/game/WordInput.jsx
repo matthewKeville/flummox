@@ -8,9 +8,7 @@ export default function WordInput({onWordInput}) {
     if  ( event.key == 'Enter' ) {
 
       let outcome = onWordInput(text)
-      if ( outcome == "new" ) {
-        setText("")
-      }
+      setText("")
 
     }
   }
