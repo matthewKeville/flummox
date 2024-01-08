@@ -66,34 +66,64 @@ public class WordService {
 
   private List<String> findPartialWords(String word) {
 
-    Comparator<String> subWordComparator = new Comparator<String>() {
-      public int compare(String s1, String s2) {
+    int match = partialBinarySearch(word,0,words.size()-1);
 
-        //fallback if not qualified for partial comparison
-        if ( s1.length() < word.length() || s2.length() < word.length() ) {
-          return s1.compareTo(s1);
-        }
-
-        return s1.substring(0,word.length()).compareTo(s2.substring(0,word.length()));
-      }
-    };
-
-    int match = Collections.binarySearch(words,word,subWordComparator);
     if ( match == -1 ) {
       return Collections.<String>emptyList();
     }
 
     //determine match neighborhood
-    int firstMatch = match-1;
-    while ( firstMatch >= 0 && subWordComparator.compare(word,words.get(firstMatch)) == 0) {
-      firstMatch--;
-    }
-    int lastMatch = match+1;
-    while ( lastMatch < words.size() && subWordComparator.compare(word,words.get(lastMatch)) == 0) {
-      lastMatch++;
+    int firstUnmatch = match-1;
+    while ( firstUnmatch >= 0 && word.equals( words.get(firstUnmatch).substring(0,word.length())) ) {
+      firstUnmatch--;
     }
 
-    return words.subList(firstMatch,lastMatch+1);
+    int lastUnmatch = match+1;
+    while ( firstUnmatch < words.size() && word.equals( words.get(lastUnmatch).substring(0,word.length())) ) {
+      lastUnmatch++;
+    }
+
+    return words.subList(firstUnmatch+1,lastUnmatch);
+
+  }
+
+  private int partialBinarySearch(String target,int lower, int upper) {
+
+    LOG.trace(String.format("word :  %s lower : % d upper % d ",target,lower,upper));
+
+    if ( lower == upper ) {
+      LOG.info("no match");
+      return -1;
+    }
+
+    int midpoint = (upper - lower) / 2 + lower;
+
+
+    String midWord = words.get(midpoint);
+
+    int comparison = 0;
+
+    //fallback if not qualified for full partial comparison
+    if ( midWord.length() < target.length() ) {
+      comparison = target.compareTo(midWord);
+    } else {
+      comparison =  target.compareTo(midWord.substring(0,target.length()));
+    }
+
+    LOG.trace(String.format("midpoint word : %s midpoint index : %d comparison value %d ",midWord,midpoint,comparison));
+
+    if ( comparison < 0) {
+      upper = (upper - lower != 1) ? midpoint : midpoint-1;
+      return partialBinarySearch(target, lower, upper);
+    }
+
+    if ( comparison > 0) {
+      lower = (upper - lower != 1) ? midpoint : midpoint+1;
+      return partialBinarySearch(target, lower, upper);
+    }
+    
+    return midpoint;
+    
 
   }
 

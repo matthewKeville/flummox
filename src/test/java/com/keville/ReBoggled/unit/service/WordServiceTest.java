@@ -30,7 +30,7 @@ class WordServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = { "sard" , "m" , "mandi" , "rac", "meretric", "nxvy" })
+  @ValueSource(strings = { "sard" , "m" , "mandi" , "rac", "meretric" })
   void isPartialWordReturnsTrue(String word) {
     assertTrue(wordService.isPartialWord(word),String.format("%s is a partial word!",word));
   }
