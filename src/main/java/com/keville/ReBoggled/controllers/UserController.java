@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.service.UserService;
+import com.keville.ReBoggled.service.userService.UserService;
 
 import jakarta.servlet.http.HttpSession;
 

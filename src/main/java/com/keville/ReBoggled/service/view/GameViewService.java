@@ -15,8 +15,7 @@ import com.keville.ReBoggled.model.game.GameAnswer;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.service.exceptions.GameViewServiceException;
-import com.keville.ReBoggled.service.exceptions.GameViewServiceException.GameViewServiceError;
+import com.keville.ReBoggled.service.view.GameViewServiceException.GameViewServiceError;
 
 @Component
 public class GameViewService {

@@ -21,10 +21,10 @@ import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.background.GameEventDispatcher;
 import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.service.GameService;
-import com.keville.ReBoggled.service.exceptions.GameServiceException;
-import com.keville.ReBoggled.service.exceptions.GameViewServiceException;
+import com.keville.ReBoggled.service.gameService.GameService;
+import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.view.GameViewService;
+import com.keville.ReBoggled.service.view.GameViewServiceException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -174,6 +174,12 @@ public class GameController {
     switch (e.error) {
       case GAME_NOT_FOUND:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "UNKNOWN_GAME");
+      case INVALID_ANSWER:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "INVALID_ANSWER");
+      case ANSWER_ALREADY_FOUND:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "ANSWER_ALREADY_FOUND");
+      case GAME_OVER:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "GAME_OVER");
       case ERROR:
       default:
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
-import com.keville.ReBoggled.service.LobbyService;
+import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
 
 @Component

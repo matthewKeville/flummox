@@ -28,9 +28,9 @@ import com.keville.ReBoggled.background.LobbyEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.service.LobbyService;
-import com.keville.ReBoggled.service.UserService;
-import com.keville.ReBoggled.service.exceptions.LobbyServiceException;
+import com.keville.ReBoggled.service.lobbyService.LobbyService;
+import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
+import com.keville.ReBoggled.service.userService.UserService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
 

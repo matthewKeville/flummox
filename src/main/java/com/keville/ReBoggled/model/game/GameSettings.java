@@ -29,4 +29,39 @@ public class GameSettings {
     this.findRule = findRule;
     this.duration = duration;
   }
+
+  @Override
+  public boolean equals(Object object) {
+
+    if ( object instanceof GameSettings ) {
+
+      GameSettings gameSettings = (GameSettings) object;
+
+      if ( !gameSettings.boardSize.equals(boardSize) ) {
+        return false;
+      }
+
+      if ( !gameSettings.boardTopology.equals(boardTopology) ) {
+        return false;
+      }
+
+      if ( !gameSettings.findRule.equals(findRule) ) {
+        return false;
+      }
+
+      /* We don't care about duration for this.
+      if ( !gameSettings.duration.equals(duration) ) {
+        return false;
+      }
+      */
+
+      return true;
+
+    }
+
+    return false;
+
+  }
+
+
 }

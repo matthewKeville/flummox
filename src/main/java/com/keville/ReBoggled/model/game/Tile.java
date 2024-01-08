@@ -8,4 +8,22 @@ public class Tile {
     this.code = code;
   }
 
+  @Override
+  public boolean equals(Object object) {
+
+    if ( !(object instanceof Tile) ) {
+      return false ;
+    }
+
+    Tile tile = (Tile) object;
+
+    return tile.code == this.code;
+
+  }
+
+  @Override 
+  public String toString() {
+    return  " Code : " + code ;
+  }
+
 }

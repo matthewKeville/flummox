@@ -16,8 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.service.GameService;
-import com.keville.ReBoggled.service.exceptions.GameViewServiceException;
+import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.view.GameViewService;
 
 @Component

@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
@@ -14,9 +16,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 
-import com.keville.ReBoggled.util.ClassicBoardGenerator;
-import com.keville.ReBoggled.util.ClassicBoardGenerator.BoardGenerationException;
-
+@Configurable
 public class Game {
 
   @Transient
@@ -45,22 +45,5 @@ public class Game {
   public GameSettings gameSettings;
 
   public  Game() {}
-
-  public Game(GameSettings gameSettings)  {
-
-    this.gameSettings = gameSettings;
-    this.start = LocalDateTime.now();
-    this.end = this.start.plusSeconds(gameSettings.duration);
-
-    try {
-      this.tiles = ClassicBoardGenerator.generate(gameSettings.boardSize);
-    } catch ( BoardGenerationException bge) {
-      LOG.error("failed to create board for game, reason : " + bge.getMessage());
-    }
-
-  }
-
-
-
 
 }

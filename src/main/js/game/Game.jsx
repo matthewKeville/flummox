@@ -81,6 +81,15 @@ export default function Game({lobby,onGameEnd}) {
       switch(content.message) {
         //case "": //already found
         //case "": //not found
+        case "INVALID_ANSWER":
+          notice = " nope ."
+          break;
+        case "ANSWER_ALREADY_FOUND":
+          notice = " word already found ..."
+          break;
+        case "GAME_OVER":
+          notice = " game is over ... "
+          break;
         case "INTERNAL_ERROR":
         default:
           //pass
