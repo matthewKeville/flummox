@@ -29,12 +29,17 @@ public class DefaultAnswerService implements AnswerService {
 
   public boolean isValidWord(String word,Game game) {
 
+    word = word.toUpperCase();
+
     GameSeed gameSeed = new GameSeed(game);
 
     if ( solveCache.containsKey(gameSeed) ) {
 
       LOG.info("solve cache hit!");
-      return solveCache.get(gameSeed).contains(word);
+      boolean result = solveCache.get(gameSeed).contains(word);
+      LOG.info("word : " + word + ( result ? " was found found " : " wasn't found ") ) ;
+      LOG.info(solveCache.get(gameSeed).toString());
+      return result;
 
     } 
 

@@ -45,8 +45,8 @@ public class PlaneBoardGraphBuilder extends GraphBuilder {
       List<Integer> adjacent = new ArrayList<Integer>();
 
       Predicate<Integer> inBounds     = x -> ( x >= 0 && x < tiles.size() );
-      Predicate<Integer> isLeftEdge   = x -> ( x % size != 0 );
-      Predicate<Integer> isRightEdge  = x -> ( x % size != size -1);
+      Predicate<Integer> isLeftEdge   = x -> ( x % this.size == 0 );
+      Predicate<Integer> isRightEdge  = x -> ( x % this.size == this.size - 1);
 
       //Ortho
       

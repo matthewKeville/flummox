@@ -73,6 +73,7 @@ public class ClassicBoardGenerator {
     this.tileCodeStringMap = tileCodeStringMap;
   }
 
+
   public List<Tile> generate(BoardSize boardSize) throws BoardGenerationException {
 
     if ( boardSize.equals(BoardSize.FOUR)) {
@@ -86,6 +87,13 @@ public class ClassicBoardGenerator {
     throw new BoardGenerationException("invalid board size for classic generator" + boardSize);
   }
 
+  public List<Tile> generateFromTileString(String tileString) throws BoardGenerationException {
+    if ( tileString.length() == 16 || tileString.length() == 25 ) {
+      return generate(tileString);
+    }
+    throw new BoardGenerationException("generateFromTileString only works for 16 or 25 characters not " + tileString.length());
+  }
+
   private List<Tile> generate(List<String> chars) {
     List<Tile> tiles = new ArrayList<Tile>();
     chars.forEach( die -> {
@@ -93,6 +101,18 @@ public class ClassicBoardGenerator {
       Integer code = c == 'Q' ? tileCodeStringMap.getCode("Qu") : (int) c;
       tiles.add(new Tile( code ));
     });
+
+    return tiles;
+  }
+
+  private List<Tile> generate(String tileString) {
+    List<Tile> tiles = new ArrayList<Tile>();
+ 
+    for ( int i = 0; i < tileString.length(); i++ ) {
+      char c = tileString.charAt(i);
+      Integer code = c == 'Q' ? tileCodeStringMap.getCode("Qu") : (int) c;
+      tiles.add(new Tile( code ));
+    }
 
     return tiles;
   }

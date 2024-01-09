@@ -1,5 +1,8 @@
 package com.keville.ReBoggled.unit.service;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,13 +28,34 @@ class SolutionServiceTest {
   @Autowired
   private GameFactory gameFactory;
 
+  /*
+    O   A   P   W
+
+
+    L   T   N   R
+
+
+    E   E   B   T
+
+
+    S   I   Qu   N
+  */
+
   @Test
   void solveFindsAllWords() {
+
+    List<String> wordsInBoard = Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" );
+
     GameSettings gameSettings = new GameSettings();
-    Game game = gameFactory.getGame(gameSettings);
+    Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
+
     List<String> solution = solutionService.solve(new GameSeed(game));
     Collections.sort(solution);
-    LOG.info(solution.toString());
+
+    for ( String word : wordsInBoard ) {
+      assertTrue(solution.contains(word),String.format("%s is in the board but was not found",word));
+    }
+
   }
 
 }

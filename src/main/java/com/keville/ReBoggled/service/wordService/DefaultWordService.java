@@ -19,7 +19,8 @@ public class DefaultWordService implements WordService {
 
   private static Logger LOG = LoggerFactory.getLogger(WordService.class);
 
-  private final String wordListPath = "./src/main/resources/words_alpha.txt";
+  //private final String wordListPath = "./src/main/resources/words_alpha.txt";
+  private final String wordListPath = "./src/main/resources/corncob_lowercase.txt";
 
   private List<String> words;
   private Set<String> wordSet;

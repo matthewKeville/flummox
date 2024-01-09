@@ -57,12 +57,14 @@ public class DefaultGameService implements GameService {
       return game;
     }
 
-    public Game addGameAnswer(Integer gameId, Integer userId, String answer) throws GameServiceException {
+    public Game addGameAnswer(Integer gameId, Integer userId, String userAnswer) throws GameServiceException {
+
+      final String answer = userAnswer.toUpperCase();
 
       Game game = findGameById(gameId);
       User user = findUserById(userId);
 
-      //TODO : does the user belong to this game?
+      //TODO : does the user belong to this game? : requires associating users to Game table
       
       //Is the game ongoing?
       if ( LocalDateTime.now().isAfter(game.end) ) {
@@ -71,19 +73,45 @@ public class DefaultGameService implements GameService {
       }
       
       //Does this word exist in the solution space?
-     
       if ( !answerService.isValidWord(answer,game) ) {
         LOG.trace(String.format(" answer %s is not correct for game %d",answer,game.id));
         throw new GameServiceException(GameServiceError.INVALID_ANSWER);
       }
-
-      //TODO : UNIQUE? FIRST? ANY?
      
       //Did this player already find this word?
-
       if ( game.answers.contains(new GameAnswer(userId,answer))) {
         LOG.trace(String.format(" answer %s is already found for user %d",answer,user.id));
         throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
+      }
+
+      //TODO : For record keeping purposes it makes more sense to always record player entries regardless of correctness
+      //or adherence to the rule. This allows us to field for guessing, or cheating. For now we do this online implementation
+      //of these rules, but more correct is storing everything and computing the results at the end.
+      //
+      //The  downside of above is the need to create a system that knows when a game has ended to calculate the final result.
+      //This could probably be achieved with a background service that watches when games end, and computes a game summary.
+      //This allows us to still be passive and detached in our design. The service fulfills one purpose, creating game summaries.
+
+      //GameCompletionWatcher . startGame register to GCW . GCW will watch until games end ..
+
+      //Apply find rule
+      switch ( game.gameSettings.findRule ) {
+        case ANY:
+          break;
+        case FIRST:
+          if ( ! game.answers.stream().anyMatch( ga -> { return ga.answer.equalsIgnoreCase(answer); } ) ) {
+            LOG.trace(String.format(" answer %s has already been found by another user",answer));
+            throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
+          }
+          break;
+        case UNIQUE:
+          if ( game.answers.stream().anyMatch( ga -> { return ga.answer.equalsIgnoreCase(answer); } ) ) {
+            LOG.trace(String.format(" answer %s has already been found by another user",answer));
+            // remove this answer from others players
+            game.answers.removeIf( ga -> { return ga.answer.equalsIgnoreCase(answer); });
+            throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
+          }
+          break;
       }
 
       game.answers.add(new GameAnswer(userId,answer));
