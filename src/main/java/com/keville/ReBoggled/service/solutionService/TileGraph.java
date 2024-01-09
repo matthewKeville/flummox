@@ -9,8 +9,8 @@ import com.keville.ReBoggled.model.game.Tile;
 
 public class TileGraph {
 
-  List<Tile> tiles;
-  List<Set<Integer>> adj;
+  public List<Tile> tiles;
+  public List<Set<Integer>> adj;
 
   public TileGraph(List<Tile> tiles) {
     this.tiles = tiles;
@@ -29,6 +29,10 @@ public class TileGraph {
     if ( undirected ) {
       addEdge(indexB,indexA,false);
     }
+  }
+
+  Set<Integer> getAdjacentIndicies(int tileIndex) {
+    return adj.get(tileIndex);
   }
 
   @Override

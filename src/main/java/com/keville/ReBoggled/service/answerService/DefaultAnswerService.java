@@ -47,4 +47,8 @@ public class DefaultAnswerService implements AnswerService {
 
   }
 
+  public int score(String word,Game game) {
+    return 0;
+  }
+
 }

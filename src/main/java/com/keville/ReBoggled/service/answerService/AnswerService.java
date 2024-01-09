@@ -4,4 +4,5 @@ import com.keville.ReBoggled.model.game.Game;
 
 public interface AnswerService {
   public boolean isValidWord(String word,Game game);
+  public int score(String word,Game game);
 }

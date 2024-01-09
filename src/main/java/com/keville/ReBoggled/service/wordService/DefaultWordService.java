@@ -32,20 +32,24 @@ public class DefaultWordService implements WordService {
   }
 
   public boolean isWord(String word) {
+    word = word.toLowerCase();
     return wordSet.contains(word);
   }
 
   public boolean isPartialWord(String word) {
+    word = word.toLowerCase();
     findPartialWords(word).stream().limit(3).forEach( x -> { LOG.info(x); });
     return findPartialWords(word).size() != 0;
   }
 
   public boolean isLegalBoggleWord(String word) {
+    word = word.toLowerCase();
     return isWord(word) && checkLegality(word);
   }
 
   public boolean isPartialLegalBoggleWord(String word) {
-    return findPartialWords(word).stream().anyMatch( w -> { return isLegalBoggleWord(w); });
+    word = word.toLowerCase();
+    return findPartialWords(word).stream().anyMatch( w -> { return checkLegality(w); });
   }
 
   private List<String> findPartialWords(String word) {
@@ -58,12 +62,18 @@ public class DefaultWordService implements WordService {
 
     //determine match neighborhood
     int firstUnmatch = match-1;
-    while ( firstUnmatch >= 0 && word.equals( words.get(firstUnmatch).substring(0,word.length())) ) {
+    //FIXME : these logical statements are far from readable
+    while ( firstUnmatch >= 0 && 
+        words.get(firstUnmatch).length() >= word.length() &&
+        word.equals( words.get(firstUnmatch).substring(0,word.length())) ) {
       firstUnmatch--;
     }
 
     int lastUnmatch = match+1;
-    while ( firstUnmatch < words.size() && word.equals( words.get(lastUnmatch).substring(0,word.length())) ) {
+    //FIXME : these logical statements are far from readable
+    while ( firstUnmatch < words.size() &&
+        words.get(lastUnmatch).length() >= word.length() &&
+        word.equals( words.get(lastUnmatch).substring(0,word.length())) ) {
       lastUnmatch++;
     }
 
@@ -76,7 +86,6 @@ public class DefaultWordService implements WordService {
     LOG.trace(String.format("word :  %s lower : % d upper % d ",target,lower,upper));
 
     if ( lower == upper ) {
-      LOG.info("no match");
       return -1;
     }
 
@@ -111,8 +120,11 @@ public class DefaultWordService implements WordService {
 
   }
 
+  /* FIXME : legality depends on the board size. In Big Boggle the word minimum
+   * is 4, but in original it is 3 
+  */
   private boolean checkLegality(String word) {
-    LOG.warn("WordService.checkLegality is not implemented, returning true");
-    return true;
+    //LOG.warn("WordService.checkLegality is not fully implemented");
+    return word.length() >= 3;
   }
 }
