@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.game.TileCodeStringMap;
@@ -38,10 +39,6 @@ public class DefaultSolutionService implements SolutionService {
     try {
 
     switch ( seed.gameSettings.boardTopology ) {
-      case TORUS:
-        //FIXME : implement TorusBoardGraphBuilder
-        LOG.warn(" TORUS solver not implementing , degenerating to PLANE solution");
-        //intentional fall through (subject to change)
       case PLANE:
         PlaneBoardGraphBuilder planeBoardGraphBuilder = new PlaneBoardGraphBuilder();
         planeBoardGraphBuilder.setTiles(seed.tiles);
@@ -49,10 +46,21 @@ public class DefaultSolutionService implements SolutionService {
         graph = planeBoardGraphBuilder.build();
         break;
       case CYLINDER:
+        //fall through
+      case CYLINDER_ALT:
         CylinderBoardGraphBuilder cylinderBoardGraphBuilder = new CylinderBoardGraphBuilder();
         cylinderBoardGraphBuilder.setTiles(seed.tiles);
         cylinderBoardGraphBuilder.setSize(boardSize);
+        if ( seed.gameSettings.boardTopology == BoardTopology.CYLINDER_ALT ) {
+          cylinderBoardGraphBuilder.setVertical();
+        }
         graph = cylinderBoardGraphBuilder.build();
+        break;
+      case TORUS:
+        TorusBoardGraphBuilder torusBoardGraphBuilder = new TorusBoardGraphBuilder();
+        torusBoardGraphBuilder.setTiles(seed.tiles);
+        torusBoardGraphBuilder.setSize(boardSize);
+        graph = torusBoardGraphBuilder.build();
         break;
       default :
         throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
@@ -78,8 +86,6 @@ public class DefaultSolutionService implements SolutionService {
 
       //analyze the frontier
       for ( List<Integer> subPath : frontier ) {
-
-        //LOG.trace("evaluating subpath : " + subPath);
 
         //is this a word?
         if ( wordService.isLegalBoggleWord(pathToWord(subPath,graph)) ) {

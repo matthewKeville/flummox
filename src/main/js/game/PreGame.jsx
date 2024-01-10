@@ -299,7 +299,8 @@ export default function PreGame({lobby}) {
                 <div className="settings-grid-label">Topology</div>
                 <select ref={editBoardTopologyRef} name="topology" defaultValue={lobby.gameSettings.boardTopology}>
                   <option value="PLANE">Plane</option>
-                  <option value="CYLINDER">Cylinder</option>
+                  <option value="CYLINDER">Cylinder (H)</option>
+                  <option value="CYLINDER_ALT">Cylinder (V)</option>
                   <option value="TORUS">Torus</option>
                 </select>
                  

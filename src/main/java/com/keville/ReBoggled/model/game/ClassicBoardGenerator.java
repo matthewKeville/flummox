@@ -7,6 +7,8 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class ClassicBoardGenerator {
@@ -15,6 +17,8 @@ public class ClassicBoardGenerator {
   private TileCodeStringMap tileCodeStringMap;
 
   private static Random random = new Random();
+
+  public static Logger LOG = LoggerFactory.getLogger(ClassicBoardGenerator.class);
 
   //For these chars q means Qu and should be properly handled.
 
@@ -89,6 +93,7 @@ public class ClassicBoardGenerator {
 
   public List<Tile> generateFromTileString(String tileString) throws BoardGenerationException {
     if ( tileString.length() == 16 || tileString.length() == 25 ) {
+      tileString = tileString.toUpperCase();
       return generate(tileString);
     }
     throw new BoardGenerationException("generateFromTileString only works for 16 or 25 characters not " + tileString.length());

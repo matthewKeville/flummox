@@ -1,7 +1,9 @@
 package com.keville.ReBoggled.service.solutionService;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -10,34 +12,31 @@ import org.slf4j.LoggerFactory;
 
 import com.keville.ReBoggled.model.game.Tile;
 
-public class CylinderBoardGraphBuilder extends GraphBuilder {
+public class CylinderBoardGraphBuilder extends PlaneBoardGraphBuilder {
 
-    Integer size;
     static Logger LOG = LoggerFactory.getLogger(CylinderBoardGraphBuilder.class);
 
-    /* Return Horizontal Cylinder */
-    public CylinderBoardGraphBuilder setSize(int size) {
-      this.size = size;
-      return this;
+    boolean isVertical = false;
+
+    Predicate<Integer> isTopEdge           = x -> ( x / this.size == 0 );
+    Predicate<Integer> isBottomEdge        = x -> ( x / this.size == this.size - 1);
+
+    Function<Integer,Integer>  leftWrap    = x -> ( x + (size - 1) );
+    Function<Integer,Integer>  rightWrap   = x -> ( x - (size - 1) );
+
+    Function<Integer,Integer>  topWrap     = x -> ( x + (size - 1)*(size) );
+    Function<Integer,Integer>  bottomWrap  = x -> ( x - (size - 1)*(size) );
+
+    public void setVertical() {
+      isVertical = true;
+    }
+    public void setHorizontal() {
+      isVertical = false;
     }
 
     public TileGraph build() throws GraphBuilderException {
 
-      //TODO : this check is similar to PlaneGraphBuilder
-      //This duplication is bothersome. Perhaps the best abstract
-      //is a nest of the classes Torus extends Cylinder extends Plane . Mobius would be it's own group
-      if ( tiles == null ) {
-        LOG.warn("tiles not set");
-        throw new GraphBuilderException("this.tiles is null");
-      }
-      if ( size == null ) {
-        LOG.warn("size not set");
-        throw new GraphBuilderException("this.size is null");
-      }
-      if ( this.size * this.size != this.tiles.size() ) {
-        LOG.warn("tile list and size  parameter are inconsistent");
-        throw new GraphBuilderException("tile list and size  parameter are inconsistent");
-      }
+      validate();
 
       TileGraph graph = new TileGraph(tiles);
 
@@ -50,99 +49,65 @@ public class CylinderBoardGraphBuilder extends GraphBuilder {
       return graph;
 
     }
- 
-    private List<Integer> adj(int i) {
 
-      List<Integer> adjacent = new ArrayList<Integer>();
+    @Override
+    protected Set<Integer> adj(int i) {
 
-      Predicate<Integer> inBounds           = x -> ( x >= 0 && x < tiles.size() );
-      Predicate<Integer> isLeftEdge         = x -> ( x % this.size == 0 );
-      Predicate<Integer> isRightEdge        = x -> ( x % this.size == this.size - 1);
+      Set<Integer> adjacent = super.adj(i);
 
-      Function<Integer,Integer>  leftWrap   = x -> ( x + (size - 1) );
-      Function<Integer,Integer>  rightWrap  = x -> ( x - (size - 1) );
+      if ( isVertical ) {
+        adjacent.addAll(adjVertical(i));
+      } else {
+        adjacent.addAll(adjHorizontal(i));
+      }
 
-      ///////
-      //Ortho
-      
-      //left
-      int next = i - 1;
-      if ( inBounds.test(next) && !isLeftEdge.test(i) ) {
-        adjacent.add(next);
+      return adjacent;
+
+    }
+
+    protected Set<Integer> adjHorizontal(int i) {
+
+      Set<Integer> adjacent = new HashSet<Integer>();
+
       //left wrap
-      } else if (isLeftEdge.test(i) ) {
+      int next = -1;
+      if (isLeftEdge.test(i) ) {
         next = leftWrap.apply(i);
         adjacent.add(next);
       }
 
-      //right
-      next = i + 1;
-      if ( inBounds.test(next) && !isRightEdge.test(i) ) {
-        adjacent.add(next);
       //right wrap
-      } else if (isRightEdge.test(i) ) {
+      if (isRightEdge.test(i) ) {
         next = rightWrap.apply(i);
         adjacent.add(next);
       }
 
-
-      //up
-      next = i - size;
-      if ( inBounds.test(next) ) {
-        adjacent.add(next);
-      }
-
-      //down
-      next = i + size;
-      if ( inBounds.test(next) ) {
-        adjacent.add(next);
-      }
-
-      ///////
-      //diag
-
-      //up left
-      next = i - 1 - size;
-      if ( inBounds.test(next) && !isLeftEdge.test(i) ) {
-        adjacent.add(next);
       //up left wrap
-      } else if (isLeftEdge.test(i) ) {
+      if (isLeftEdge.test(i) ) {
         next = leftWrap.apply(i) - size;
         if ( inBounds.test(next) ) {
           adjacent.add(next);
         }
       }
 
-      //up right
-      next = i + 1 - size;
-      if ( inBounds.test(next) && !isRightEdge.test(i) ) {
-        adjacent.add(next);
       //up right wrap
-      } else if (isRightEdge.test(i) ) {
+      if (isRightEdge.test(i) ) {
         next = rightWrap.apply(i) - size;
         if ( inBounds.test(next) ) {
           adjacent.add(next);
         }
       }
 
-      //down left
-      next = i - 1 + size;
-      if ( inBounds.test(next) && !isLeftEdge.test(i)) {
-        adjacent.add(next);
       //down left wrap
-      } else if (isLeftEdge.test(i) ) {
+      if (isLeftEdge.test(i) ) {
         next = leftWrap.apply(i) + size;
         if ( inBounds.test(next) ) {
           adjacent.add(next);
         }
       }
 
-      //down right
-      next = i + 1 + size;
-      if ( inBounds.test(next) && !isRightEdge.test(i)) {
-        adjacent.add(next);
       //down right wrap
-      } else if (isRightEdge.test(i) ) {
+      if (isRightEdge.test(i) ) {
         next = rightWrap.apply(i) + size;
         if ( inBounds.test(next) ) {
           adjacent.add(next);
@@ -150,7 +115,60 @@ public class CylinderBoardGraphBuilder extends GraphBuilder {
       }
 
       return adjacent;
-    }
+
+    } 
+    protected Set<Integer> adjVertical(int i) {
+
+      Set<Integer> adjacent = new HashSet<Integer>();
+
+      //up wrap
+      int next = -1;
+      if (isTopEdge.test(i) ) {
+        next = topWrap.apply(i);
+        adjacent.add(next);
+      }
+
+      //down wrap
+      if (isBottomEdge.test(i) ) {
+        next = bottomWrap.apply(i);
+        adjacent.add(next);
+      }
+
+      //up left wrap
+      if (isTopEdge.test(i) ) {
+        next = topWrap.apply(i) - 1;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
+      }
+
+      //up right wrap
+      if (isTopEdge.test(i) ) {
+        next = topWrap.apply(i) + 1;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
+      }
+
+      //down left wrap
+      if (isBottomEdge.test(i) ) {
+        next = bottomWrap.apply(i) - 1;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
+      }
+
+      //down right wrap
+      if (isBottomEdge.test(i) ) {
+        next = bottomWrap.apply(i) + 1;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
+      }
+
+      return adjacent;
+
+    } 
 
   }
 

@@ -35,6 +35,7 @@ public class GameFactory {
   }
 
   public Game getGameUsingTileString(GameSettings gameSettings,String tileString) {
+
     Game game = new Game();
 
     game.gameSettings = gameSettings;
