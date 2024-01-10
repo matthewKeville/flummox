@@ -13,5 +13,12 @@ abstract class GraphBuilder {
     return this;
   }
 
-  public abstract TileGraph build();
+  public abstract TileGraph build() throws GraphBuilderException;
+
+  public class GraphBuilderException extends Exception {
+    public GraphBuilderException(String message) {
+      super(message);
+    }
+  }
+
 }

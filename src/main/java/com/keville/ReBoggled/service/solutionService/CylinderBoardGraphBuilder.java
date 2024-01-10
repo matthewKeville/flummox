@@ -2,6 +2,7 @@ package com.keville.ReBoggled.service.solutionService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -9,17 +10,22 @@ import org.slf4j.LoggerFactory;
 
 import com.keville.ReBoggled.model.game.Tile;
 
-public class PlaneBoardGraphBuilder extends GraphBuilder {
-    Integer size;
-    static Logger LOG = LoggerFactory.getLogger(PlaneBoardGraphBuilder.class);
+public class CylinderBoardGraphBuilder extends GraphBuilder {
 
-    public PlaneBoardGraphBuilder setSize(int size) {
+    Integer size;
+    static Logger LOG = LoggerFactory.getLogger(CylinderBoardGraphBuilder.class);
+
+    /* Return Horizontal Cylinder */
+    public CylinderBoardGraphBuilder setSize(int size) {
       this.size = size;
       return this;
     }
 
     public TileGraph build() throws GraphBuilderException {
 
+      //TODO : this check is similar to PlaneGraphBuilder
+      //This duplication is bothersome. Perhaps the best abstract
+      //is a nest of the classes Torus extends Cylinder extends Plane . Mobius would be it's own group
       if ( tiles == null ) {
         LOG.warn("tiles not set");
         throw new GraphBuilderException("this.tiles is null");
@@ -49,15 +55,23 @@ public class PlaneBoardGraphBuilder extends GraphBuilder {
 
       List<Integer> adjacent = new ArrayList<Integer>();
 
-      Predicate<Integer> inBounds     = x -> ( x >= 0 && x < tiles.size() );
-      Predicate<Integer> isLeftEdge   = x -> ( x % this.size == 0 );
-      Predicate<Integer> isRightEdge  = x -> ( x % this.size == this.size - 1);
+      Predicate<Integer> inBounds           = x -> ( x >= 0 && x < tiles.size() );
+      Predicate<Integer> isLeftEdge         = x -> ( x % this.size == 0 );
+      Predicate<Integer> isRightEdge        = x -> ( x % this.size == this.size - 1);
 
+      Function<Integer,Integer>  leftWrap   = x -> ( x + (size - 1) );
+      Function<Integer,Integer>  rightWrap  = x -> ( x - (size - 1) );
+
+      ///////
       //Ortho
       
       //left
       int next = i - 1;
       if ( inBounds.test(next) && !isLeftEdge.test(i) ) {
+        adjacent.add(next);
+      //left wrap
+      } else if (isLeftEdge.test(i) ) {
+        next = leftWrap.apply(i);
         adjacent.add(next);
       }
 
@@ -65,7 +79,12 @@ public class PlaneBoardGraphBuilder extends GraphBuilder {
       next = i + 1;
       if ( inBounds.test(next) && !isRightEdge.test(i) ) {
         adjacent.add(next);
+      //right wrap
+      } else if (isRightEdge.test(i) ) {
+        next = rightWrap.apply(i);
+        adjacent.add(next);
       }
+
 
       //up
       next = i - size;
@@ -79,30 +98,55 @@ public class PlaneBoardGraphBuilder extends GraphBuilder {
         adjacent.add(next);
       }
 
+      ///////
       //diag
 
       //up left
       next = i - 1 - size;
       if ( inBounds.test(next) && !isLeftEdge.test(i) ) {
         adjacent.add(next);
+      //up left wrap
+      } else if (isLeftEdge.test(i) ) {
+        next = leftWrap.apply(i) - size;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
       }
 
       //up right
       next = i + 1 - size;
       if ( inBounds.test(next) && !isRightEdge.test(i) ) {
         adjacent.add(next);
+      //up right wrap
+      } else if (isRightEdge.test(i) ) {
+        next = rightWrap.apply(i) - size;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
       }
 
       //down left
       next = i - 1 + size;
       if ( inBounds.test(next) && !isLeftEdge.test(i)) {
         adjacent.add(next);
+      //down left wrap
+      } else if (isLeftEdge.test(i) ) {
+        next = leftWrap.apply(i) + size;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
       }
 
       //down right
       next = i + 1 + size;
       if ( inBounds.test(next) && !isRightEdge.test(i)) {
         adjacent.add(next);
+      //down right wrap
+      } else if (isRightEdge.test(i) ) {
+        next = rightWrap.apply(i) + size;
+        if ( inBounds.test(next) ) {
+          adjacent.add(next);
+        }
       }
 
       return adjacent;

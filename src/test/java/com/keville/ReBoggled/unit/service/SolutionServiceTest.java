@@ -17,6 +17,7 @@ import com.keville.ReBoggled.model.game.GameFactory;
 import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
+import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
 
 @SpringBootTest
 class SolutionServiceTest {
@@ -42,7 +43,7 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveFindsAllWords() {
+  void solveFindsAllWords() throws SolutionServiceException {
 
     List<String> wordsInBoard = Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" );
 

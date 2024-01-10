@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.GameSeed;
+import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.game.TileCodeStringMap;
+import com.keville.ReBoggled.service.solutionService.GraphBuilder.GraphBuilderException;
+import com.keville.ReBoggled.service.solutionService.SolutionServiceException.SolutionServiceError;
 import com.keville.ReBoggled.service.wordService.WordService;
 import com.keville.ReBoggled.util.GameBoardStringifier;
 
@@ -26,13 +29,40 @@ public class DefaultSolutionService implements SolutionService {
   @Autowired
   private WordService wordService;
 
-  public List<String> solve(GameSeed seed) {
+  public List<String> solve(GameSeed seed) throws SolutionServiceException {
 
     LOG.info("building graph");
-    PlaneBoardGraphBuilder planeBoardGraphBuilder = new PlaneBoardGraphBuilder();
-    planeBoardGraphBuilder.setTiles(seed.tiles);
-    planeBoardGraphBuilder.setSize(4);
-    TileGraph graph = planeBoardGraphBuilder.build();
+    int boardSize = getBoardSize(seed.gameSettings);    
+    final TileGraph graph;
+
+    try {
+
+    switch ( seed.gameSettings.boardTopology ) {
+      case TORUS:
+        //FIXME : implement TorusBoardGraphBuilder
+        LOG.warn(" TORUS solver not implementing , degenerating to PLANE solution");
+        //intentional fall through (subject to change)
+      case PLANE:
+        PlaneBoardGraphBuilder planeBoardGraphBuilder = new PlaneBoardGraphBuilder();
+        planeBoardGraphBuilder.setTiles(seed.tiles);
+        planeBoardGraphBuilder.setSize(boardSize);
+        graph = planeBoardGraphBuilder.build();
+        break;
+      case CYLINDER:
+        CylinderBoardGraphBuilder cylinderBoardGraphBuilder = new CylinderBoardGraphBuilder();
+        cylinderBoardGraphBuilder.setTiles(seed.tiles);
+        cylinderBoardGraphBuilder.setSize(boardSize);
+        graph = cylinderBoardGraphBuilder.build();
+        break;
+      default :
+        throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
+    }
+
+    } catch (GraphBuilderException gbe) {
+      throw new SolutionServiceException(SolutionServiceError.INCONSISTENT_BOARD_PARAMETERS);
+    }
+
+    LOG.info("solving graph");
 
     Set<List<Integer>> frontier = new HashSet<List<Integer>>();
     Set<List<Integer>> closed = new HashSet<List<Integer>>();
@@ -92,6 +122,18 @@ public class DefaultSolutionService implements SolutionService {
     return path.stream()
       .map( x -> tileCodeStringMap.getString(tileGraph.tiles.get(x).code))
       .reduce("", (partialWord, tileChar) -> partialWord + tileChar);
+  }
+
+  private int getBoardSize(GameSettings settings) throws SolutionServiceException {
+    switch ( settings.boardSize ) {
+      case FOUR:
+        return 4;
+      case FIVE:
+        return 5;
+      default :
+        LOG.warn("unhandled board size " + settings.boardSize );
+        throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
+    }
   }
 
 }

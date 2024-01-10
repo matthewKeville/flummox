@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
+import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
 
 @Component
 public class DefaultAnswerService implements AnswerService {
@@ -45,10 +46,15 @@ public class DefaultAnswerService implements AnswerService {
 
     LOG.info("solve cache miss");
 
-    List<String> solution = solutionService.solve(gameSeed);
-    solveCache.put(gameSeed,solution);
-
-    return solution.contains(word);
+    try {
+      List<String> solution = solutionService.solve(gameSeed);
+      solveCache.put(gameSeed,solution);
+      return solution.contains(word);
+    } catch (SolutionServiceException sse) {
+      LOG.error("caught exception while trying to solve game, defaulting to false");
+      LOG.error(sse.getMessage());
+      return false;
+    }
 
   }
 

@@ -5,6 +5,6 @@ import com.keville.ReBoggled.model.game.GameSeed;
 
 public interface SolutionService {
 
-  public List<String> solve(GameSeed seed);
+  public List<String> solve(GameSeed seed) throws SolutionServiceException;
 
 }
