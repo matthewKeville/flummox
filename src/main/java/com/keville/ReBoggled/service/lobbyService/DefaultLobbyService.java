@@ -3,6 +3,8 @@ package com.keville.ReBoggled.service.lobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
@@ -31,16 +33,20 @@ public class DefaultLobbyService implements LobbyService {
     private LobbyRepository lobbies;
     private UserRepository users;
     private GameService gameService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
-    public DefaultLobbyService(@Autowired LobbyRepository lobbies,
-        @Autowired UserRepository users, @Autowired GameRepository games,
-        @Autowired GameService gameService) {
+    public DefaultLobbyService(
+        @Autowired LobbyRepository lobbies,
+        @Autowired UserRepository users, 
+        @Autowired GameRepository games,
+        @Autowired GameService gameService,
+        @Autowired ApplicationEventPublisher applicationEventPublisher) {
 
       this.lobbies = lobbies;
       this.users = users;
       this.games = games;
-
       this.gameService = gameService;
+      this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public Iterable<Lobby> getLobbies() {
@@ -255,6 +261,9 @@ public class DefaultLobbyService implements LobbyService {
         Game game = gameService.createGame(lobby);
         lobby.game = AggregateReference.to(game.id);
         lobbies.save(lobby);
+
+        applicationEventPublisher.publishEvent(new LobbyGameStartEvent(this, lobbyId));
+
         return lobby;
 
       } catch (GameServiceException exception) {

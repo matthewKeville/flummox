@@ -14,7 +14,7 @@ public class EventDispatchUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatchUtil.class);
 
-    public static void ssePulseCheck(SseEmitter emitter,String failMessage) {
+    public static boolean ssePulseCheck(SseEmitter emitter,String failMessage) {
 
       SseEventBuilder event = SseEmitter.event()
         .id("1234")
@@ -22,10 +22,12 @@ public class EventDispatchUtil {
 
       try {
         emitter.send(event);
+        return true;
       } catch (IOException e) {
         LOG.info(failMessage);
         emitter.completeWithError(e);
       }
+      return false;
 
     }
 
