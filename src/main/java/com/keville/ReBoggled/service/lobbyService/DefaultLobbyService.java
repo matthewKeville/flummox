@@ -262,8 +262,6 @@ public class DefaultLobbyService implements LobbyService {
         lobby.game = AggregateReference.to(game.id);
         lobbies.save(lobby);
 
-        applicationEventPublisher.publishEvent(new LobbyGameStartEvent(this, lobbyId));
-
         return lobby;
 
       } catch (GameServiceException exception) {

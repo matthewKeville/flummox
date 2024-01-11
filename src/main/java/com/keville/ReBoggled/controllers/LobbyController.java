@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
-import com.keville.ReBoggled.background.LobbyEventDispatcher;
+import com.keville.ReBoggled.background.LobbySseEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
@@ -48,17 +48,17 @@ public class LobbyController {
   private UserService userService;
 
   private LobbyViewService lobbyViewService;
-  private LobbyEventDispatcher lobbyEventDispatcher;
+  private LobbySseEventDispatcher lobbySseEventDispatcher;
 
   public LobbyController(@Autowired LobbyService lobbyService,
       @Autowired UserService userService,
       @Autowired LobbyViewService lobbyViewService,
-      @Autowired LobbyEventDispatcher lobbyEventDispatcher) {
+      @Autowired LobbySseEventDispatcher lobbySseEventDispatcher) {
 
     this.lobbyService = lobbyService;
     this.userService = userService;
     this.lobbyViewService = lobbyViewService;
-    this.lobbyEventDispatcher = lobbyEventDispatcher;
+    this.lobbySseEventDispatcher = lobbySseEventDispatcher;
   }
 
   @GetMapping("")
@@ -100,7 +100,7 @@ public class LobbyController {
 
     Runnable cleanup = () -> {
       LOG.info("cleaning up sse emitter");
-      lobbyEventDispatcher.unregister(id,emitter);
+      lobbySseEventDispatcher.unregister(id,emitter);
     };
 
     //shouldn't happen : see cons
@@ -124,7 +124,7 @@ public class LobbyController {
 
     // wire to dispatcher
 
-    lobbyEventDispatcher.register(id,emitter);
+    lobbySseEventDispatcher.register(id,emitter);
 
     return emitter;
 

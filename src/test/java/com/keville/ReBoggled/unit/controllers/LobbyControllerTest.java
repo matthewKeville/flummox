@@ -24,9 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.keville.ReBoggled.background.LobbySseEventDispatcher;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
-import com.keville.ReBoggled.background.LobbyEventDispatcher;
 import com.keville.ReBoggled.config.SecurityConfig;
 import com.keville.ReBoggled.controllers.LobbyController;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -60,7 +60,7 @@ public class LobbyControllerTest {
   @MockBean
   private UserRepository users;
   @MockBean
-  private LobbyEventDispatcher LobbyEventDispatcher;
+  private LobbySseEventDispatcher LobbySseEventDispatcher;
 
   @Autowired
   private MockMvc mockMvc;

@@ -17,7 +17,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
-import com.keville.ReBoggled.service.lobbyService.LobbyGameStartEvent;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
@@ -87,28 +86,6 @@ public class LobbySseEventDispatcher {
       LOG.error(String.format("registered new emitter for lobby %d",lobbyId));
 
     }
-
-  @EventListener
-  public void handleLobbyStartEvent(LobbyGameStartEvent event) {
-
-    LOG.info("caught LobbyGameStartEvent lobby.id " + event.getLobbyId());
-    Integer lobbyId = event.getLobbyId();
-    if ( !lobbyEmitters.containsKey( lobbyId ) ) {
-      return;
-    }
-
-    Set<SseEmitter> emitters = lobbyEmitters.get(lobbyId);
-    LOG.info("found " + emitters.size() + " emitters for lobby " + lobbyId);
-
-    SseEventBuilder lobbyStartEvent = SseEmitter.event()
-      .id(String.valueOf(lobbyId))
-      .name("lobby_start")
-      .data(""); //breaks if I provide nothing
-
-    String failMessage = "Couldn't send lobby_start for lobby : "  + lobbyId;
-    tryEmitEvents(emitters, lobbyStartEvent, failMessage);
-
-  }
   
   @EventListener
   public void handleLobbyUpdateEvent(AfterSaveEvent<Object> event) {

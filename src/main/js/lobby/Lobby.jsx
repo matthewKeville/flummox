@@ -21,23 +21,37 @@ export default function Lobby() {
   const lobbyId = useLoaderData();
   const [lobby,setLobby] = useState(null)
   const [lobbyState,setLobbyState] = useState(null)
-  const navigate = useNavigate();
+
+  function computeLobbyState() {
+
+    if ( lobby == null ) {
+      return null
+    }
+
+    let gameStart = Date.parse(lobby.gameStart)
+    let gameEnd = Date.parse(lobby.gameEnd)
+
+    if ( gameEnd > Date.now() && gameStart < Date.now() ) {
+      if ( lobbyState != "game" ) {
+        setLobbyState("game")
+      }
+    } else {
+      if ( lobbyState != "pregame" ) {
+        setLobbyState("pregame")
+      }
+    }
+
+    //This can be confusing to see in the logs as it appears up
+    //to 4 times when loading the lobby.
+    console.log("lobby is state is :" + lobbyState)
+
+  }
 
   useEffect(() => {
 
     const fetchInitialLobby = async () => {
       const newLobby = await loadLobbyData(lobbyId)
       setLobby(newLobby)
-
-      let gameStart = Date.parse(newLobby.gameStart)
-      let gameEnd = Date.parse(newLobby.gameEnd)
-
-      if ( gameEnd > Date.now() && gameStart < Date.now() ) {
-        setLobbyState("game")
-      } else {
-        setLobbyState("pregame")
-      }
-
     }
     fetchInitialLobby()
 
@@ -50,11 +64,6 @@ export default function Lobby() {
       setLobby(newLobbyData)
     });
 
-    evtSource.addEventListener("lobby_start", (e) => {
-      console.log("lobby start recieved");
-      setLobbyState("game")
-    });
-
     //cleanup (when unmount)
     return () => {
       console.log("closing the event source") 
@@ -63,12 +72,10 @@ export default function Lobby() {
 
   }, []);
 
-  //  We need useEffect to load inital data ...
   if (lobby == null) {
     return
   }
-
-  console.log("lobby state is " + lobbyState)
+  computeLobbyState()
 
   if ( lobbyState == "pregame" ) {
     return (
