@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
-import com.keville.ReBoggled.background.LobbySseEventDispatcher;
+import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;

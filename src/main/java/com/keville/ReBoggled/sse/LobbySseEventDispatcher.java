@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.background;
+package com.keville.ReBoggled.sse;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
 
 @Component
-public class LobbySseEventDispatcher {
+public class LobbySseEventDispatcher extends SseEventDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbySseEventDispatcher.class);
     private Map<Integer,Set<SseEmitter>> lobbyEmitters = new HashMap<Integer,Set<SseEmitter>>();
@@ -119,34 +119,6 @@ public class LobbySseEventDispatcher {
       LOG.error(e.getMessage());
     }
 
-  }
-
-  private void emitEvent(SseEmitter sseEmitter,SseEventBuilder sseEvent) {
-
-    try {
-
-      LOG.info("dispatching event " + sseEvent.toString() + " to emitter " + sseEmitter.toString());
-      sseEmitter.send(sseEvent);
-
-    } catch (Exception e) {
-
-      LOG.error(String.format("unexpected error dispatching events for emitter " + sseEmitter.toString()));
-      LOG.error(e.getMessage());
-      sseEmitter.completeWithError(e);
-
-    }
-  }
-
-  private void tryEmitEvent(SseEmitter sseEmitter,SseEventBuilder sseEvent,String pulseFailMessage) {
-    if (EventDispatchUtil.ssePulseCheck(sseEmitter,pulseFailMessage)) {
-      emitEvent(sseEmitter,sseEvent);
-    }
-  }
-
-  private void tryEmitEvents(Collection<SseEmitter> sseEmitters,SseEventBuilder sseEvent,String pulseFailMessage) {
-    sseEmitters.forEach( emitter -> {
-      tryEmitEvent(emitter, sseEvent,pulseFailMessage);
-    });
   }
 
 }

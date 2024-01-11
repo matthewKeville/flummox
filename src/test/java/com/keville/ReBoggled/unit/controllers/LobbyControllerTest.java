@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.keville.ReBoggled.background.LobbySseEventDispatcher;
+import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.config.SecurityConfig;

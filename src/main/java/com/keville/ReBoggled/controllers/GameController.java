@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
-import com.keville.ReBoggled.background.GameEventDispatcher;
+import com.keville.ReBoggled.sse.GameSseEventDispatcher;
 import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.gameService.GameService;
@@ -39,12 +39,14 @@ public class GameController {
 
   private GameService gameService;
   private GameViewService gameViewService;
-  private GameEventDispatcher gameEventDispatcher;
+  private GameSseEventDispatcher gameSseEventDispatcher;
 
-  public GameController(@Autowired GameService gameService,@Autowired GameViewService gameViewService, @Autowired GameEventDispatcher gameEventDispatcher) {
+  public GameController(@Autowired GameService gameService,
+      @Autowired GameViewService gameViewService, 
+      @Autowired GameSseEventDispatcher gameSseEventDispatcher) {
     this.gameService = gameService;
     this.gameViewService = gameViewService;
-    this.gameEventDispatcher = gameEventDispatcher;
+    this.gameSseEventDispatcher = gameSseEventDispatcher;
   }
 
   @GetMapping("")
@@ -142,7 +144,7 @@ public class GameController {
 
     Runnable cleanup = () -> {
       LOG.info("cleaning up game sse emitter");
-      gameEventDispatcher.unregister(id, userId, emitter);
+      gameSseEventDispatcher.unregister(id, userId, emitter);
     };
 
     emitter.onError(      (ex)  -> {
@@ -163,7 +165,7 @@ public class GameController {
     });
 
     // wire to dispatcher
-    gameEventDispatcher.register(id,userId,emitter);
+    gameSseEventDispatcher.register(id,userId,emitter);
 
     return emitter;
 

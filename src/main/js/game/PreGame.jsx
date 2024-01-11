@@ -312,7 +312,7 @@ export default function PreGame({lobby}) {
                 </select>
 
                 <div className="settings-grid-label">Time Limit</div>
-                <input ref={editDurationRef} type="number" name="time" min="60" max="300" step="30" defaultValue={lobby.gameSettings.duration}/>
+                <input ref={editDurationRef} type="number" name="time" min="30" max="300" step="30" defaultValue={lobby.gameSettings.duration}/>
 
                 <button id="save-settings-button" onClick={onApplySettingsChanges}>Save</button>
                 <button id="discard-settings-button" onClick={onDiscardSettingsChanges}>Discard</button>

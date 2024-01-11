@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.background;
+package com.keville.ReBoggled.sse;
 
 import java.io.IOException;
 import java.util.Collection;
