@@ -39,7 +39,9 @@ export default function GameTimer({gameEnd,onGameEnd}) {
 
   return ( 
     <>
-      <span className="game-timer" style={{color: "orange"}}>{time}</span>
+      <div className="game-timer-div">
+        <text className="game-timer-text">{time}</text>
+      </div>
     </>
   )
 }

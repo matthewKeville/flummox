@@ -105,6 +105,8 @@ export default function Game({lobby,onGameEnd}) {
   }
 
   return (
+
+    /*
     <>
       <div className="game-flex">
         <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
@@ -113,6 +115,29 @@ export default function Game({lobby,onGameEnd}) {
         <AnswerDisplay words={game.answers.map( answer => answer.answer)} />
       </div>
     </>
+    */
+
+    <div className="game-grid">
+
+      <div className="game-grid-timer">
+        <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
+      </div>
+
+      <div className="game-grid-board">
+        <Board dice={game.gameViewDTO.tiles.map( tile => String.fromCharCode(tile.code) )} />
+      </div>
+
+      <div className="game-grid-word-input">
+        <WordInput onWordInput={onSubmitAnswer}/>
+      </div>
+
+      <div className="game-grid-answer-display">
+        <AnswerDisplay words={game.answers.map( answer => answer.answer)} />
+      </div>
+
+    </div>
+
+
   );
 
 }

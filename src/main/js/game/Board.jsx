@@ -19,7 +19,7 @@ function Die({value, handleClick}) {
 export default function Board({dice}) {
   if ( dice.length == 16 ) {
     return (
-      <div className="board-container">
+      <>
         <div className="board">
           <div className="board-row">
             <Die value={dice[0]} handleClick={() => handleDieClick(0)} />
@@ -46,11 +46,11 @@ export default function Board({dice}) {
             <Die value={dice[15]} handleClick={() => handleDieClick(15)} />
           </div>
         </div>
-      </div>
+      </>
     );
   } else if ( dice.length == 25 ) {
     return (
-      <div className="board-container">
+      <>
         <div className="board">
           <div className="board-row">
             <Die value={dice[0]} handleClick={() => handleDieClick(0)} />
@@ -88,11 +88,11 @@ export default function Board({dice}) {
             <Die value={dice[24]} handleClick={() => handleDieClick(24)} />
           </div>
         </div>
-      </div>
+      </>
     );
   } else if ( dice.length == 36 ) {
     return (
-      <div className="board-container">
+      <>
         <div className="board">
           <div className="board-row">
             <Die value={dice[0]} handleClick={() => handleDieClick(0)} />
@@ -143,7 +143,7 @@ export default function Board({dice}) {
             <Die value={dice[35]} handleClick={() => handleDieClick(35)} />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 

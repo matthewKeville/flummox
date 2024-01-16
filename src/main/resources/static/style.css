@@ -308,46 +308,90 @@ header {
   text-decoration: line-through;
 }
 
+
+/* PreGame layout */
+
 .lobby-welcome-header {
   color: white;
   text-align: center;
 }
 
-/* PreGame layout */
-
-.lobby-grid-banner {
+.pregame-grid-banner {
   grid-area: banner;
   align-self: center;
 }
 
-.lobby-grid-player-list {
+.pregame-grid-player-list {
   grid-area: players;
 }
-.lobby-grid-lobby-chat {
+.pregame-grid-lobby-chat {
   grid-area: chat;
 }
-.lobby-grid-game-settings {
+.pregame-grid-game-settings {
   grid-area: settings;
 }
-.lobby-grid-lobby-buttons {
+
+.pregame-grid-lobby-buttons {
   grid-area: buttons;
 }
 
-.lobby-grid {
+.pregame-grid {
+  display: grid;
+  column-gap: 20px;
+  row-gap: 20px;
+
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas: 
+    ".       banner  banner  ."
+    "players chat    chat    settings"
+    "buttons  .       .       .";
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+/* Game layout */
+
+.game-grid-timer {
+  grid-area: timer;
+  justify-self: center;
+  /*
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  */
+}
+.game-grid-board {
+  grid-area: board;
+  justify-self: center;
+}
+.game-grid-word-input {
+  grid-area: input;
+  justify-self: center;
+}
+.game-grid-answer-display {
+  grid-area: answers;
+  justify-self: center;
+}
+
+.game-grid {
+
   display: grid;
   column-gap: 20px;
 
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: auto;
   grid-template-areas: 
-    ". banner banner ."
-    "players chat chat settings"
-    "buttons .    .    .";
+    ". timer ."
+    ". board ."
+    ". input ."
+    ". answers .";
+
+  /*
   margin-left: 10%;
   margin-right: 10%;
+  */
 }
-
-/* PreGame layout */
 
 
 /*  --------------------------------------------------------------------  */
@@ -370,8 +414,8 @@ header {
   min-height: 200px;
 
   border-style: solid;
-  border-color: #002EAD;
-  border-width: 5px;
+  border-color: lime;
+  border-width: 1px;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -390,11 +434,6 @@ header {
 
   color: white;
   font-size: 16px;
-
-  border-style: solid;
-  border-color: #002EAD;
-  border-width: 5px;
-
 }
 
 .settings-grid-label {
@@ -496,6 +535,17 @@ header {
 /*  Timer (Comp)
 /*  --------------------------------------------------------------------  */
 
+.game-timer-div {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.game-timer-text {
+  color: orange;
+  text-align: center;
+  font-size: 32px;
+}
+
 /*  --------------------------------------------------------------------  */
 /*  Board (Comp)
 /*  --------------------------------------------------------------------  */
@@ -533,7 +583,8 @@ header {
 /*  --------------------------------------------------------------------  */
 
 .word-input-container {
-  margin-top: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   text-align: center;
 }
 

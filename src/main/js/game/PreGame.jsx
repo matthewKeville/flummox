@@ -119,25 +119,25 @@ export default function PreGame({lobby}) {
     <>
 
 
-    <div className="lobby-grid">
+    <div className="pregame-grid">
 
-      <div className="lobby-grid-banner">
+      <div className="pregame-grid-banner">
         <h3 className="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
       </div>
 
-      <div className="lobby-grid-player-list">
+      <div className="pregame-grid-player-list thick-blue-border">
         <PlayerList lobby={lobby}/>
       </div>
 
-      <div className="lobby-grid-lobby-chat">
+      <div className="pregame-grid-lobby-chat thick-blue-border">
         <LobbyChat lobby={lobby}/>
       </div>
 
-      <div className="lobby-grid-game-settings">
+      <div className="pregame-grid-game-settings thick-blue-border">
         <GameSettings lobby={lobby}/>
       </div>
 
-      <div className="lobby-grid-lobby-buttons">
+      <div className="pregame-grid-lobby-buttons">
         <div className="lobby-buttons thick-blue-border">
           <button id="start-game-button" onClick={onStartGame}>Start</button> 
           <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
