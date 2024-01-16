@@ -19,6 +19,15 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 
 */
 
+/*  --------------------------------------------------------------------  */
+/*  Common / Util
+/*  --------------------------------------------------------------------  */
+
+/* this must appear before elements that use it */
+.show {
+  display:block;
+}
+
 /* A little hack to toggle borders on elements that have them */
 * {
   --dev-border-size: 0px;
@@ -33,7 +42,7 @@ body {
 }
 
 /*  --------------------------------------------------------------------  */
-/*  Lobbies                                                               */
+/*  Lobbies Page                                                               */
 /*  --------------------------------------------------------------------  */
 
 
@@ -89,11 +98,9 @@ body {
   background-color: green;
 }
 
-/* 
- *
- * header 
- *
- */
+/*  --------------------------------------------------------------------  */
+/*  Header
+/*  --------------------------------------------------------------------  */
 
 header {
   background-color: #002EAD;
@@ -269,11 +276,9 @@ header {
   color: #FFB94C;
 }
 
-/* 
- *
- * lobby 
- *
- */
+/*  --------------------------------------------------------------------  */
+/*  Lobby (PreGame)
+/*  --------------------------------------------------------------------  */
 
 
 #lobby-welcome-header {
@@ -287,80 +292,6 @@ header {
   color:white;
 }
 
-
-
-#lobby-flex {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: row;
-  justify-content: center;
-  column-gap: 10px;
-
-  margin-left: 10%;
-  margin-right: 10%;
-}
-
-#lobby-flex > * {
-  flex-basis: 0;
-}
-
-#players-flex-container {
-  flex-grow: 1;
-  align-self: flex-start;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-
-  border-style: solid;
-  border-color: #002EAD;
-  border-width: 5px;
-}
-
-.players-flex {
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-  padding: 10px;
-  /*
-  margin-left: 10px;
-  margin-right: 10px;
-  display: grid;
-  grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);
-  grid-auto-rows: 30px;
-  column-gap: 20px;
-  row-gap: 10px;
-  color: white;
-  */
-}
-
-.center-flex-container{
-  flex-grow: 2;
-  align-self: flex-start;
-
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-}
-
-.chat-flex {
-  min-height: 200px;
-  border-style: solid;
-  border-color: #002EAD;
-  border-width: 5px;
-}
-
-.player-controls-flex {
-  display: flex;
-  justify-content: center;
-  column-gap: 10px;
-}
-
-.player-controls-flex * {
-  flex-grow: 1;
-  flex-basis: 0;
-}
-
 .lobby-exit-button {
   background-color: red;
 }
@@ -369,17 +300,71 @@ header {
   background-color: yellow;
 }
 
-.player-controls-spacer {
-  flex-grow: 2;
-  background-color: none;
+#start-game-button {
+  color:white;
+  background-color:green;
+  text-decoration: line-through;
 }
 
-#settings-flex-container{
-  flex-grow: 1; /*3*/
+/* PreGame layout */
+
+.lobby-flex-row {
   display: flex;
-  align-items: center;
+  flex-wrap: nowrap;
+  flex-direction: row;
   justify-content: center;
+  column-gap: 10px;
+
+  margin-left: 10%;
+  margin-right: 10%;
+
+  border-style: solid;
+  border-color: red;
+  border-width: 2px;
 }
+
+.settings-flex-container{
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.chat-flex-container{
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.players-flex-container {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+
+/*  --------------------------------------------------------------------  */
+/*  PlayerList (Comp)
+/*  --------------------------------------------------------------------  */
+
+
+.players-flex {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  padding: 10px;
+}
+
+/*  --------------------------------------------------------------------  */
+/*  Chat (Comp)
+/*  --------------------------------------------------------------------  */
+
+.chat-flex {
+  min-height: 200px;
+  border-style: solid;
+  border-color: #002EAD;
+  border-width: 5px;
+}
+
+/*  --------------------------------------------------------------------  */
+/*  Lobby Settings (Comp)
+/*  --------------------------------------------------------------------  */
 
 #settings-grid {
 
@@ -410,11 +395,6 @@ header {
   color: #FFB94C
 }
 
-#start-game-button {
-  color:white;
-  background-color:green;
-  text-decoration: line-through;
-}
 #edit-settings-button {
   color:white;
   background-color:orange;
@@ -428,7 +408,9 @@ header {
   background-color:#DA1630;
 }
 
-/* user-display */
+/*  --------------------------------------------------------------------  */
+/*  UserDisplay (Comp)
+/*  --------------------------------------------------------------------  */
 
 .user-display {
   color:white;
@@ -485,26 +467,11 @@ header {
   flex-direction: column;
 }
 
-/* this must appear before elements that use it */
-.show {
-  display:block;
-}
 
 
-/* 
- *
- * game 
- *
- */
-
-/*
- * timer
- */
-
-
-/*
- * board
- */
+/*  --------------------------------------------------------------------  */
+/*  Game (Board, Timer, Input) (pls seperate)
+/*  --------------------------------------------------------------------  */
 
 .game-flex {
   display: flex;
@@ -547,10 +514,6 @@ header {
   background: #002EAD;
 }
 
-/*
- * word input
- */
-
 .word-input-container {
   margin-top: 10px;
   text-align: center;
@@ -570,3 +533,5 @@ header {
   padding: 4px;
   /*position: relative;*/
 }
+
+
