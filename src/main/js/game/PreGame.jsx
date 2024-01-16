@@ -118,30 +118,33 @@ export default function PreGame({lobby}) {
   return (
     <>
 
-      <div id="lobby-row-0" className="lobby-flex-row">
-        <h3 id="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
+
+    <div className="lobby-grid">
+
+      <div className="lobby-grid-banner">
+        <h3 className="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
       </div>
 
-      <div id="lobby-row-1" className="lobby-flex-row">
-
-        <div className="players-flex-container">
-          <PlayerList lobby={lobby}/>
-        </div>
-
-        <div className="chat-flex-container">
-          <LobbyChat lobby={lobby}/>
-        </div>
-
-        <div className="settings-flex-container">
-          <GameSettings lobby={lobby}/>
-        </div>
-
+      <div className="lobby-grid-player-list">
+        <PlayerList lobby={lobby}/>
       </div>
 
-      <div id="lobby-row-2" className="lobby-flex-row">
-        <button id="start-game-button" onClick={onStartGame}>Start</button> 
-        <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
+      <div className="lobby-grid-lobby-chat">
+        <LobbyChat lobby={lobby}/>
       </div>
+
+      <div className="lobby-grid-game-settings">
+        <GameSettings lobby={lobby}/>
+      </div>
+
+      <div className="lobby-grid-lobby-buttons">
+        <div className="lobby-buttons thick-blue-border">
+          <button id="start-game-button" onClick={onStartGame}>Start</button> 
+          <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
+        </div>
+      </div>
+
+    </div>
 
     </>
   );

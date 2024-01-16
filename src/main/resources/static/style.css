@@ -28,6 +28,12 @@ https://mycolor.space/?hex=%23002EAD&sub=1
   display:block;
 }
 
+.thick-blue-border {
+  border-style: solid;
+  border-color: #002EAD;
+  border-width: 5px;
+}
+
 /* A little hack to toggle borders on elements that have them */
 * {
   --dev-border-size: 0px;
@@ -56,10 +62,12 @@ body {
 
 #lobby-table {
   width: 60%;
+  margin: 0 auto;
+
+  /* TODO: replace with thick-blue-border*/
   border-style: solid;
   border-color: #002EAD;
   border-width: 5px;
-  margin: 0 auto;
 }
 
 #lobby-table thead {
@@ -280,12 +288,6 @@ header {
 /*  Lobby (PreGame)
 /*  --------------------------------------------------------------------  */
 
-
-#lobby-welcome-header {
-  margin-left: 20%;
-  color: white;
-}
-
 #lobby-name-span {
   font-size: 24px;
   font-style: italic;
@@ -306,37 +308,46 @@ header {
   text-decoration: line-through;
 }
 
+.lobby-welcome-header {
+  color: white;
+  text-align: center;
+}
+
 /* PreGame layout */
 
-.lobby-flex-row {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: row;
-  justify-content: center;
-  column-gap: 10px;
+.lobby-grid-banner {
+  grid-area: banner;
+  align-self: center;
+}
 
+.lobby-grid-player-list {
+  grid-area: players;
+}
+.lobby-grid-lobby-chat {
+  grid-area: chat;
+}
+.lobby-grid-game-settings {
+  grid-area: settings;
+}
+.lobby-grid-lobby-buttons {
+  grid-area: buttons;
+}
+
+.lobby-grid {
+  display: grid;
+  column-gap: 20px;
+
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas: 
+    ". banner banner ."
+    "players chat chat settings"
+    "buttons .    .    .";
   margin-left: 10%;
   margin-right: 10%;
-
-  border-style: solid;
-  border-color: red;
-  border-width: 2px;
 }
 
-.settings-flex-container{
-  flex-grow: 1;
-  flex-basis: 0;
-}
-
-.chat-flex-container{
-  flex-grow: 1;
-  flex-basis: 0;
-}
-
-.players-flex-container {
-  flex-grow: 1;
-  flex-basis: 0;
-}
+/* PreGame layout */
 
 
 /*  --------------------------------------------------------------------  */
@@ -357,6 +368,7 @@ header {
 
 .chat-flex {
   min-height: 200px;
+
   border-style: solid;
   border-color: #002EAD;
   border-width: 5px;
@@ -366,7 +378,7 @@ header {
 /*  Lobby Settings (Comp)
 /*  --------------------------------------------------------------------  */
 
-#settings-grid {
+.game-settings-grid {
 
   /*padding-top: 10px;*/
   padding: 10px;
@@ -467,12 +479,6 @@ header {
   flex-direction: column;
 }
 
-
-
-/*  --------------------------------------------------------------------  */
-/*  Game (Board, Timer, Input) (pls seperate)
-/*  --------------------------------------------------------------------  */
-
 .game-flex {
   display: flex;
   flex-wrap: nowrap;
@@ -485,6 +491,14 @@ header {
   margin-left: 10%;
   margin-right: 10%;
 }
+
+/*  --------------------------------------------------------------------  */
+/*  Timer (Comp)
+/*  --------------------------------------------------------------------  */
+
+/*  --------------------------------------------------------------------  */
+/*  Board (Comp)
+/*  --------------------------------------------------------------------  */
 
 .die {
   background: #fff;
@@ -514,10 +528,18 @@ header {
   background: #002EAD;
 }
 
+/*  --------------------------------------------------------------------  */
+/*  WordInput (Comp)
+/*  --------------------------------------------------------------------  */
+
 .word-input-container {
   margin-top: 10px;
   text-align: center;
 }
+
+/*  --------------------------------------------------------------------  */
+/*  AnswerDisplay (Comp)
+/*  --------------------------------------------------------------------  */
 
 .word-columns {
   margin-top: 10px;
