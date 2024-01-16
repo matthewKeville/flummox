@@ -1,5 +1,5 @@
 import React, { useState, useEffect, } from 'react';
-import { Outlet , useLoaderData, useNavigate } from "react-router-dom";
+import { Outlet , useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 
 import PreGame from "../game/PreGame.jsx";
 import Game from "../game/Game.jsx";
@@ -16,8 +16,16 @@ async function loadLobbyData(lobbyId) {
   return lobbyResponse.json();
 }
 
+async function loadUserGameSummary(gameId,userId) {
+  console.log("loading user game summary for " + gameId + " for user " + userId )
+  const userGameSummaryResponse = await fetch("/api/game/"+gameId+"/view/user/summary");
+  console.log(userGameSummaryResponse.json())
+  return userGameSummaryResponse.json();
+}
+
 export default function Lobby() {
 
+  const { userInfo } = useRouteLoaderData("root");
   const lobbyId = useLoaderData();
   const [lobby,setLobby] = useState(null)
   const [lobbyState,setLobbyState] = useState(null)
@@ -83,16 +91,18 @@ export default function Lobby() {
           <PreGame lobby={lobby} />
       </>
     )
-  } else if (lobbyState == "game") {
-    return (
-      <>
-          <Game lobby={lobby} onGameEnd={() => { setLobbyState("postgame"); console.log("triggered game end")}}/>
-      </>
-    )
-  } else if ( lobbyState == "postgame" ) {
+    //PostGame & PreGame are the same thing but, PostGame implies participation in the previous game..
+    /*
     return (
       <>
           <PostGame lobby={lobby} onReturnToLobby={() => {setLobbyState("pregame")}}/>
+      </>
+    )
+    */
+  } else if (lobbyState == "game") {
+    return (
+      <>
+          <Game lobby={lobby} onGameEnd={() => { setLobbyState("pregame"); console.log("triggered game end"); loadUserGameSummary(lobby.gameId,userInfo.id) }}/>
       </>
     )
   } else {

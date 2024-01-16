@@ -21,7 +21,6 @@ import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.model.game.ScoreBoardEntry;
 import com.keville.ReBoggled.model.game.UserGameBoardWord;
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.answerService.AnswerServiceException.AnswerServiceError;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
@@ -33,23 +32,18 @@ public class DefaultAnswerService implements AnswerService {
   public SolutionService solutionService;
   public UserRepository users;
 
-  public DefaultAnswerService(
-      @Autowired SolutionService solutionService,
-      @Autowired UserRepository users) {
+  public DefaultAnswerService(@Autowired SolutionService solutionService) {
     this.solutionService = solutionService;
-    this.users = users;
   }
 
   public boolean isValidWord(String word,Game game) {
 
-    word = word.toLowerCase();
+    word = word.toUpperCase();
 
     GameSeed gameSeed = new GameSeed(game);
     try {
-      Map<String,BoardWord> solution = solutionService.solve(gameSeed);
-      boolean result = solution.containsKey(word);
+      boolean result = solutionService.solve(gameSeed).containsKey(word);
       LOG.info("word : " + word + ( result ? " was found found " : " wasn't found ") ) ;
-      LOG.info("solution : " + solution.toString());
       return result;
     } catch (SolutionServiceException sse) {
       LOG.error("Caught exception trying to get board solution");
@@ -67,51 +61,20 @@ public class DefaultAnswerService implements AnswerService {
   public Set<UserGameBoardWord> getUserGameBoardWords(Game game, User user) throws AnswerServiceException {
 
     Set<GameBoardWord> gameBoardWords = getGameBoardWords(game);
-    Set<UserGameBoardWord> userGameBoardWords = new HashSet<UserGameBoardWord>();
-
     gameBoardWords.forEach( gameBoardWord -> {
-
-      boolean userFoundWord = game.answers.stream().anyMatch( answer -> answer.answer.equalsIgnoreCase(gameBoardWord.word) 
-          && answer.user.getId().equals( user.id ));
-
       int userPoints = 0;
-      if ( userFoundWord ) {
-        //TODO : calculate user points with respect to other plays and the game rules
-      }
-
-      userGameBoardWords.add(new UserGameBoardWord(gameBoardWord,userPoints,userFoundWord));
-
+      new UserGameBoardWord(gameBoardWord,userPoints);
     });
-
-    return userGameBoardWords;
+    return null;
 
   }
 
-  //What happens when we retire guest accounts and we want to recalculate old score boards?
-  public List<ScoreBoardEntry> getScoreBoard(Game game) throws AnswerServiceException {
-
+  public List<ScoreBoardEntry> getScoreBoard(Game game) {
     List<ScoreBoardEntry> scoreBoard = new ArrayList<ScoreBoardEntry>();
-
-    Set<Integer> gameUserIds = 
-      new HashSet<Integer>(
-          game.answers.stream()
-          .map( x -> x.user.getId())
-          .distinct()
-          .toList()
-      );
-
-    for ( Integer userId : gameUserIds ) {
-      Optional<User> user = users.findById(userId);
-      if ( user.isEmpty() ) {
-        throw new AnswerServiceException(AnswerServiceError.ERROR);
-      }
-      int userScore    = getUserGameBoardWords(game,user.get()).stream().map( ugbw -> ugbw.actualPoints).reduce(0, (total, x) -> total + x);
-      long foundWords  = getUserGameBoardWords(game,user.get()).stream().count();
-      scoreBoard.add(new ScoreBoardEntry(userId, userScore, (int) foundWords));
-    }
-
-    return scoreBoard;
-
+    game.users.forEach( userRef -> {
+      scoreBoard.add( getUserGameBoardWords(game,
+    });
+    return null;
   }
 
   private Set<GameBoardWord> getGameBoardWords(Game game) throws AnswerServiceException {
@@ -132,7 +95,7 @@ public class DefaultAnswerService implements AnswerService {
           if ( gameAnswer.answer.equalsIgnoreCase(boardWord.word) ) {
 
             cofinders++;
-            if ( firstAnswer == null || gameAnswer.answerSubmissionTime.isBefore(firstAnswer.answerSubmissionTime) ) {
+            if ( gameAnswer.answerSubmissionTime.isBefore(firstAnswer.answerSubmissionTime) ) {
               firstAnswer = gameAnswer;
             }
 
@@ -140,7 +103,7 @@ public class DefaultAnswerService implements AnswerService {
         }
         Integer firstFinder = firstAnswer == null ?  null : firstAnswer.user.getId();
 
-        gameBoardWords.add(new GameBoardWord(boardWord,potentialPoints,firstFinder,cofinders));
+        gameBoardWords.add(new GameBoardWord(boardWord,firstFinder,potentialPoints,cofinders));
 
       }
 

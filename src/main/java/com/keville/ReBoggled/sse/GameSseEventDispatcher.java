@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.gameService.GameService;
+import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.view.GameViewService;
 import com.keville.ReBoggled.service.view.GameViewServiceException;
 
@@ -112,9 +113,9 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
           String failMessage = "Couldn't send game_change for game : " + game.id + " for user " + entry.getKey();
           tryEmitEvent(entry.getValue(),updateEventBuilder,failMessage);
 
-        } catch (GameViewServiceException gvse) {
+        } catch (GameViewServiceException | GameServiceException e) {
           LOG.error(String.format("unable to create SSEs for game %d 's update event for user %d",game.id,entry.getKey()));
-          LOG.error(gvse.getMessage());
+          LOG.error(e.getMessage());
         }
 
       }

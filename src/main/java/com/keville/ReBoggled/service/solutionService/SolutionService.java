@@ -1,10 +1,12 @@
 package com.keville.ReBoggled.service.solutionService;
 
-import java.util.List;
+import java.util.Map;
+
+import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.GameSeed;
 
 public interface SolutionService {
 
-  public List<String> solve(GameSeed seed) throws SolutionServiceException;
+  public Map<String,BoardWord> solve(GameSeed seed) throws SolutionServiceException;
 
 }

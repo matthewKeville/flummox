@@ -2,8 +2,10 @@ package com.keville.ReBoggled.service.solutionService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -29,8 +32,21 @@ public class DefaultSolutionService implements SolutionService {
   private TileCodeStringMap tileCodeStringMap;
   @Autowired
   private WordService wordService;
+  
+  private Map<GameSeed,Map<String,BoardWord>> solveCache = new HashMap<GameSeed,Map<String,BoardWord>>();
 
-  public List<String> solve(GameSeed seed) throws SolutionServiceException {
+  public Map<String,BoardWord> solve(GameSeed seed) throws SolutionServiceException {
+    if (solveCache.containsKey(seed) ) {
+      LOG.info("solve cache hit!");
+      return solveCache.get(seed);
+    }
+    LOG.info("solve cache miss!");
+    Map<String,BoardWord> solution = solveBoard(seed);
+    solveCache.put(seed,solution);
+    return solution;
+  }
+
+  private Map<String,BoardWord> solveBoard(GameSeed seed) throws SolutionServiceException {
 
     LOG.info("building graph");
     int boardSize = getBoardSize(seed.gameSettings);    
@@ -119,15 +135,30 @@ public class DefaultSolutionService implements SolutionService {
       }
     }
 
-    //stream.toList() is immutable
-    return new ArrayList<String>(solutions.stream().map( path -> pathToWord(path,graph) ).distinct().toList());
+    //transform paths into BoardWord Map
+    Map<String,BoardWord> answers = new HashMap<String,BoardWord>();
+
+    for ( List<Integer> path : solutions ) {
+      String pathWord = pathToWord(path,graph);
+      if ( !answers.containsKey(pathWord) ) {
+        Set<List<Integer>> wordPaths = new HashSet<List<Integer>>();
+        wordPaths.add(path);
+        answers.put(pathWord,new BoardWord(wordPaths,pathWord));
+      } else {
+        answers.get(pathWord).paths.add(path);
+      }
+    }
+
+    return answers;
 
   }
 
+  //path to word will always return lowercase words
   private String pathToWord(List<Integer> path,TileGraph tileGraph) {
     return path.stream()
       .map( x -> tileCodeStringMap.getString(tileGraph.tiles.get(x).code))
-      .reduce("", (partialWord, tileChar) -> partialWord + tileChar);
+      .reduce("", (partialWord, tileChar) -> partialWord + tileChar)
+      .toLowerCase();
   }
 
   private int getBoardSize(GameSettings settings) throws SolutionServiceException {

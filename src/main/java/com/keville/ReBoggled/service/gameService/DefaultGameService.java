@@ -1,7 +1,9 @@
 package com.keville.ReBoggled.service.gameService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
+import com.keville.ReBoggled.model.game.GameBoardWord;
 import com.keville.ReBoggled.model.game.GameFactory;
+import com.keville.ReBoggled.model.game.UserGameBoardWord;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
@@ -120,6 +124,16 @@ public class DefaultGameService implements GameService {
 
     }
 
+
+    //FIXME : duplicate code for LobbyService.isOutated, candidate for refactor
+    public boolean isOutdated(Integer gameId,LocalDateTime lastTime) throws GameServiceException {
+
+      // do query
+      Game game = findGameById(gameId);
+      return game.lastModifiedDate.isAfter(lastTime);
+
+    }
+
     private Game findGameById(Integer gameId) throws GameServiceException {
 
       Optional<Game>  optGame = games.findById(gameId);
@@ -139,13 +153,5 @@ public class DefaultGameService implements GameService {
       return optUser.get();
     }
 
-    //FIXME : duplicate code for LobbyService.isOutated, candidate for refactor
-    public boolean isOutdated(Integer gameId,LocalDateTime lastTime) throws GameServiceException {
-
-      // do query
-      Game game = findGameById(gameId);
-      return game.lastModifiedDate.isAfter(lastTime);
-
-    }
 
 }

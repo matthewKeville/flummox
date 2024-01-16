@@ -2,6 +2,8 @@ package com.keville.ReBoggled.model.game;
 
 import java.util.List;
 
+//Too much data here, tiles and topology should be sufficient for Board Solve
+//This should be a concept distinct from a Game
 public class GameSeed {
 
   public List<Tile> tiles;

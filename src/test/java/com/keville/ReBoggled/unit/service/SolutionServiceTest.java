@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameFactory;
@@ -52,13 +54,12 @@ class SolutionServiceTest {
     GameSettings gameSettings = new GameSettings();
     Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
 
-    List<String> solution = solutionService.solve(new GameSeed(game));
-    Collections.sort(solution);
+    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
 
     LOG.info(solution.toString());
 
     for ( String word : wordsInBoard ) {
-      assertTrue(solution.stream().anyMatch( x -> x.equalsIgnoreCase(word)),String.format("%s is in the board but was not found",word));
+      assertTrue(solution.containsKey(word.toLowerCase()),String.format("%s is in the board but was not found",word));
     }
 
   }
@@ -88,13 +89,12 @@ class SolutionServiceTest {
     gameSettings.boardTopology = BoardTopology.CYLINDER;
     Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
 
-    List<String> solution = solutionService.solve(new GameSeed(game));
-    Collections.sort(solution);
+    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
 
     LOG.info(solution.toString());
 
     for ( String word : wordsInBoard ) {
-      assertTrue(solution.stream().anyMatch( x -> x.equalsIgnoreCase(word)),String.format("%s is in the board but was not found",word));
+      assertTrue(solution.containsKey(word.toLowerCase()),String.format("%s is in the board but was not found",word));
     }
 
   }
@@ -124,13 +124,12 @@ class SolutionServiceTest {
     gameSettings.boardTopology = BoardTopology.CYLINDER_ALT;
     Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
 
-    List<String> solution = solutionService.solve(new GameSeed(game));
-    Collections.sort(solution);
+    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
 
     LOG.info(solution.toString());
 
     for ( String word : wordsInBoard ) {
-      assertTrue(solution.stream().anyMatch( x -> x.equalsIgnoreCase(word)),String.format("%s is in the board but was not found",word));
+      assertTrue(solution.containsKey(word.toLowerCase()),String.format("%s is in the board but was not found",word));
     }
 
   }
@@ -161,13 +160,12 @@ class SolutionServiceTest {
     gameSettings.boardTopology = BoardTopology.TORUS;
     Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
 
-    List<String> solution = solutionService.solve(new GameSeed(game));
-    Collections.sort(solution);
+    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
 
     LOG.info(solution.toString());
 
     for ( String word : wordsInBoard ) {
-      assertTrue(solution.stream().anyMatch( x -> x.equalsIgnoreCase(word)),String.format("%s is in the board but was not found",word));
+      assertTrue(solution.containsKey(word.toLowerCase()),String.format("%s is in the board but was not found",word));
     }
 
   }

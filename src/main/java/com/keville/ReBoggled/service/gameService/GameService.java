@@ -1,8 +1,10 @@
 package com.keville.ReBoggled.service.gameService;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import com.keville.ReBoggled.model.game.Game;
+import com.keville.ReBoggled.model.game.UserGameBoardWord;
 import com.keville.ReBoggled.model.lobby.Lobby;
 
 public interface GameService {

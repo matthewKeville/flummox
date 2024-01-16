@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
+import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
 import com.keville.ReBoggled.sse.GameSseEventDispatcher;
 import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
@@ -75,6 +76,26 @@ public class GameController {
 
   }
 
+  @GetMapping("/{id}/view/user/summary")
+  public ResponseEntity<?> getUserViewSummary(@PathVariable("id") Integer id,
+      HttpSession session) {
+
+    logReq("get",id+"/view/user/summary");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    try { 
+      PostGameUserViewDTO postGameViewDTO = gameViewService.getPostGameUserViewDTO(id, userId);
+      return new ResponseEntity<PostGameUserViewDTO>(postGameViewDTO,HttpStatus.OK);
+    } catch (GameViewServiceException e) {
+      return handleGameViewServiceException(e);
+    }
+
+  }
 
   @PostMapping("/{id}/answer")
   public ResponseEntity<?> answer (
@@ -119,6 +140,8 @@ public class GameController {
       return new ResponseEntity<GameUserViewDTO>(gameUserViewDTO,HttpStatus.OK);
     } catch (GameViewServiceException e) {
       return handleGameViewServiceException(e);
+    } catch (GameServiceException e) {
+      return handleGameServiceException(e);
     }
     
   }
