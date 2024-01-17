@@ -40,7 +40,7 @@ export default function GameTimer({gameEnd,onGameEnd}) {
   return ( 
     <>
       <div className="game-timer-div">
-        <text className="game-timer-text">{time}</text>
+        <span className="game-timer-span">{time}</span>
       </div>
     </>
   )

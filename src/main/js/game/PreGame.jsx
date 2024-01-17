@@ -125,15 +125,15 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
         <h3 className="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
       </div>
 
-      <div className="pre-game-grid-player-list thick-blue-border">
+      <div className="pre-game-grid-player-list ">
         <PlayerList lobby={lobby}/>
       </div>
 
-      <div className="pre-game-grid-lobby-chat thick-blue-border">
+      <div className="pre-game-grid-lobby-chat ">
         <LobbyChat lobby={lobby}/>
       </div>
 
-      <div className="pre-game-grid-game-settings thick-blue-border">
+      <div className="pre-game-grid-game-settings ">
         <GameSettings lobby={lobby}/>
       </div>
 

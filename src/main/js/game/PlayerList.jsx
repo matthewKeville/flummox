@@ -25,7 +25,7 @@ export default function PlayerList({lobby}) {
 
   return (
 
-    <div className="players-flex">
+    <div className="players-flex thick-blue-border">
       {
         lobby.users.map( (player) => {
           return (

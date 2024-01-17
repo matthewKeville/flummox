@@ -6,14 +6,14 @@ import Board from "./Board.jsx";
 import AnswerDisplay from './AnswerDisplay.jsx';
 import WordInput from './WordInput.jsx';
 
-export async function loader({params}) {
+export async function loader({ params }) {
   const lobbyId = params.lobbyId
-  return  { lobbyId };
+  return { lobbyId };
 }
 
-export default function Game({lobby,onGameEnd}) {
+export default function Game({ lobby, onGameEnd }) {
 
-  const [game,setGame] = useState(null)
+  const [game, setGame] = useState(null)
 
   useEffect(() => {
 
@@ -21,7 +21,7 @@ export default function Game({lobby,onGameEnd}) {
 
     const fetchInitialGame = async () => {
 
-      const response = await fetch("/api/game/"+lobby.gameId+"/view/user");
+      const response = await fetch("/api/game/" + lobby.gameId + "/view/user");
       let initialGame = await response.json()
 
       console.log("loaded inital game")
@@ -33,7 +33,7 @@ export default function Game({lobby,onGameEnd}) {
     fetchInitialGame()
 
     console.log("setting up game source")
-    const evtSource = new EventSource("/api/game/"+lobby.gameId+"/view/user/sse")
+    const evtSource = new EventSource("/api/game/" + lobby.gameId + "/view/user/sse")
 
     evtSource.addEventListener("game_change", (e) => {
       console.log("game change recieved");
@@ -43,7 +43,7 @@ export default function Game({lobby,onGameEnd}) {
     });
 
     return () => {
-      console.log("closing the game event source") 
+      console.log("closing the game event source")
       evtSource.close()
     };
 
@@ -59,7 +59,7 @@ export default function Game({lobby,onGameEnd}) {
     let answerBody = {}
     answerBody.answer = word
 
-    const response = await fetch("/api/game/"+lobby.gameId+"/answer", {
+    const response = await fetch("/api/game/" + lobby.gameId + "/answer", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -67,18 +67,18 @@ export default function Game({lobby,onGameEnd}) {
       body: JSON.stringify(answerBody)
     });
 
-    if ( response.status == 200 ) {
+    if (response.status == 200) {
 
       toast.success("nice");
 
     } else {
-    
-      const content  = await response.json();
+
+      const content = await response.json();
       console.log(`unable to update lobby because : ${content.message}`)
 
       let notice = content.status + " : Unknown error"
 
-      switch(content.message) {
+      switch (content.message) {
         //case "": //already found
         //case "": //not found
         case "INVALID_ANSWER":
@@ -92,7 +92,7 @@ export default function Game({lobby,onGameEnd}) {
           break;
         case "INTERNAL_ERROR":
         default:
-          //pass
+        //pass
       }
 
       toast.error(notice);
@@ -100,42 +100,32 @@ export default function Game({lobby,onGameEnd}) {
     }
   }
 
-  if ( game == null ) {
+  if (game == null) {
     return
   }
 
   return (
 
-    /*
-    <>
-      <div className="game-flex">
-        <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
-        <Board dice={game.gameViewDTO.tiles.map( tile => String.fromCharCode(tile.code) )} />
-        <WordInput onWordInput={onSubmitAnswer}/>
-        <AnswerDisplay words={game.answers.map( answer => answer.answer)} />
-      </div>
-    </>
-    */
-
     <div className="lobby-grid game-grid-template">
 
       <div className="game-grid-timer">
-        <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
+        <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd} />
       </div>
 
       <div className="game-grid-board">
-        <Board dice={game.gameViewDTO.tiles.map( tile => String.fromCharCode(tile.code) )} />
+        <Board dice={game.gameViewDTO.tiles.map(tile => String.fromCharCode(tile.code))} />
       </div>
 
       <div className="game-grid-word-input">
-        <WordInput onWordInput={onSubmitAnswer}/>
+        <WordInput onWordInput={onSubmitAnswer} />
       </div>
 
       <div className="game-grid-answer-display">
-        <AnswerDisplay words={game.answers.map( answer => answer.answer)} />
+        <AnswerDisplay words={game.answers.map(answer => answer.answer)} />
       </div>
 
     </div>
+
 
 
   );

@@ -311,12 +311,32 @@ header {
 /* Lobby Layout (All modes) override temlate areas in instance grid */
 
 .lobby-grid {
+
   display: grid;
   column-gap: 20px;
   row-gap: 20px;
 
-  grid-template-columns: 1fr 2fr 1fr;
+  /*grid-template-columns: min(1fr,360px) 720px min(1fr,360px);*/
+  grid-template-columns: 360px 480px 360px;
   grid-template-rows: 60px 360px 60px;
+
+  justify-content: center; /* center grid in its container*/
+
+  /* default for children */
+  justify-items: center;
+  align-items: center;
+
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.lobby-grid > * {
+  /* border for grid work */
+  /*
+  border-style: solid;
+  border-color: violet;
+  border-width: 5px;
+  */
 }
 
 
@@ -330,6 +350,7 @@ header {
 .pre-game-grid-banner {
   grid-area: banner;
   align-self: center;
+  justify-self: center;
 }
 
 .pre-game-grid-player-list {
@@ -337,6 +358,8 @@ header {
 }
 .pre-game-grid-lobby-chat {
   grid-area: chat;
+  justify-self: center;
+  min-width: 360px; /* dev value*/
 }
 .pre-game-grid-game-settings {
   grid-area: settings;
@@ -348,28 +371,24 @@ header {
 
 .pre-game-grid-template {
   grid-template-areas: 
-    ".       banner  banner  ."
-    "players chat    chat    settings"
-    "buttons  .       .       .";
+    ".  banner  ."
+    "players chat settings"
+    "buttons  .       ." ;
 }
 
 /* Game layout */
 
 .game-grid-timer {
   grid-area: timer;
-  justify-self: center;
 }
 .game-grid-board {
   grid-area: board;
-  justify-self: center;
 }
 .game-grid-word-input {
   grid-area: input;
-  justify-self: center;
 }
 .game-grid-answer-display {
   grid-area: answers;
-  justify-self: center;
 }
 
 .game-grid-template {
@@ -384,14 +403,13 @@ header {
 
 .post-game-grid-exit {
   grid-area: exit;
-  justify-self: center;
 }
 
 .post-game-grid-template {
   grid-template-areas: 
     ". . ."
     ". board ."
-    ". exit ."
+    "exit . ."
     ". answers .";
 }
 
@@ -406,6 +424,7 @@ header {
   flex-direction: column;
   row-gap: 10px;
   padding: 10px;
+  max-width: 200px;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -537,12 +556,7 @@ header {
 /*  Timer (Comp)
 /*  --------------------------------------------------------------------  */
 
-.game-timer-div {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.game-timer-text {
+.game-timer-span {
   color: orange;
   text-align: center;
   font-size: 32px;
@@ -584,10 +598,11 @@ header {
 /*  WordInput (Comp)
 /*  --------------------------------------------------------------------  */
 
-.word-input-container {
-  margin-top: 30px;
-  margin-bottom: 30px;
+.word-input {
+  /* inputs have implicit paddign/border */
   text-align: center;
+  border: 0px;
+  padding: 0px;
 }
 
 /*  --------------------------------------------------------------------  */
