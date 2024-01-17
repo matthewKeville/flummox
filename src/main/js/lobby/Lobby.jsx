@@ -10,69 +10,76 @@ export async function loader({params}) {
   return params.lobbyId
 }
 
-async function loadLobbyData(lobbyId) {
-  console.log("loading lobby " + lobbyId + " data")
-  const lobbyResponse = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
-  return lobbyResponse.json();
-}
-
-async function loadUserGameSummary(gameId,userId) {
-  console.log("loading user game summary for " + gameId + " for user " + userId )
-  const userGameSummaryResponse = await fetch("/api/game/"+gameId+"/view/user/summary");
-  console.log(userGameSummaryResponse.json())
-  return userGameSummaryResponse.json();
-}
 
 export default function Lobby() {
 
   const { userInfo } = useRouteLoaderData("root");
   const lobbyId = useLoaderData();
+
   const [lobby,setLobby] = useState(null)
   const [lobbyState,setLobbyState] = useState(null)
+  const [gameSummary,setGameSummary] = useState(null)
 
-  function computeLobbyState() {
-
-    if ( lobby == null ) {
-      return null
+  async function onGameEnd() {
+    setLobbyState("postgame");
+    console.log("loading user game summary for game " + lobby.gameId + " for user " + userInfo.id )
+    try {
+    const userGameSummaryResponse = await fetch("/api/game/"+lobby.gameId+"/view/user/summary");
+    let gameSummaryJson = await userGameSummaryResponse.json();
+    console.log(gameSummaryJson)
+    setGameSummary(gameSummaryJson);
+    } catch (exception) {
+      console.error("error getting postgame summary")
     }
+  }
 
-    let gameStart = Date.parse(lobby.gameStart)
-    let gameEnd = Date.parse(lobby.gameEnd)
+  async function fetchLobbyData() {
+    console.log("loading lobby " + lobbyId + " data")
+    const response = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
+    let lobbyData = await response.json()
+    console.log("response in fetchLobbyData " + JSON.stringify(lobbyData))
+    return lobbyData
+  }
+
+  function computeLobbyState(initialLobby) {
+
+    let gameStart = Date.parse(initialLobby.gameStart)
+    let gameEnd = Date.parse(initialLobby.gameEnd)
 
     if ( gameEnd > Date.now() && gameStart < Date.now() ) {
       if ( lobbyState != "game" ) {
+        console.log("setting game state")
         setLobbyState("game")
       }
     } else {
       if ( lobbyState != "pregame" ) {
+        console.log("setting pregame state")
         setLobbyState("pregame")
       }
     }
-
-    //This can be confusing to see in the logs as it appears up
-    //to 4 times when loading the lobby.
-    console.log("lobby is state is :" + lobbyState)
 
   }
 
   useEffect(() => {
 
-    const fetchInitialLobby = async () => {
-      const newLobby = await loadLobbyData(lobbyId)
-      setLobby(newLobby)
+    let loadInitialLobby = async () => {
+      let data = await fetchLobbyData()
+      console.log("response in loadInitialLobby " + JSON.stringify(data))
+      computeLobbyState(data)
+      setLobby(data)
     }
-    fetchInitialLobby()
+    loadInitialLobby()
 
     console.log("setting up lobby source")
     const evtSource = new EventSource("/api/lobby/"+lobbyId+"/view/lobby/sse")
 
     evtSource.addEventListener("lobby_change", (e) => {
       console.log("lobby change recieved");
-      let newLobbyData = JSON.parse(e.data)
-      setLobby(newLobbyData)
+      let data = JSON.parse(e.data)
+      computeLobbyState(data)
+      setLobby(data)
     });
 
-    //cleanup (when unmount)
     return () => {
       console.log("closing the event source") 
       evtSource.close()
@@ -80,37 +87,44 @@ export default function Lobby() {
 
   }, []);
 
-  if (lobby == null) {
-    return
+
+  if (lobby == null || lobbyState == null) {
+    console.log("lobby : " + lobby + " lobbyState : " + lobbyState)
+    return null
   }
-  computeLobbyState()
 
   if ( lobbyState == "pregame" ) {
+
     return (
       <>
-          <PreGame lobby={lobby} />
+          <PreGame lobby={lobby} playedPrev={gameSummary != null} onReturnToPostGame={() => {setLobbyState("postgame")} }/>
       </>
     )
-    //PostGame & PreGame are the same thing but, PostGame implies participation in the previous game..
-    /*
+
+  } else if (lobbyState == "game") {
+
+    return (
+      <>
+          <Game lobby={lobby} onGameEnd={onGameEnd}/>
+      </>
+    )
+
+  } else if (lobbyState == "postgame") {
+
     return (
       <>
           <PostGame lobby={lobby} onReturnToLobby={() => {setLobbyState("pregame")}}/>
       </>
     )
-    */
-  } else if (lobbyState == "game") {
-    return (
-      <>
-          <Game lobby={lobby} onGameEnd={() => { setLobbyState("pregame"); console.log("triggered game end"); loadUserGameSummary(lobby.gameId,userInfo.id) }}/>
-      </>
-    )
+
   } else {
+
     return (
       <>
         <div style={{color: "red"}}> Oops </div>
       </>
     )
+
   }
 
 }

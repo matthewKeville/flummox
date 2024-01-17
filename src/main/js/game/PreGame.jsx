@@ -6,7 +6,7 @@ import PlayerList from "./PlayerList.jsx";
 import GameSettings from "./GameSettings.jsx";
 import LobbyChat from "../lobby/LobbyChat.jsx";
 
-export default function PreGame({lobby}) {
+export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 
   const navigate = useNavigate();
   const { userInfo } = useRouteLoaderData("root");
@@ -141,6 +141,10 @@ export default function PreGame({lobby}) {
         <div className="lobby-buttons thick-blue-border">
           <button id="start-game-button" onClick={onStartGame}>Start</button> 
           <button className="lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
+          { 
+            playedPrev &&
+            <button className="lobby-exit-button" onClick={onReturnToPostGame}>Last</button>
+          }
         </div>
       </div>
 

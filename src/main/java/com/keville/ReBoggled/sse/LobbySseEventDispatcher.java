@@ -97,6 +97,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
     LOG.info(String.format("caught lobby after save event lobby.id is %d",lobby.id));
 
     if ( !lobbyEmitters.containsKey( lobby.id ) ) {
+      LOG.info("lobby emitters doesn't have key : " + lobby.id);
       return;
     }
     Set<SseEmitter> emitters = lobbyEmitters.get(lobby.id);
