@@ -10,27 +10,18 @@ export async function loader({params}) {
   return params.lobbyId
 }
 
-
 export default function Lobby() {
 
   const { userInfo } = useRouteLoaderData("root");
   const lobbyId = useLoaderData();
 
+  const [prevGameExists,setPrevGameExists] = useState(false)
   const [lobby,setLobby] = useState(null)
   const [lobbyState,setLobbyState] = useState(null)
-  const [gameSummary,setGameSummary] = useState(null)
 
   async function onGameEnd() {
+    setPrevGameExists(true)
     setLobbyState("postgame");
-    console.log("loading user game summary for game " + lobby.gameId + " for user " + userInfo.id )
-    try {
-    const userGameSummaryResponse = await fetch("/api/game/"+lobby.gameId+"/view/user/summary");
-    let gameSummaryJson = await userGameSummaryResponse.json();
-    console.log(gameSummaryJson)
-    setGameSummary(gameSummaryJson);
-    } catch (exception) {
-      console.error("error getting postgame summary")
-    }
   }
 
   async function fetchLobbyData() {
@@ -97,7 +88,7 @@ export default function Lobby() {
 
     return (
       <>
-          <PreGame lobby={lobby} playedPrev={gameSummary != null} onReturnToPostGame={() => {setLobbyState("postgame")} }/>
+          <PreGame lobby={lobby} playedPrev={prevGameExists} onReturnToPostGame={() => {setLobbyState("postgame")} }/>
       </>
     )
 

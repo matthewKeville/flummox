@@ -308,6 +308,17 @@ header {
   text-decoration: line-through;
 }
 
+/* Lobby Layout (All modes) override temlate areas in instance grid */
+
+.lobby-grid {
+  display: grid;
+  column-gap: 20px;
+  row-gap: 20px;
+
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 60px 360px 60px;
+}
+
 
 /* PreGame layout */
 
@@ -316,38 +327,30 @@ header {
   text-align: center;
 }
 
-.pregame-grid-banner {
+.pre-game-grid-banner {
   grid-area: banner;
   align-self: center;
 }
 
-.pregame-grid-player-list {
+.pre-game-grid-player-list {
   grid-area: players;
 }
-.pregame-grid-lobby-chat {
+.pre-game-grid-lobby-chat {
   grid-area: chat;
 }
-.pregame-grid-game-settings {
+.pre-game-grid-game-settings {
   grid-area: settings;
 }
 
-.pregame-grid-lobby-buttons {
+.pre-game-grid-lobby-buttons {
   grid-area: buttons;
 }
 
-.pregame-grid {
-  display: grid;
-  column-gap: 20px;
-  row-gap: 20px;
-
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: auto;
+.pre-game-grid-template {
   grid-template-areas: 
     ".       banner  banner  ."
     "players chat    chat    settings"
     "buttons  .       .       .";
-  margin-left: 10%;
-  margin-right: 10%;
 }
 
 /* Game layout */
@@ -355,11 +358,6 @@ header {
 .game-grid-timer {
   grid-area: timer;
   justify-self: center;
-  /*
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  */
 }
 .game-grid-board {
   grid-area: board;
@@ -374,23 +372,27 @@ header {
   justify-self: center;
 }
 
-.game-grid {
-
-  display: grid;
-  column-gap: 20px;
-
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: auto;
+.game-grid-template {
   grid-template-areas: 
     ". timer ."
     ". board ."
     ". input ."
     ". answers .";
+}
 
-  /*
-  margin-left: 10%;
-  margin-right: 10%;
-  */
+/* PostGame layout */
+
+.post-game-grid-exit {
+  grid-area: exit;
+  justify-self: center;
+}
+
+.post-game-grid-template {
+  grid-template-areas: 
+    ". . ."
+    ". board ."
+    ". exit ."
+    ". answers .";
 }
 
 
@@ -604,6 +606,19 @@ header {
   text-transform: uppercase;
   cursor: pointer;
   padding: 4px;
+  /*position: relative;*/
+}
+
+/*  --------------------------------------------------------------------  */
+/*  AllAnswerDisplay (Comp)
+/*  --------------------------------------------------------------------  */
+
+.missed-word {
+  display: block;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px;
+  color: red;
   /*position: relative;*/
 }
 

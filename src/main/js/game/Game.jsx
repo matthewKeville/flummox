@@ -117,7 +117,7 @@ export default function Game({lobby,onGameEnd}) {
     </>
     */
 
-    <div className="game-grid">
+    <div className="lobby-grid game-grid-template">
 
       <div className="game-grid-timer">
         <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd}/>
