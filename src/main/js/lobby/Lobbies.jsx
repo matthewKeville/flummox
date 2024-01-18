@@ -129,20 +129,26 @@ export default function Lobbies() {
                 <td>{lobby.name}</td>
                 <td>{lobby.users.length} / {lobby.capacity}</td>
                 <td>{lobby.isPrivate ? "locked" : "open"}</td>
-                <td><button id="join-lobby-link" onClick={() => joinLobby(lobby.id)} >Join Lobby</button></td>
+                <td><button className="basic-button" onClick={() => joinLobby(lobby.id)} >Join Lobby</button></td>
               </tr>
             )
           })
         }
+
+        {!userInfo.isGuest &&
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><button className="basic-button" onClick={createLobby}>New Lobby</button></td>
+          </tr>
+        }
+
+
         </tbody>
       </table>
     </div>
-
-    { userInfo.isGuest ? <></> : 
-      <div className="lobbies-controls">
-        <button id="create-lobby-button" onClick={createLobby}>New Lobby</button>
-      </div>
-    }
 
     </>
   );

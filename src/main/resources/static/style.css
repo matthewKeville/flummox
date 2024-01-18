@@ -28,6 +28,26 @@ https://mycolor.space/?hex=%23002EAD&sub=1
   display:block;
 }
 
+/* perhaps I should have css var for button defaults and make
+ * primary-button , danger-button ... */
+.basic-button {
+  width: 120px;
+  /* ripped from chrome ux*/
+  border: 0;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: white;
+  background-color: green;
+  cursor: pointer;
+  font-size: .875em;
+  margin: 0;
+  padding: 8px 16px;
+  text-align: center;
+  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+
+}
+
 .thick-blue-border {
   border-style: solid;
   border-color: #002EAD;
@@ -50,11 +70,6 @@ body {
 /*  --------------------------------------------------------------------  */
 /*  Lobbies Page                                                               */
 /*  --------------------------------------------------------------------  */
-
-
-#join-lobby-link {
-  color: black;
-}
 
 .lobbyTableDiv {
   margin-top: 40px;
@@ -87,16 +102,6 @@ body {
 
 #lobby-table tbody tr:nth-child(even) {
   background-color: #FFFFFF;
-}
-
-.lobbies-controls {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  margin-top: 10px;
-  width: 60%;
-  margin-left: 20%;
-  margin-right: 20%;
 }
 
 #create-lobby-button {
@@ -302,10 +307,9 @@ header {
   background-color: yellow;
 }
 
-#start-game-button {
+.start-game-button {
   color:white;
   background-color:green;
-  text-decoration: line-through;
 }
 
 /* Lobby Layout (All modes) override temlate areas in instance grid */
@@ -345,25 +349,32 @@ header {
 
 .pre-game-grid-player-list {
   grid-area: players;
+  justify-self: end; /*horiz*/
+  align-self: start; /*top*/
 }
 .pre-game-grid-lobby-chat {
   grid-area: chat;
   justify-self: center;
+  align-self: start; /*top*/
   min-width: 360px; /* dev value*/
 }
 .pre-game-grid-game-settings {
   grid-area: settings;
+  justify-self: start; /*horiz*/
+  align-self: start; /*top*/
 }
 
 .pre-game-grid-lobby-buttons {
   grid-area: buttons;
+  align-self: start; /*top*/
+  justify-self: start; /*horiz*/
 }
 
 .pre-game-grid-template {
   grid-template-areas: 
     ".  banner  ."
     "players chat settings"
-    "buttons  .       ." ;
+    ".  . buttons" ;
 }
 
 /* Game layout */
@@ -376,6 +387,10 @@ header {
 }
 .game-grid-word-input {
   grid-area: input;
+  cursor: none;
+}
+.game-grid-word-input *{
+  cursor: none;
 }
 .game-grid-answer-display {
   grid-area: answers;
@@ -403,7 +418,7 @@ header {
   grid-template-areas: 
     ". . ."
     ". board ."
-    "exit . ."
+    ". exit ."
     ". answers .";
 }
 

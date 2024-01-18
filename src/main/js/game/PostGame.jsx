@@ -40,7 +40,7 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
       </div>
 
       <div className="post-game-grid-exit">
-  -     <button style={{color: "green"}} onClick={onReturnToLobby}>Return To Lobby</button>
+  -     <button className="basic-button" onClick={onReturnToLobby}>To Lobby</button>
       </div>
 
       <div className="game-grid-answer-display">
