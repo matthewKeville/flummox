@@ -318,7 +318,7 @@ header {
 
   /*grid-template-columns: min(1fr,360px) 720px min(1fr,360px);*/
   grid-template-columns: 360px 480px 360px;
-  grid-template-rows: 60px 360px 60px;
+  grid-template-rows: 60px 360px 30px 180px;
 
   justify-content: center; /* center grid in its container*/
 
@@ -329,16 +329,6 @@ header {
   margin-left: 10%;
   margin-right: 10%;
 }
-
-.lobby-grid > * {
-  /* border for grid work */
-  /*
-  border-style: solid;
-  border-color: violet;
-  border-width: 5px;
-  */
-}
-
 
 /* PreGame layout */
 
@@ -389,6 +379,10 @@ header {
 }
 .game-grid-answer-display {
   grid-area: answers;
+  /* position at top of area : v important, it's jarring to see the words
+   * already found shuffle about 
+   */
+  align-self:start;
 }
 
 .game-grid-template {
@@ -612,6 +606,16 @@ header {
 .word-column-group-flex-container {
   display: flex;
   flex-direction: row;
+  overflow-y: scroll;
+  /* firefox */
+  scrollbar-width: none;
+  /* chromium */
+  max-height: 180px;
+}
+
+.word-column-group-flex-container::-webkit-scrollbar {
+  /* ::-webkit-scrollbar is a pseudo element */
+  display: none;
 }
 
 .word-column-group-flex {

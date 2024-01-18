@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 import GameTimer from "./GameTimer.jsx";
 import Board from "./Board.jsx";
-import AnswerDisplay from './AnswerDisplay.jsx';
+import UserAnswerDisplay from './UserAnswerDisplay.jsx';
 import WordInput from './WordInput.jsx';
 
 export async function loader({ params }) {
@@ -121,7 +121,7 @@ export default function Game({ lobby, onGameEnd }) {
       </div>
 
       <div className="game-grid-answer-display">
-        <AnswerDisplay words={game.answers.map(answer => answer.answer)} />
+        <UserAnswerDisplay words={game.answers} />
       </div>
 
     </div>
