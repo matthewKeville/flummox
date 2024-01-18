@@ -14,67 +14,65 @@ export default function Header() {
       return
     }
 
-    dropdownContentRef.current.classList.toggle("show") 
+    console.log("toggling dropdown")
+    dropdownContentRef.current.classList.toggle("show-flex") 
 
   }
 
   //close this drop down if we click outside of it
   window.addEventListener('click', function(event) {
 
+    console.log("click event")
+
     const dropdown = event.target.closest('.user-info-dropdown')
 
     if (dropdown && dropdown == dropdownRef.current) {
       return;
     }
-    if (dropdownContentRef.current && dropdownContentRef.current.classList.contains('show')) {
-      dropdownContentRef.current.classList.remove('show');
+    if (dropdownContentRef.current && dropdownContentRef.current.classList.contains('show-flex')) {
+      console.log("removing show from dropdown")
+      dropdownContentRef.current.classList.remove('show-flex');
     }
 
   });
 
-  const guestLinks = 
-  <>
-    <a className="user-cluster-link" href="/login">Login</a>
-    <a className="user-cluster-link" href="#">Sign Up</a>
-  </>
-
-  const dropdownContent = 
-  <>
-    <a className="logout-link" href="/logout">logout</a>
-  </>
-
-  const guestDropdownContent = 
-  <>
-    <div> No Guest Settings </div>
-  </>
-
-  const userDropdown  = 
-    <>
-      <div id="user-info-dropdown" className="user-info-dropdown" onClick={toggleDropdownContent} ref={dropdownRef}>
-        <span className="username-span">{userInfo.username}</span>
-        <img className="user-profile-icon" src="/icons/user-profile-white-full-trans.png"/>
-        <div id="user-info-dropdown-content" className="user-info-dropdown-content" ref={dropdownContentRef}>
-          {userInfo.isGuest ? guestDropdownContent : dropdownContent }
-        </div>
-      </div>
-    </>
-
   return (
     <header>
-      <div className="title-flex-container">
-        <div className="title-flex">
-          <span className="title-span">Reboggled</span>
-          <div  className="nav-div">
-            <Link className="nav-link" to="/">Home</Link>
-            <Link className="nav-link" to="/lobby">Lobbies</Link>
+
+      <div className="header-flex">
+
+        <div className="header-left-flex">
+            <span className="title-span">Reboggled</span>
+            <Link className="header-link" to="/">Home</Link>
+            <Link className="header-link" to="/lobby">Lobbies</Link>
+        </div>
+
+        <div className="header-right-flex">
+
+          <div className="user-button-cluster-flex">
+            { userInfo.isGuest &&
+              <>
+                <a className="alternate-button header-login-link" href="/login">Login</a>
+                <a className="tertiary-button header-signup-link" href="#">Sign UP</a>
+              </>
+            }
+          </div>
+
+          <div id="user-info-dropdown" className="user-info-dropdown" onClick={toggleDropdownContent} ref={dropdownRef}>
+            <span className="username-span">{userInfo.username}</span>
+            <img className="user-profile-icon" src="/icons/user-profile-white-full-trans.png"/>
+            <div id="user-info-dropdown-content" className="user-info-dropdown-content" ref={dropdownContentRef}>
+              {userInfo.isGuest ? 
+                <div> No Guest Settings </div>
+                :
+                <>
+                  <a className="logout-link" href="/logout">logout</a>
+                </>
+              }
+            </div>
           </div>
         </div>
-      </div>
-      <div className="user-cluster-flex-container">
-        <div className="user-cluster-flex">
-          {userInfo.isGuest ? guestLinks : <></>}
-          {userDropdown}
-        </div>
+
       </div>
     </header>
   )

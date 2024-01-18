@@ -1,7 +1,10 @@
+/*  --------------------------------------------------------------------  */
+/*  Color
+/*  --------------------------------------------------------------------  */
+
 /*
-
-https://mycolor.space/?hex=%23002EAD&sub=1
-
+ *
+  https://mycolor.space/?hex=%23002EAD&sub=1
   #0096FF
   #002EAD
   #AC109D
@@ -19,25 +22,41 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 
 */
 
+:root {
+
+  --dark-blue-color: #002EAD;
+  --orange-color: orange;
+  /*--orange-color: #FFB94C;*/
+
+  --four-letter-color : white;
+  --five-letter-color : green;
+  --six-letter-color: blue;
+  --seven-letter-color: purple;
+  --eight-letter-color: fuchsia;
+
+}
+
+
+
+
 /*  --------------------------------------------------------------------  */
 /*  Common / Util
 /*  --------------------------------------------------------------------  */
 
-/* this must appear before elements that use it */
-.show {
-  display:block;
-}
+
+
 
 /* perhaps I should have css var for button defaults and make
  * primary-button , danger-button ... */
 .basic-button {
-  width: 120px;
-  /* ripped from chrome ux*/
+  width: 100px;
+  box-sizing: border-box;
   border: 0;
   border-radius: 20px;
-  box-sizing: border-box;
+
   color: white;
-  background-color: green;
+  background-color: var(--dark-blue-color);
+
   cursor: pointer;
   font-size: .875em;
   margin: 0;
@@ -45,13 +64,53 @@ https://mycolor.space/?hex=%23002EAD&sub=1
   text-align: center;
   transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  text-transform: uppercase;
+  font-weight: bold;
+}
 
+.alternate-button {
+  width: 100px;
+  /* ripped from chrome ux*/
+  border: 0;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: var(--dark-blue-color);
+  background-color: white;
+  cursor: pointer;
+  font-size: .875em;
+  margin: 0;
+  padding: 8px 16px;
+  text-align: center;
+  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.tertiary-button {
+  width: 100px;
+  /* ripped from chrome ux*/
+  border: 0;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: var(--dark-blue-color);
+  background-color: var(--orange-color);
+  cursor: pointer;
+  font-size: .875em;
+  margin: 0;
+  padding: 8px 16px;
+  text-align: center;
+  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .thick-blue-border {
   border-style: solid;
-  border-color: #002EAD;
+  border-color: var(--dark-blue-color);
   border-width: 5px;
+  border-radius: 20px;
 }
 
 /* A little hack to toggle borders on elements that have them */
@@ -64,7 +123,9 @@ https://mycolor.space/?hex=%23002EAD&sub=1
 }
 
 body {
-  background-color: #0c0c0d;
+  /*background-color: #0c0c0d;*/
+  background-color: black;
+  margin: 0px;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -81,12 +142,12 @@ body {
 
   /* TODO: replace with thick-blue-border*/
   border-style: solid;
-  border-color: #002EAD;
+  border-color: var(--dark-blue-color);
   border-width: 5px;
 }
 
 #lobby-table thead {
-  background-color: #FFB94C;
+  background-color: var(--orange-color);
 }
 
 #lobby-table th,td {
@@ -116,127 +177,107 @@ body {
 /*  --------------------------------------------------------------------  */
 
 header {
-  background-color: #002EAD;
+  background-color: var(--dark-blue-color);
 }
 
-.title-flex-container {
-  display: inline-block;
-  width: 50%;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+.header-link {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
 }
 
-/* 
- * I can't make inline-block take 100% height of parent, nor can I center the element
- * (not the children) in the parent. I would like this, I see that flexbox would
- * be a workaround. This should be obvious by now, but when we need to orient an
- * element in vertical space, inline-* is usually going to be insufficient.
- */
-.user-cluster-flex-container {
-  display: inline-block;
-  width: 49.5%;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+.header-link:hover {
+  color: orange;
 }
 
-.title-flex {
+.header-flex {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  margin-left: 10px;
+  justify-content: space-between;
+  align-items:  center;
+  height: 50px;
+  margin-left: 2%;
+  margin-right: 2%;
 }
 
-.user-cluster-flex {
+.header-left-flex {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  margin-right: 10px;
+  align-items:  center;
+  gap: 40px;
 }
 
 .title-span {
-  font-size: 48px;
+  font-size: 24px;
+  font-weight: bold;
   color: white;
-  display: inline-block;
-  vertical-align: bottom;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+  vertical-align: center;
 }
 
-.user-cluster {
-  display: inline-block;
-  vertical-align: bottom;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+.header-right-flex {
+  display: flex;
 }
 
-.user-cluster-link {
+/* user button-links */
 
-  color:white;
-  font-weight: bolder;
-  text-decoration: none;
+.user-button-cluster-flex {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   margin-right: 10px;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+  gap: 10px;
 }
 
 .user-cluster-link:hover {
-  color: #FFB94C;
+  color: var(--orange-color);
 }
+
+.header-login-link {
+  text-decoration: none;
+}
+
+.header-signup-link {
+  text-decoration: none;
+}
+
+/* user dropdown */
 
 .user-info-dropdown {
   position: relative; /*enable children to position absolutely*/
   
   display: flex;
   justify-content: flex-end;
-  min-width: 200px; /*so drop down has normal size*/
+  align-items: center;
+  width: 200px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 
-  background-color: #002EAD;
-  border: none;
+  background-color: var(--dark-blue-color);
+
+  border-style: solid;
+  border-color: white;
+  border-width: 2px;
+  border-radius: 5px;
+
   cursor: pointer;
 
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
 }
 
 .username-span{
-  font-size: 24px;
+  font-size: 12;
   font-weight: bold;
   color: white;
-  vertical-align: bottom;
-  margin-right: 10px;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+  margin-right: 5px;
 }
 
 .username-span:hover {
-  color: #FFB94C;
+  color: var(--orange-color);
 }
 
 .user-profile-icon {
   width: 30px;
   height: 30px;
-  vertical-align: bottom;
-
-  border: var(--dev-border-size);
-  border-style: solid;
-  border-color: red;
+  margin-right: 5px;
 }
-
 
 .user-info-dropdown-content {
   display: none;
@@ -249,21 +290,26 @@ header {
   top: 100%;
   left: 0%;
 
-
   width: 100%;
   z-index: 1;
-  background-color: #002EAD;
-  color: wheat;
+  background-color: var(--dark-blue-color);
+  color: var(--orange-color);
 
   border: 2px;
   border-style: solid;
   border-color: white;
+
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  
 }
 
 .logout-link {
   color: white;
   font-size: 24px;
   text-decoration: none;
+  text-align: center;
 }
 
 .logout-link-react {
@@ -273,22 +319,6 @@ header {
 }
 
 
-.nav-div {
-  margin-left: 20px;
-}
-
-.nav-link {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
-  margin-right: 10px;
-}
-
-.nav-link:hover {
-  color: #FFB94C;
-}
-
 /*  --------------------------------------------------------------------  */
 /*  Lobby (PreGame)
 /*  --------------------------------------------------------------------  */
@@ -297,19 +327,6 @@ header {
   font-size: 24px;
   font-style: italic;
   color:white;
-}
-
-.lobby-exit-button {
-  background-color: red;
-}
-
-.lobby-nudge-button {
-  background-color: yellow;
-}
-
-.start-game-button {
-  color:white;
-  background-color:green;
 }
 
 /* Lobby Layout (All modes) override temlate areas in instance grid */
@@ -473,12 +490,12 @@ header {
 
 .settings-grid-value {
   font-weight: bold;
-  color: #FFB94C
+  color: var(--orange-color);
 }
 
 #edit-settings-button {
   color:white;
-  background-color:orange;
+  background-color: var(--orange-color);
 }
 #save-settings-button {
   color:white;
@@ -494,6 +511,7 @@ header {
 /*  --------------------------------------------------------------------  */
 
 .user-display {
+  background-color: var(--dark-blue-color);
   color:white;
 }
 
@@ -512,7 +530,7 @@ header {
   justify-content: flex-end;
   min-width: 200px; /*so drop down has normal size*/
 
-  background-color: #002EAD;
+  background-color: var(--dark-blue-color);
   border: none;
   cursor: pointer;
 
@@ -535,8 +553,8 @@ header {
 
   width: 100%;
   z-index: 1;
-  background-color: #002EAD;
-  color: wheat;
+  background-color: var(--dark-blue-color);
+  color: var(--orange-color);
 
   border: 2px;
   border-style: solid;
@@ -566,7 +584,7 @@ header {
 /*  --------------------------------------------------------------------  */
 
 .game-timer-span {
-  color: orange;
+  color: var(--orange-color);
   text-align: center;
   font-size: 32px;
 }
@@ -593,14 +611,13 @@ header {
 .board {
   display: table;
 
-  background: #002EAD;
+  background-color: var(--dark-blue-color);
   border-radius: 20px;
   padding: 5px;
 }
 
 .board-row {
   display: table-row;
-  background: #002EAD;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -644,22 +661,22 @@ header {
 }
 
 .word-group-three {
-  color: white;
+  color : var(--four-letter-color);
 }
 .word-group-four {
-  color: white;
+  color : var(--four-letter-color);
 }
 .word-group-five {
-  color: green;
+  color : var(--five-letter-color);
 }
 .word-group-six {
-  color: blue;
+  color : var(--six-letter-color);
 }
 .word-group-seven {
-  color: purple;
+  color : var(--seven-letter-color);
 }
 .word-group-eight {
-  color: fuchsia;
+  color : var(--eight-letter-color);
 }
 
 .word {
@@ -682,4 +699,12 @@ header {
   /*position: relative;*/
 }
 
+/* this must appear after elements that use it... */
+.show {
+  display:block;
+}
+
+.show-flex {
+  display:flex;
+}
 

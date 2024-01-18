@@ -129,7 +129,7 @@ export default function Lobbies() {
                 <td>{lobby.name}</td>
                 <td>{lobby.users.length} / {lobby.capacity}</td>
                 <td>{lobby.isPrivate ? "locked" : "open"}</td>
-                <td><button className="basic-button" onClick={() => joinLobby(lobby.id)} >Join Lobby</button></td>
+                <td><button className="basic-button" onClick={() => joinLobby(lobby.id)} >Join</button></td>
               </tr>
             )
           })
@@ -141,7 +141,7 @@ export default function Lobbies() {
             <td></td>
             <td></td>
             <td></td>
-            <td><button className="basic-button" onClick={createLobby}>New Lobby</button></td>
+            <td><button className="basic-button" onClick={createLobby}>Create</button></td>
           </tr>
         }
 

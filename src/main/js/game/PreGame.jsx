@@ -139,8 +139,8 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 
       <div className="pre-game-grid-lobby-buttons">
         <div className="lobby-buttons">
-          <button className="basic-button start-game-button" onClick={onStartGame}>Start</button> 
-          <button className="basic-button lobby-exit-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
+          <button className="basic-button" onClick={onStartGame}>Start</button> 
+          <button className="alternate-button" onClick={isOwner ? () => deleteLobby(lobby.id) :  () => leaveLobby(lobby.id) } >{isOwner ? "Delete" : "Leave"}</button>
           { 
             playedPrev &&
             <button className="basic-button lobby-exit-button" onClick={onReturnToPostGame}>View Last</button>
