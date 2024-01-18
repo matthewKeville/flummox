@@ -25,29 +25,60 @@ export default function AllAnswerDisplay({words}) {
   }
 
   function answerToDisplay(word) {
-    let wordClass = word.found ? "found-word" : "missed-word"
+    let wordClass = word.found ? "word" : "missed-word"
     return (<div key={word.word} className={wordClass}>{word.word}</div>)
   }
 
+  function createColumnGroups(words,sizeClass) {
+
+    let found = words.filter( w => w.found )
+    let missed = words.filter( w => !w.found )
+
+    words = found.concat(missed)
+
+    const maxWords = 16
+    let column = 0
+    
+    let columns = []
+    while ( column * maxWords < words.length ) {
+
+      let a = maxWords * column
+      let b = Math.min( a + maxWords , words.length )
+      let columnWords = words.slice(a,b)
+
+      columns.push(
+        <div className="word-column-flex">
+          {columnWords.map( w => answerToDisplay(w))}
+        </div>
+      )
+
+      column++
+
+    }
+
+    return columns
+
+  }
+
   return (
-    <div className="word-columns">
-      <div className="three">
-        {wordsBySize.get(3).map( w => answerToDisplay(w))}
+    <div className="word-column-group-flex-container">
+      <div className="word-column-group-flex word-group-three">
+        {createColumnGroups(wordsBySize.get(3),3)}
       </div>
-      <div className="four">
-        {wordsBySize.get(4).map( w => answerToDisplay(w))}
+      <div className="word-column-group-flex word-group-four">
+        {createColumnGroups(wordsBySize.get(4),4)}
       </div>
-      <div className="five">
-        {wordsBySize.get(5).map( w => answerToDisplay(w))}
+      <div className="word-column-group-flex word-group-five">
+        {createColumnGroups(wordsBySize.get(5),5)}
       </div>
-      <div className="six">
-        {wordsBySize.get(6).map( w => answerToDisplay(w))}
+      <div className="word-column-group-flex word-group-six">
+        {createColumnGroups(wordsBySize.get(6),6)}
       </div>
-      <div className="seven">
-        {wordsBySize.get(7).map( w => answerToDisplay(w))}
+      <div className="word-column-group-flex word-group-seven">
+        {createColumnGroups(wordsBySize.get(7),7)}
       </div>
-      <div className="eight-plus">
-        {wordsBySize.get(8).map( w => answerToDisplay(w))}
+      <div className="word-column-group-flex word-group-eight">
+        {createColumnGroups(wordsBySize.get(8),8)}
       </div>
     </div>
   );

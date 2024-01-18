@@ -609,19 +609,45 @@ header {
 /*  AnswerDisplay (Comp)
 /*  --------------------------------------------------------------------  */
 
-.word-columns {
-  margin-top: 10px;
+.word-column-group-flex-container {
   display: flex;
-  justify-content: center;
-  color: white;
+  flex-direction: row;
 }
 
-.found-word {
+.word-column-group-flex {
+  display: flex;
+  flex-direction: row;
+}
+
+.word-column-flex {
+  display: flex;
+  flex-direction: column;
+}
+
+.word-group-three {
+  color: white;
+}
+.word-group-four {
+  color: white;
+}
+.word-group-five {
+  color: green;
+}
+.word-group-six {
+  color: blue;
+}
+.word-group-seven {
+  color: purple;
+}
+.word-group-eight {
+  color: fuchsia;
+}
+
+.word {
   display: block;
   text-transform: uppercase;
   cursor: pointer;
   padding: 4px;
-  /*position: relative;*/
 }
 
 /*  --------------------------------------------------------------------  */
@@ -633,7 +659,7 @@ header {
   text-transform: uppercase;
   cursor: pointer;
   padding: 4px;
-  color: red;
+  color: rgba(43, 43, 43,1.0);
   /*position: relative;*/
 }
 
