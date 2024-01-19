@@ -1,6 +1,7 @@
 package com.keville.ReBoggled.service.gameSummaryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
 import com.keville.ReBoggled.model.game.BoardWord;
@@ -27,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.keville.ReBoggled.service.answerService.AnswerService;
 
+@Component
 public class DefaultGameSummaryService implements GameSummaryService {
-
 
   public static Logger LOG = LoggerFactory.getLogger(DefaultGameSummaryService.class);
   public SolutionService solutionService;
@@ -144,7 +145,7 @@ public class DefaultGameSummaryService implements GameSummaryService {
       List<WordFinder> findersSorted = new ArrayList<WordFinder>(gameWord.finders());
       Collections.sort(findersSorted,
         (a , b) -> 
-        { return -1*a.time().compareTo(b.time()); } 
+        { return a.time().compareTo(b.time()); } 
       );
 
       //credit finders
@@ -171,12 +172,15 @@ public class DefaultGameSummaryService implements GameSummaryService {
         int userId = gameWord.finders().get(i).id();
 
         UserTally currentUser;
+
         if ( userPoints.containsKey(userId) ) {
-          currentUser = userPoints.get(gameWord.finders().get(i).id());
+          currentUser = userPoints.get(userId);
         } else {
-          currentUser= userPoints.put(userId,new UserTally(0,0));
+          userPoints.put(userId,new UserTally(0,0));
+          currentUser = userPoints.get(userId);
         }
 
+        LOG.info("currentUser " + currentUser);
         currentUser.words++;
         currentUser.score+=points;
 

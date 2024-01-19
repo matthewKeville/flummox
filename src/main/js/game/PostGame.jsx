@@ -44,7 +44,7 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
       </div>
 
       <div className="game-grid-answer-display">
-        <AllAnswerDisplay words={gameSummary.answers}/>
+        <AllAnswerDisplay words={gameSummary.words}/>
       </div>
 
     </div>

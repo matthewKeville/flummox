@@ -1,5 +1,6 @@
 package com.keville.ReBoggled.service.view;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,17 +14,17 @@ import org.springframework.stereotype.Component;
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.DTO.GameViewDTO;
+import com.keville.ReBoggled.DTO.GameWordDTO;
 import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.gameSummary.GameSummary;
+import com.keville.ReBoggled.model.gameSummary.WordFinder;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.answerService.AnswerService;
-import com.keville.ReBoggled.service.answerService.AnswerServiceException;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.gameSummaryService.GameSummaryService;
 import com.keville.ReBoggled.service.userService.UserService;
-import com.keville.ReBoggled.service.view.GameViewServiceException.GameViewServiceError;
 
 @Component
 public class GameViewService {
@@ -37,9 +38,11 @@ public class GameViewService {
 
     public GameViewService(
         @Autowired GameService gameService,
+        @Autowired GameSummaryService gameSummaryService,
         @Autowired UserService userService,
         @Autowired AnswerService answerService) {
       this.gameService = gameService;
+      this.gameSummaryService = gameSummaryService;
       this.userService = userService;
       this.answerService = answerService;
     }
@@ -56,7 +59,7 @@ public class GameViewService {
         .filter( ans -> {
           return ans.user.getId().equals(userId);
         })
-        .map( uga ->  new GameAnswerDTO(uga) )
+        .map( uga ->  new GameAnswerDTO(uga.answer,uga.answerSubmissionTime) )
         .collect(Collectors.toSet());
 
       return new GameUserViewDTO(game,userAnswers);
@@ -70,13 +73,36 @@ public class GameViewService {
 
       GameSummary gameSummary = gameSummaryService.getSummary(game);
 
-      //flavor the gameSummary for the user
+      //transform gameSummary into set of 'GameWordDTOs' (flavor GameWord for user)
+      Set<GameWordDTO> gameWordDTOs = new HashSet<GameWordDTO>();
+      gameSummary.gameBoardWords().forEach( gbw -> {
 
-      PostGameUserViewDTO view = new PostGameUserViewDTO();
-      view.gameViewDTO = new GameViewDTO(game);
-      view.scoreBoard = gameSummary.scoreboard();
-      //TODO TODO TODO
-      //create an export for the GameSummary flavored for the current user
+        boolean found   = gbw.finders().stream().anyMatch( (finder) -> finder.id().equals(userId) );
+        //some duplicate logic here with the calculation of GameSummary
+        boolean counted = false;
+        if ( found ) {
+
+          switch ( game.findRule ) {
+            case UNIQUE:
+              counted = gbw.finders().size() == 1;
+              break;
+            case FIRST:
+              Optional<WordFinder> firstFinder = gbw.finders().stream().sorted( (a,b) -> a.time().compareTo(b.time()) ).findFirst();
+              counted = firstFinder.get().id().equals(userId);
+              break;
+            case ANY:
+            default:
+              counted = true;
+          }
+
+        }
+
+        gameWordDTOs.add(new GameWordDTO(gbw.word(),gbw.paths(),gbw.finders(),gbw.points(),found,counted));
+
+      });
+
+      PostGameUserViewDTO view = new PostGameUserViewDTO(new GameViewDTO(game),gameSummary.scoreboard(),gameWordDTOs);
+
       return view;
 
     }

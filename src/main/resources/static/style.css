@@ -748,12 +748,12 @@ header {
   cursor: pointer;
   padding: 4px;
   color: rgba(43, 43, 43,1.0);
-  /*position: relative;*/
 }
 
-.missed-word {
-  display: block;
+.crossed-word {
   text-decoration: line-through;
+  text-decoration-color: red;
+  color: rgba(43, 43, 43,1.0);
 }
 
 /* this must appear after elements that use it... */

@@ -4,6 +4,6 @@ import AnswerDisplay from './AnswerDisplay.jsx';
 export default function AllAnswerDisplay({words}) {
 
   return (
-    <AnswerDisplay words={words}/>
+    <AnswerDisplay words={words} postGame={true}/>
   );
 }

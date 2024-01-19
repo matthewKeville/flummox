@@ -91,8 +91,8 @@ public class GameController {
     try { 
       PostGameUserViewDTO postGameViewDTO = gameViewService.getPostGameUserViewDTO(id, userId);
       return new ResponseEntity<PostGameUserViewDTO>(postGameViewDTO,HttpStatus.OK);
-    } catch (GameViewServiceException e) {
-      return handleGameViewServiceException(e);
+    } catch (GameServiceException e) {
+      return handleGameServiceException(e);
     }
 
   }

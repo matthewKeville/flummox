@@ -1,6 +1,8 @@
 import React from 'react';
 
-export default function AnswerDisplay({words,onWordClick}) {
+/* this component expects a different  data structure depending on the 
+  * value of postGame, as of right now postGame requires a word.found value */
+export default function AnswerDisplay({words,onWordClick,postGame}) {
 
   let wordsBySize = new Map()
   wordsBySize.set(3,[])
@@ -23,19 +25,52 @@ export default function AnswerDisplay({words,onWordClick}) {
 
   }
 
-  function answerToDisplay(word) {
-    let classes = word.found ? "word" : "missed-word"
-    if (word.actualPoints != word.potentialPoints) {
-      classes = classes + " " + "crossed-word"
+  function answerToDisplay(word,postGame) {
+
+    let classes = ""
+    if ( postGame ) {
+
+      if ( word.found ) {
+
+        classes = "word"
+
+        if (!word.counted) {
+          classes = classes + " crossed-word"
+        }
+
+      } else {
+
+        classes = "missed-word"
+
+      }
+
+    } else {
+      classes = "word"
     }
+
     return (<div key={word.word} className={classes}>{word.word}</div>)
+
   }
 
-  function createColumnGroups(words,sizeClass) {
 
-    let found = words.filter( w => w.found )
-    let missed = words.filter( w => !w.found )
+  function createColumnGroups(words,sizeClass,postGame) {
 
+    let found = [];
+    let missed = [];
+
+    if ( postGame ) {
+      let foundNotCounted = words.filter( w => w.found && !w.counted )
+      let foundCounted = words.filter( w => w.found && w.counted )
+      found = foundCounted.concat(foundNotCounted)
+      missed = words.filter( w => !w.found )
+    } else {
+      found = words
+    }
+
+    found = found.sort( function(wa,wb) { return wa.word < wb.word } )
+    missed = missed.sort( function(wa,wb) { return wa.word < wb.word } )
+
+    /* potentially confusing reusing the parameter */
     words = found.concat(missed)
 
     const maxWords = 16
@@ -50,7 +85,7 @@ export default function AnswerDisplay({words,onWordClick}) {
 
       columns.push(
         <div className="word-column-flex">
-          {columnWords.map( w => answerToDisplay(w))}
+          {columnWords.map( w => answerToDisplay(w,postGame))}
         </div>
       )
 
@@ -65,22 +100,22 @@ export default function AnswerDisplay({words,onWordClick}) {
   return (
     <div className="word-column-group-flex-container">
       <div className="word-column-group-flex word-group-three">
-        {createColumnGroups(wordsBySize.get(3),3)}
+        {createColumnGroups(wordsBySize.get(3),3,postGame)}
       </div>
       <div className="word-column-group-flex word-group-four">
-        {createColumnGroups(wordsBySize.get(4),4)}
+        {createColumnGroups(wordsBySize.get(4),4,postGame)}
       </div>
       <div className="word-column-group-flex word-group-five">
-        {createColumnGroups(wordsBySize.get(5),5)}
+        {createColumnGroups(wordsBySize.get(5),5,postGame)}
       </div>
       <div className="word-column-group-flex word-group-six">
-        {createColumnGroups(wordsBySize.get(6),6)}
+        {createColumnGroups(wordsBySize.get(6),6,postGame)}
       </div>
       <div className="word-column-group-flex word-group-seven">
-        {createColumnGroups(wordsBySize.get(7),7)}
+        {createColumnGroups(wordsBySize.get(7),7,postGame)}
       </div>
       <div className="word-column-group-flex word-group-eight">
-        {createColumnGroups(wordsBySize.get(8),8)}
+        {createColumnGroups(wordsBySize.get(8),8,postGame)}
       </div>
     </div>
   );
