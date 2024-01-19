@@ -4,7 +4,7 @@ export default function LobbyChat({lobby}) {
 
   return ( 
     <>
-      <div className="chat-flex"></div>
+      <div className="thick-blue-border chat-flex"></div>
     </>
   )
 

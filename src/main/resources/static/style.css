@@ -26,7 +26,6 @@
 
   --dark-blue-color: #002EAD;
   --orange-color: orange;
-  /*--orange-color: #FFB94C;*/
 
   --four-letter-color : white;
   --five-letter-color : green;
@@ -95,6 +94,25 @@
   box-sizing: border-box;
   color: var(--dark-blue-color);
   background-color: var(--orange-color);
+  cursor: pointer;
+  font-size: .875em;
+  margin: 0;
+  padding: 8px 16px;
+  text-align: center;
+  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.danger-button {
+  width: 100px;
+  /* ripped from chrome ux*/
+  border: 0;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: white;
+  background-color: red;
   cursor: pointer;
   font-size: .875em;
   margin: 0;
@@ -335,11 +353,13 @@ header {
 
   display: grid;
   column-gap: 20px;
-  row-gap: 20px;
+  row-gap: 10px;
 
   /*grid-template-columns: min(1fr,360px) 720px min(1fr,360px);*/
   grid-template-columns: 360px 480px 360px;
-  grid-template-rows: 60px 360px 30px 180px;
+  /* 3rd row has variable size content ... */
+  /*grid-template-rows: 60px 450px 30px 180px;*/
+  grid-template-rows: 60px auto /*let the board take up as much space as needed*/ 30px 180px;
 
   justify-content: center; /* center grid in its container*/
 
@@ -459,10 +479,6 @@ header {
 
 .chat-flex {
   min-height: 200px;
-
-  border-style: solid;
-  border-color: lime;
-  border-width: 1px;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -491,19 +507,6 @@ header {
 .settings-grid-value {
   font-weight: bold;
   color: var(--orange-color);
-}
-
-#edit-settings-button {
-  color:white;
-  background-color: var(--orange-color);
-}
-#save-settings-button {
-  color:white;
-  background-color:green;
-}
-#discard-settings-button {
-  color:white;
-  background-color:#DA1630;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -596,6 +599,19 @@ header {
 .die {
   background: #fff;
   float: left;
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  height: 64px;
+  width: 64px;
+  margin: 4px;
+  padding: 0;
+  border: 1px solid #999;
+  border-radius: 12px;
+  /*font-weight: bold;*/
+  /*
+  background: #fff;
+  float: left;
   font-size: 48px;
   font-weight: bold;
   text-align: center;
@@ -605,6 +621,7 @@ header {
   padding: 0;
   border: 1px solid #999;
   border-radius: 20px;
+  */
   /*box-shadow: -2px -4px 8px rgb(255 255 255 / 60%), 2px 4px 8px rgb(0 0 0 / 30%);*/
 }
 

@@ -35,7 +35,7 @@ export default function AnswerDisplay({words,onWordClick}) {
 
     words = found.concat(missed)
 
-    const maxWords = 32
+    const maxWords = 16
     let column = 0
     
     let columns = []
