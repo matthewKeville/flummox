@@ -22,56 +22,110 @@ public class ClassicBoardGenerator {
 
   //For these chars q means Qu and should be properly handled.
 
-  //4x4 boggle
+  //4x4 boggle classic 
   private static List<String> originalBoggleChars = 
     Arrays.asList(
-    "AOCSPH",
-    "AEANGE",
-    "AFPKSF",
-    "ATTOWO", 
-    "EVLRDY",
-    "TLRYTE",
-    "SIENEU",
-    "LXEDRI",
-    "HWEGEN",
-    "HRVTEW",
-    "OAJBOB",
-    "CTUIOM",
-    "EITSOS",
-    "SYIDTT",
-    "MIQNUH",
-    "ZNRNHL"
+    "AACIOT",
+    "ABILTY",
+    "ABJMO1", 
+    "ACDEMP",
+    "ACELRS",
+    "ADENVZ",
+    "AHMORS",
+    "BIFORX", 
+    "DENOSW", 
+    "DKNOTU", 
+    "EEFHIY", 
+    "EGKLUY", 
+    "EGINTV", 
+    "EHINPS", 
+    "ELPSTU", 
+    "GILRUW"
     );
 
-  //5x5 boggle
+
+  //5x5 big boggle original
   private static List<String> bigBoggleChars = 
     Arrays.asList(
-    "QBZJXK",
-    "TOUOTO",
-    "OVWRGR",
-    "AAAFSR",
-    "AUMEEG",
-    "HHLRDO",
-    "NHDTHC",
-    "LHNROD",
-    "AFAISR",
-    "YIFASR",
-    "TELPCI",
-    "SSNSEU",
-    "RIYPRH",
-    "DORDLN",
-    "CCWNST",
-    "TTOTEM",
-    "SCTIEP",
-    "EANDNN",
-    "MNNEAG",
-    "UOTOWN",
-    "AEAEEE",
-    "YIFPSR",
-    "EEEEMA",
-    "ITITIE",
-    "ETILIC"
+    "AAAFRS",
+    "AAEEEE",
+    "AAFIRS",
+    "ADENNN",
+    "AEEEEM",
+    "AEEGMU",
+    "AEGMNN",
+    "AFIRSY",
+    "BJK1XZ",
+    "CCENST",
+    "CEIILT",
+    "CEIPST",
+    "DDHNOT",
+    "DHHLOR",
+    "DHHLOR",
+    "DHLNOR",
+    "EIIITT",
+    "CEILPT",
+    "EMOTTT",
+    "ENSSSU",
+    "FIPRSY",
+    "GORRVW",
+    "IPRRRY",
+    "NOOTUW",
+    "OOOTTU"
   );
+
+  private static List<String> superBigBoggleChars = 
+    /* #0 = Blank, 1 = Qu, 2 = In, 3 = Th, 4 = Er, 5 = He, 6 = An */
+    Arrays.asList(
+        "AAAFRS",
+        "AAEEEE",
+        "AAEEOO",
+        "AAFIRS",
+        "ABDEIO",
+        "ADENNN",
+        "AEEEEM",
+        "AEEGMU",
+        "AEGMNN",
+        "AEILMN",
+        "AEINOU",
+        "AFIRSY",
+        "123456", /*double letter combo tile */
+        "BBJKXZ",
+        "CCENST",
+        "CDDLNN",
+        "CEIITT",
+        "CEIPST",
+        "CFGNUY",
+        "DDHNOT",
+        "DHHLOR",
+        "DHHNOW",
+        "DHLNOR",
+        "EHILRS",
+        "EIILST",
+        "EILPST",
+        "EIO000", /* triple blank tile */
+        "EMTTTO",
+        "ENSSSU",
+        "GORRVW",
+        "HIRSTV",
+        "HOPRST",
+        "IPRSYY",
+        "JK1WXZ",
+        "NOOTUW",
+        "OOOTTU" 
+    );
+
+/*
+boggleDice_Classic = ['AACIOT', 'ABILTY', 'ABJMO1', 'ACDEMP', 'ACELRS', 'ADENVZ', 'AHMORS', 'BIFORX', 'DENOSW', 'DKNOTU', 'EEFHIY', 'EGKLUY', 'EGINTV', 'EHINPS', 'ELPSTU', 'GILRUW']
+boggleDice_New = ['AAEEGN', 'ABBJOO', 'ACHOPS', 'AFFKPS', 'AOOTTW', 'CIMOTU', 'DEILRX', 'DELRVY', 'DISTTY', 'EEGHNW', 'EEINSU', 'EHRTVW', 'EIOSST', 'ELRTTY', 'HIMNU1', 'HLNNRZ']
+boggleDice_Big_Original = ['AAAFRS', 'AAEEEE', 'AAFIRS', 'ADENNN', 'AEEEEM', 'AEEGMU', 'AEGMNN', 'AFIRSY', 'BJK1XZ', 'CCENST', 'CEIILT', 'CEIPST', 'DDHNOT', 'DHHLOR', 'DHHLOR', 'DHLNOR', 'EIIITT', 'CEILPT', 'EMOTTT', 'ENSSSU', 'FIPRSY', 'GORRVW', 'IPRRRY', 'NOOTUW', 'OOOTTU']
+boggleDice_Big_Challenge = ['AAAFRS', 'AAEEEE', 'AAFIRS', 'ADENNN', 'AEEEEM', 'AEEGMU', 'AEGMNN', 'AFIRSY', 'BJK1XZ', 'CCENST', 'CEIILT', 'CEIPST', 'DDHNOT', 'DHHLOR', 'IKLM1U', 'DHLNOR', 'EIIITT', 'CEILPT', 'EMOTTT', 'ENSSSU', 'FIPRSY', 'GORRVW', 'IPRRRY', 'NOOTUW', 'OOOTTU']
+boggleDice_Big_Deluxe = ['AAAFRS', 'AAEEEE', 'AAFIRS', 'ADENNN', 'AEEEEM', 'AEEGMU', 'AEGMNN', 'AFIRSY', 'BJK1XZ', 'CCNSTW', 'CEIILT', 'CEIPST', 'DDLNOR', 'DHHLOR', 'DHHNOT', 'DHLNOR', 'EIIITT', 'CEILPT', 'EMOTTT', 'ENSSSU', 'FIPRSY', 'GORRVW', 'HIPRRY', 'NOOTUW', 'OOOTTU']
+boggleDice_Big_2012 = ['AAAFRS', 'AAEEEE', 'AAFIRS', 'ADENNN', 'AEEEEM', 'AEEGMU', 'AEGMNN', 'AFIRSY', 'BBJKXZ', 'CCENST', 'EIILST', 'CEIPST', 'DDHNOT', 'DHHLOR', 'DHHNOW', 'DHLNOR', 'EIIITT', 'EILPST', 'EMOTTT', 'ENSSSU', '123456', 'GORRVW', 'IPRSYY', 'NOOTUW', 'OOOTTU']
+boggleDice_Super_Big = ['AAAFRS', 'AAEEEE', 'AAEEOO', 'AAFIRS', 'ABDEIO', 'ADENNN', 'AEEEEM', 'AEEGMU', 'AEGMNN', 'AEILMN', 'AEINOU', 'AFIRSY', '123456', 'BBJKXZ', 'CCENST', 'CDDLNN', 'CEIITT', 'CEIPST', 'CFGNUY', 'DDHNOT', 'DHHLOR', 'DHHNOW', 'DHLNOR', 'EHILRS', 'EIILST', 'EILPST', 'EIO000', 'EMTTTO', 'ENSSSU', 'GORRVW', 'HIRSTV', 'HOPRST', 'IPRSYY', 'JK1WXZ', 'NOOTUW', 'OOOTTU']
+#0 = Blank, 1 = Qu, 2 = In, 3 = Th, 4 = Er, 5 = He, 6 = An
+//https://boardgamegeek.com/thread/300883/letter-distribution
+*/
 
   public ClassicBoardGenerator(@Autowired TileCodeStringMap tileCodeStringMap) {
     this.tileCodeStringMap = tileCodeStringMap;
@@ -86,6 +140,10 @@ public class ClassicBoardGenerator {
 
     if ( boardSize.equals(BoardSize.FIVE)) {
       return generate(bigBoggleChars);
+    }
+
+    if ( boardSize.equals(BoardSize.SIX)) {
+      return generate(superBigBoggleChars);
     }
 
     throw new BoardGenerationException("invalid board size for classic generator" + boardSize);
@@ -103,7 +161,41 @@ public class ClassicBoardGenerator {
     List<Tile> tiles = new ArrayList<Tile>();
     chars.forEach( die -> {
       char c = die.charAt(random.nextInt(6));
-      Integer code = c == 'Q' ? tileCodeStringMap.getCode("Qu") : (int) c;
+      /*
+      Integer code = c == 'Q' ?  : (int) c;
+      */
+      Integer code; 
+      switch ( c ) {
+
+        case 'Q': 
+          code = tileCodeStringMap.getCode("Qu");
+          break;
+        case '0': 
+          code = tileCodeStringMap.getCode(""); //blank
+          break;
+        case '1': 
+          code = tileCodeStringMap.getCode("Qu");
+          break;
+        case '2': 
+          code = tileCodeStringMap.getCode("In");
+          break;
+        case '3': 
+          code = tileCodeStringMap.getCode("Th");
+          break;
+        case '4': 
+          code = tileCodeStringMap.getCode("Er");
+          break;
+        case '5': 
+          code = tileCodeStringMap.getCode("He");
+          break;
+        case '6': 
+          code = tileCodeStringMap.getCode("An");
+          break;
+
+        default:
+          code = (int) c;
+      }
+
       tiles.add(new Tile( code ));
     });
 

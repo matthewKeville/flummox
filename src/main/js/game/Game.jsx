@@ -113,7 +113,7 @@ export default function Game({ lobby, onGameEnd }) {
       </div>
 
       <div className="game-grid-board">
-        <Board dice={game.gameViewDTO.tiles.map(tile => String.fromCharCode(tile.code))} />
+        <Board dice={game.gameViewDTO.tiles} />
       </div>
 
       <div className="game-grid-word-input">

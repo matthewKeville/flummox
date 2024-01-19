@@ -26,7 +26,14 @@ public class TileCodeStringMap {
     IntStream.range(0,255).forEach( x -> { codeMap.put(x,""+(char) x); } ); 
 
     //overwrite specific control tiles
-    codeMap.put(0,"Qu");
+
+    codeMap.put(0,"");
+    codeMap.put(1,"Qu");
+    codeMap.put(2,"In");
+    codeMap.put(3,"Th");
+    codeMap.put(4,"Er");
+    codeMap.put(5,"He");
+    codeMap.put(6,"An");
 
   }
 

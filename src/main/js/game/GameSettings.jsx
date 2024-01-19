@@ -144,6 +144,7 @@ export default function GameSettings({lobby}) {
             <select ref={editBoardSizeRef} name="size" defaultValue={lobby.gameSettings.boardSize}>
               <option value="FOUR">4 x 4</option>
               <option value="FIVE">5 x 5</option>
+              <option value="SIX">6 x 6</option>
             </select>
 
             <div className="settings-grid-label">Topology</div>

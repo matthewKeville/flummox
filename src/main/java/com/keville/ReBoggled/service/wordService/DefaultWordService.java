@@ -53,6 +53,7 @@ public class DefaultWordService implements WordService {
     return findPartialWords(word).stream().anyMatch( w -> { return checkLegality(w); });
   }
 
+  /* OOB bug seen here ... */
   private List<String> findPartialWords(String word) {
 
     int match = partialBinarySearch(word,0,words.size()-1);

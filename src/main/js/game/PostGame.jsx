@@ -36,7 +36,7 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
     <div className="lobby-grid post-game-grid-template">
 
       <div className="game-grid-board">
-        <Board dice={gameSummary.gameViewDTO.tiles.map( tile => String.fromCharCode(tile.code) )} />
+        <Board dice={gameSummary.gameViewDTO.tiles} />
       </div>
 
       <div className="post-game-grid-exit">

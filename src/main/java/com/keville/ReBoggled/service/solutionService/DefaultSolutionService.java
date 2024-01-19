@@ -167,6 +167,8 @@ public class DefaultSolutionService implements SolutionService {
         return 4;
       case FIVE:
         return 5;
+      case SIX:
+        return 6;
       default :
         LOG.warn("unhandled board size " + settings.boardSize );
         throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);

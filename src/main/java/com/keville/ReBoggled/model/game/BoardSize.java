@@ -1,5 +1,5 @@
 package com.keville.ReBoggled.model.game;
 
 public enum BoardSize  {
-  FOUR,FIVE
+  FOUR,FIVE,SIX
 }
