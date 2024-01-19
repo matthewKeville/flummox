@@ -10,6 +10,8 @@ import com.keville.ReBoggled.model.gameSummary.UserGameBoardWord;
 public class PostGameUserViewDTO {
 
   public GameViewDTO gameViewDTO;
+  public List<ScoreBoardEntry> scoreBoard;
+
   /*
   public Set<UserGameBoardWord> answers;
   public List<ScoreBoardEntry> scoreBoard;
