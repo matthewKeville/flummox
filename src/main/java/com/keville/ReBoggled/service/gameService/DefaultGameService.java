@@ -1,25 +1,24 @@
 package com.keville.ReBoggled.service.gameService;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.model.game.Board;
+import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
-import com.keville.ReBoggled.model.game.GameBoardWord;
-import com.keville.ReBoggled.model.game.GameFactory;
-import com.keville.ReBoggled.model.game.UserGameBoardWord;
+import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.answerService.AnswerService;
+import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
 import com.keville.ReBoggled.service.gameService.GameServiceException.GameServiceError;
 
 @Component
@@ -28,17 +27,18 @@ public class DefaultGameService implements GameService {
     private static final Logger LOG = LoggerFactory.getLogger(GameService.class);
     private GameRepository games;
     private UserRepository users;
-    private GameFactory gameFactory;
+
+    private BoardGenerationService boardGenerationService;
 
     private AnswerService answerService;
 
     public DefaultGameService(@Autowired GameRepository games,
         @Autowired UserRepository users,
         @Autowired AnswerService answerService,
-        @Autowired GameFactory gameFactory) {
+        @Autowired BoardGenerationService boardGenerationService) {
       this.games = games;
       this.users = users;
-      this.gameFactory = gameFactory;
+      this.boardGenerationService = boardGenerationService; 
       this.answerService = answerService;
     }
 
@@ -56,9 +56,29 @@ public class DefaultGameService implements GameService {
     }
 
     public Game createGame(Lobby lobby) throws GameServiceException {
-      Game game = gameFactory.getGame(lobby.gameSettings);
-      games.save(game);
+
+      GameSettings gameSettings = lobby.gameSettings;
+      Game game = new Game();
+
+      game.findRule = gameSettings.findRule;
+      game.duration = gameSettings.duration;
+
+      try {
+
+        game.board = boardGenerationService.generate(gameSettings.boardSize,gameSettings.boardTopology);
+
+        game.start = LocalDateTime.now();
+        game.end = game.start.plusSeconds(gameSettings.duration);
+
+        games.save(game);
+
+      } catch ( BoardGenerationException bge ) {
+        LOG.error(" Board generation failed for game " + game.id );
+        throw new GameServiceException(GameServiceError.BOARD_GENERATION_FAILURE);
+      }
+
       return game;
+
     }
 
     public Game addGameAnswer(Integer gameId, Integer userId, String userAnswer) throws GameServiceException {
@@ -86,36 +106,6 @@ public class DefaultGameService implements GameService {
       if ( game.answers.contains(new GameAnswer(userId,answer))) {
         LOG.trace(String.format(" answer %s is already found for user %d",answer,user.id));
         throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
-      }
-
-      //TODO : For record keeping purposes it makes more sense to always record player entries regardless of correctness
-      //or adherence to the rule. This allows us to field for guessing, or cheating. For now we do this online implementation
-      //of these rules, but more correct is storing everything and computing the results at the end.
-      //
-      //The  downside of above is the need to create a system that knows when a game has ended to calculate the final result.
-      //This could probably be achieved with a background service that watches when games end, and computes a game summary.
-      //This allows us to still be passive and detached in our design. The service fulfills one purpose, creating game summaries.
-
-      //GameCompletionWatcher . startGame register to GCW . GCW will watch until games end ..
-
-      //Apply find rule
-      switch ( game.gameSettings.findRule ) {
-        case ANY:
-          break;
-        case FIRST:
-          if ( ! game.answers.stream().anyMatch( ga -> { return ga.answer.equalsIgnoreCase(answer); } ) ) {
-            LOG.trace(String.format(" answer %s has already been found by another user",answer));
-            throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
-          }
-          break;
-        case UNIQUE:
-          if ( game.answers.stream().anyMatch( ga -> { return ga.answer.equalsIgnoreCase(answer); } ) ) {
-            LOG.trace(String.format(" answer %s has already been found by another user",answer));
-            // remove this answer from others players
-            game.answers.removeIf( ga -> { return ga.answer.equalsIgnoreCase(answer); });
-            throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
-          }
-          break;
       }
 
       game.answers.add(new GameAnswer(userId,answer));

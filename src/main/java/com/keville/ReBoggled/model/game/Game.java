@@ -34,15 +34,32 @@ public class Game {
   @MappedCollection(idColumn = "GAME")
   public Set<GameAnswer> answers = new HashSet<GameAnswer>();
 
-  @MappedCollection(idColumn = "GAME")
-  public List<Tile> tiles;
+  //packed into Board
+  //@MappedCollection(idColumn = "GAME")
+  //public List<Tile> tiles;
 
   @LastModifiedDate
   @Column("LAST_MODIFIED")
   public LocalDateTime lastModifiedDate;
 
+  //TODO add column extracted from game settings
+  public FindRule findRule;
+
+  //TODO add column extracted from game settings
+  public Integer duration;
+
   @Embedded.Nullable
-  public GameSettings gameSettings;
+  public Board board;
+
+  /*
+  @Transient
+  public Board board;
+
+  @MappedCollection(idColumn = "GAME")
+  public List<Tile> tiles;
+  public BoardSize boardSize;
+  public BoardTopology boardTopology;
+  */
 
   public  Game() {}
 

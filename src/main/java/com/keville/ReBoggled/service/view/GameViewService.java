@@ -14,8 +14,7 @@ import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
-import com.keville.ReBoggled.model.game.ScoreBoardEntry;
-import com.keville.ReBoggled.model.game.UserGameBoardWord;
+import com.keville.ReBoggled.model.gameSummary.UserGameBoardWord;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
@@ -61,19 +60,25 @@ public class GameViewService {
     /* Return a view of a game to the perspective of a user, when the game is complete */
     public PostGameUserViewDTO getPostGameUserViewDTO(Integer gameId,Integer userId) throws GameViewServiceException {
 
+      /*
       try {
 
         Game game = gameService.getGame(gameId);
         User user = userService.getUser(userId);
-        Set<UserGameBoardWord> userGameBoardWords = answerService.getUserGameBoardWords(game, user);
-        List<ScoreBoardEntry> scoreBoard = answerService.getScoreBoard(game);
 
-        return new PostGameUserViewDTO(game, userGameBoardWords, scoreBoard);
+        Set<UserGameBoardWord> userGameBoardWords = answerService.getUserGameBoardWords(game, user);
+
+        //remove getScoreBoard...?
+        //List<ScoreBoardEntry> scoreBoard = answerService.getScoreBoard(game);
+        return new PostGameUserViewDTO(game, userGameBoardWords);
 
       } catch (GameServiceException | AnswerServiceException ex) {
         LOG.error(String.format("unable to get PostGameUserViewDTO for game %d and user %d",gameId,userId));
         throw new GameViewServiceException(GameViewServiceError.ERROR);
       }
+
+      */
+      return null;
 
     }
 

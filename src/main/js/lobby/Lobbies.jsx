@@ -110,7 +110,7 @@ export default function Lobbies() {
     <>
 
     <div className="lobbyTableDiv">
-      <table id="lobby-table">
+      <table className="lobby-table thick-blue-border">
         <thead>
           <tr>
             <th>#</th>

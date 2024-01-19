@@ -15,11 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.keville.ReBoggled.model.game.BoardWord;
+import com.keville.ReBoggled.model.game.Board;
+import com.keville.ReBoggled.model.game.BoardGenerationException;
+import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.model.game.GameFactory;
 import com.keville.ReBoggled.model.game.GameSeed;
 import com.keville.ReBoggled.model.game.GameSettings;
+import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
 
@@ -31,7 +34,7 @@ class SolutionServiceTest {
   @Autowired
   private SolutionService solutionService;
   @Autowired
-  private GameFactory gameFactory;
+  private BoardGenerationService boardGenerationService;
 
   /*
     O   A   P   W
@@ -47,14 +50,14 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveFindsAllWords() throws SolutionServiceException {
+  void solveFindsAllWords() throws SolutionServiceException , BoardGenerationException {
 
     List<String> wordsInBoard = Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" );
+    BoardSize size = BoardSize.FOUR;
+    BoardTopology topology = BoardTopology.PLANE;
+    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    GameSettings gameSettings = new GameSettings();
-    Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
-
-    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
+    Map<String,BoardWord> solution = solutionService.solve(board);
 
     LOG.info(solution.toString());
 
@@ -78,18 +81,18 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesHorizontalCylinder() throws SolutionServiceException {
+  void solveCrossesHorizontalCylinder() throws SolutionServiceException , BoardGenerationException {
 
     LOG.info("horizontal test");
 
     List<String> wordsInBoard = new ArrayList<String>(Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" ));
     wordsInBoard.addAll(Arrays.asList( "owl" , "alter", "test", "brownest" ));
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.boardTopology = BoardTopology.CYLINDER;
-    Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
+    BoardSize size = BoardSize.FOUR;
+    BoardTopology topology = BoardTopology.CYLINDER;
+    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
+    Map<String,BoardWord> solution = solutionService.solve(board);
 
     LOG.info(solution.toString());
 
@@ -113,18 +116,18 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesVerticalCylinder() throws SolutionServiceException {
+  void solveCrossesVerticalCylinder() throws SolutionServiceException , BoardGenerationException {
     
     LOG.info("vertical test");
 
     List<String> wordsInBoard = new ArrayList<String>(Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" ));
     wordsInBoard.addAll(Arrays.asList( "sap", "qua"));
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.boardTopology = BoardTopology.CYLINDER_ALT;
-    Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
+    BoardSize size = BoardSize.FOUR;
+    BoardTopology topology = BoardTopology.CYLINDER_ALT;
+    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
+    Map<String,BoardWord> solution = solutionService.solve(board);
 
     LOG.info(solution.toString());
 
@@ -148,7 +151,7 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesTorus() throws SolutionServiceException {
+  void solveCrossesTorus() throws SolutionServiceException , BoardGenerationException {
     
     LOG.info("torus test");
 
@@ -156,11 +159,11 @@ class SolutionServiceTest {
     wordsInBoard.addAll(Arrays.asList( "sap", "qua"));
     wordsInBoard.addAll(Arrays.asList( "owl" , "alter", "test", "brownest" ));
 
-    GameSettings gameSettings = new GameSettings();
-    gameSettings.boardTopology = BoardTopology.TORUS;
-    Game game = gameFactory.getGameUsingTileString(gameSettings,"oapwltnreebtsiqn");
+    BoardSize size = BoardSize.FOUR;
+    BoardTopology topology = BoardTopology.TORUS;
+    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(new GameSeed(game));
+    Map<String,BoardWord> solution = solutionService.solve(board);
 
     LOG.info(solution.toString());
 

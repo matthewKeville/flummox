@@ -17,10 +17,9 @@ public class GameViewDTO {
 
   public GameViewDTO(Game game) {
     this.id = game.id;
-    this.tiles = game.tiles;
+    this.tiles = game.board.tiles;
     this.start = game.start;
     this.end = game.end;
-    this.gameSettings = game.gameSettings;
   }
 
 }

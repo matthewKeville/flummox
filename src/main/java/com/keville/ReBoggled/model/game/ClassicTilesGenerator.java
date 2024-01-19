@@ -11,14 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class ClassicBoardGenerator {
+public class ClassicTilesGenerator {
 
   @Autowired
   private TileCodeStringMap tileCodeStringMap;
 
   private static Random random = new Random();
 
-  public static Logger LOG = LoggerFactory.getLogger(ClassicBoardGenerator.class);
+  public static Logger LOG = LoggerFactory.getLogger(ClassicTilesGenerator.class);
 
   //For these chars q means Qu and should be properly handled.
 
@@ -127,7 +127,7 @@ boggleDice_Super_Big = ['AAAFRS', 'AAEEEE', 'AAEEOO', 'AAFIRS', 'ABDEIO', 'ADENN
 //https://boardgamegeek.com/thread/300883/letter-distribution
 */
 
-  public ClassicBoardGenerator(@Autowired TileCodeStringMap tileCodeStringMap) {
+  public ClassicTilesGenerator(@Autowired TileCodeStringMap tileCodeStringMap) {
     this.tileCodeStringMap = tileCodeStringMap;
   }
 

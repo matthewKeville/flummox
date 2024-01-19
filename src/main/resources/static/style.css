@@ -152,34 +152,32 @@ body {
 
 .lobbyTableDiv {
   margin-top: 40px;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
-#lobby-table {
+.lobby-table {
   width: 60%;
   margin: 0 auto;
-
-  /* TODO: replace with thick-blue-border*/
-  border-style: solid;
-  border-color: var(--dark-blue-color);
-  border-width: 5px;
 }
 
-#lobby-table thead {
+.lobby-table thead {
   background-color: var(--orange-color);
 }
 
-#lobby-table th,td {
+.lobby-table th,td {
   padding: 20px;
   text-align: center;
   font-size: 16px;
   font-weight: bold;
 }
 
-#lobby-table tbody tr:nth-child(odd) {
+
+.lobby-table tbody tr:nth-child(odd) {
   background-color: #f3f3f3;
 }
 
-#lobby-table tbody tr:nth-child(even) {
+.lobby-table tbody tr:nth-child(even) {
   background-color: #FFFFFF;
 }
 
@@ -389,29 +387,65 @@ header {
   justify-self: end; /*horiz*/
   align-self: start; /*top*/
 }
+
+/*
 .pre-game-grid-lobby-chat {
   grid-area: chat;
   justify-self: center;
-  align-self: start; /*top*/
-  min-width: 360px; /* dev value*/
+  align-self: start; 
+  min-width: 360px; 
 }
+*/
+
+.pre-game-grid-lobby-chat-and-user-actions-grid {
+  grid-area: chat-grid;
+  justify-self: center;
+  align-self: start; 
+  min-width: 360px; 
+  display: grid; /*subgrid*/
+
+  column-gap: 10px;
+  row-gap: 10px;
+
+  /*grid-template-columns: min(1fr,360px) 720px min(1fr,360px);*/
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  grid-template-areas: 
+    "chat"
+    "user-actions";
+
+  justify-content: start; /* center grid in its container*/
+
+  /* default for children */
+  justify-items: center;
+  align-items: center;
+
+}
+
+.pre-game-grid-lobby-chat {
+  grid-area: chat;
+  justify-self: center;
+  align-self: start; 
+  min-width: 360px; 
+}
+
+.pre-game-grid-user-actions {
+  display: flex;
+  grid-area: user-actions;
+  column-gap: 10px;
+}
+
 .pre-game-grid-game-settings {
   grid-area: settings;
   justify-self: start; /*horiz*/
   align-self: start; /*top*/
 }
 
-.pre-game-grid-lobby-buttons {
-  grid-area: buttons;
-  align-self: start; /*top*/
-  justify-self: start; /*horiz*/
-}
-
 .pre-game-grid-template {
   grid-template-areas: 
     ".  banner  ."
-    "players chat settings"
-    ".  . buttons" ;
+    "players chat-grid settings"
+    ".  . ." ;
 }
 
 /* Game layout */
@@ -479,6 +513,7 @@ header {
 
 .chat-flex {
   min-height: 200px;
+  min-width: 400px;
 }
 
 /*  --------------------------------------------------------------------  */
@@ -714,6 +749,11 @@ header {
   padding: 4px;
   color: rgba(43, 43, 43,1.0);
   /*position: relative;*/
+}
+
+.missed-word {
+  display: block;
+  text-decoration: line-through;
 }
 
 /* this must appear after elements that use it... */

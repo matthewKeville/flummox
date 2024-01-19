@@ -7,17 +7,13 @@ import java.util.List;
 public class GameSeed {
 
   public List<Tile> tiles;
-  public GameSettings gameSettings;
 
-
-  public GameSeed(List<Tile> tiles, GameSettings gameSettings) {
+  public GameSeed(List<Tile> tiles) {
     this.tiles = tiles;
-    this.gameSettings = gameSettings;
   }
 
   public GameSeed(Game game) {
-    this.tiles = game.tiles;
-    this.gameSettings = game.gameSettings;
+    this.tiles = game.board.tiles;
   }
 
   @Override
@@ -37,18 +33,6 @@ public class GameSeed {
     if ( object instanceof GameSeed ) {
 
       GameSeed gameSeed = (GameSeed) object;
-
-      //compare game settings
-      
-      GameSettings gameSettings =  gameSeed.gameSettings;
-
-      if ( !gameSettings.boardSize.equals(this.gameSettings.boardSize) ) {
-        return false;
-      }
-
-      if ( !gameSettings.boardTopology.equals(this.gameSettings.boardTopology) ) {
-        return false;
-      }
 
       //compare tile set
 

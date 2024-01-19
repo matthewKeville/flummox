@@ -19,6 +19,7 @@ package com.keville.ReBoggled.service.gameService;
         USER_NOT_FOUND,
         INVALID_ANSWER,
         ANSWER_ALREADY_FOUND,
+        BOARD_GENERATION_FAILURE,
         GAME_OVER
       }
 

@@ -1,7 +1,9 @@
-package com.keville.ReBoggled.model.game;
+package com.keville.ReBoggled.model.gameSummary;
 
 import java.util.List;
 import java.util.Set;
+
+import com.keville.ReBoggled.model.game.BoardWord;
 
 public class GameBoardWord{
 
@@ -9,9 +11,9 @@ public class GameBoardWord{
   public Set<List<Integer>> paths;
   public int potentialPoints;
   public Integer firstFinder;
-  public int cofinders;
+  public List<Integer> cofinders;
 
-  public GameBoardWord(BoardWord boardWord,int potentialPoints,Integer firstFinder, int cofinders) {
+  public GameBoardWord(BoardWord boardWord,int potentialPoints,Integer firstFinder, List<Integer> cofinders) {
     this(boardWord.word,boardWord.paths,potentialPoints,firstFinder,cofinders);
   }
 
@@ -20,7 +22,7 @@ public class GameBoardWord{
       Set<List<Integer>> paths,
       int potentialPoints,
       Integer firstFinder,
-      int cofinders
+      List<Integer> cofinders
       ) {
     this.word = word;
     this.paths = paths;

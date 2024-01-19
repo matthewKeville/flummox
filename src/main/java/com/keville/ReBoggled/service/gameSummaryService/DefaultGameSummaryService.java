@@ -1,58 +1,60 @@
-package com.keville.ReBoggled.service.answerService;
+package com.keville.ReBoggled.service.gameSummaryService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.keville.ReBoggled.model.game.Game;
+import com.keville.ReBoggled.model.gameSummary.GameSummary;
+import com.keville.ReBoggled.repository.UserRepository;
+import com.keville.ReBoggled.service.solutionService.SolutionService;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.keville.ReBoggled.service.answerService.AnswerService;
 
-import com.keville.ReBoggled.model.game.BoardWord;
-import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.model.game.GameSeed;
-import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.service.solutionService.SolutionService;
-import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
+public class DefaultGameSummaryService implements GameSummaryService {
 
-@Component
-public class DefaultAnswerService implements AnswerService {
 
-  public static Logger LOG = LoggerFactory.getLogger(AnswerService.class);
+  public static Logger LOG = LoggerFactory.getLogger(DefaultGameSummaryService.class);
   public SolutionService solutionService;
+  public AnswerService answerService;
   public UserRepository users;
 
-  public DefaultAnswerService(
+  private Map<Integer,GameSummary> gameSummaryCache = new HashMap<Integer,GameSummary>();
+
+  public DefaultGameSummaryService(
       @Autowired SolutionService solutionService,
+      @Autowired AnswerService answerService,
       @Autowired UserRepository users) {
     this.solutionService = solutionService;
+    this.answerService = answerService;
     this.users = users;
   }
 
-  public boolean isValidWord(String word,Game game) {
+  public GameSummary getSummary(Game game) {
 
-    word = word.toLowerCase();
-
-    GameSeed gameSeed = new GameSeed(game);
-    try {
-      Map<String,BoardWord> solution = solutionService.solve(game.board);
-      boolean result = solution.containsKey(word);
-      LOG.info("word : " + word + ( result ? " was found found " : " wasn't found ") ) ;
-      LOG.info("solution : " + solution.toString());
-      return result;
-    } catch (SolutionServiceException sse) {
-      LOG.error("Caught exception trying to get board solution");
-      LOG.error(sse.getMessage());
-      return false;
+    if (gameSummaryCache.containsKey( game.id )) {
+      return gameSummaryCache.get(game.id);
     }
+
+    GameSummary summary = generateGameSummary(game);
+    gameSummaryCache.put(game.id,summary);
+    return summary;
 
   }
 
-  //Score without considering other users
+  private GameSummary generateGameSummary(Game game) {
+    //todo
+    return null;
+  }
+
+  /*
   private int nominalScore(BoardWord boardWord,Game game) {
     return 0;
   }
 
-  /*
   public Set<UserGameBoardWord> getUserGameBoardWords(Game game, User user) throws AnswerServiceException {
 
     Set<GameBoardWord> gameBoardWords = getGameBoardWords(game);
@@ -143,6 +145,6 @@ public class DefaultAnswerService implements AnswerService {
       throw new AnswerServiceException(AnswerServiceError.ERROR);
     }
   }
-
   */
+
 }

@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model.game;
+package com.keville.ReBoggled.model.gameSummary;
 
 //A users view into words in the game
 public class UserGameBoardWord extends GameBoardWord {

@@ -24,8 +24,11 @@ export default function AnswerDisplay({words,onWordClick}) {
   }
 
   function answerToDisplay(word) {
-    let wordClass = word.found ? "word" : "missed-word"
-    return (<div key={word.word} className={wordClass}>{word.word}</div>)
+    let classes = word.found ? "word" : "missed-word"
+    if (word.actualPoints != word.potentialPoints) {
+      classes = classes + " " + "crossed-word"
+    }
+    return (<div key={word.word} className={classes}>{word.word}</div>)
   }
 
   function createColumnGroups(words,sizeClass) {

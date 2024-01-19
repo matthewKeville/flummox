@@ -14,14 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.BoardWord;
+import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardTopology;
-import com.keville.ReBoggled.model.game.GameSeed;
-import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.game.TileCodeStringMap;
 import com.keville.ReBoggled.service.solutionService.GraphBuilder.GraphBuilderException;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException.SolutionServiceError;
 import com.keville.ReBoggled.service.wordService.WordService;
-import com.keville.ReBoggled.util.GameBoardStringifier;
 
 @Component
 public class DefaultSolutionService implements SolutionService {
@@ -33,31 +31,31 @@ public class DefaultSolutionService implements SolutionService {
   @Autowired
   private WordService wordService;
   
-  private Map<GameSeed,Map<String,BoardWord>> solveCache = new HashMap<GameSeed,Map<String,BoardWord>>();
+  private Map<Board,Map<String,BoardWord>> solveCache = new HashMap<Board,Map<String,BoardWord>>();
 
-  public Map<String,BoardWord> solve(GameSeed seed) throws SolutionServiceException {
-    if (solveCache.containsKey(seed) ) {
+  public Map<String,BoardWord> solve(Board board) throws SolutionServiceException {
+    if (solveCache.containsKey(board) ) {
       LOG.info("solve cache hit!");
-      return solveCache.get(seed);
+      return solveCache.get(board);
     }
     LOG.info("solve cache miss!");
-    Map<String,BoardWord> solution = solveBoard(seed);
-    solveCache.put(seed,solution);
+    Map<String,BoardWord> solution = solveBoard(board);
+    solveCache.put(board,solution);
     return solution;
   }
 
-  private Map<String,BoardWord> solveBoard(GameSeed seed) throws SolutionServiceException {
+  private Map<String,BoardWord> solveBoard(Board board) throws SolutionServiceException {
 
     LOG.info("building graph");
-    int boardSize = getBoardSize(seed.gameSettings);    
+    int boardSize = getBoardSize(board);    
     final TileGraph graph;
 
     try {
 
-    switch ( seed.gameSettings.boardTopology ) {
+    switch ( board.boardTopology ) {
       case PLANE:
         PlaneBoardGraphBuilder planeBoardGraphBuilder = new PlaneBoardGraphBuilder();
-        planeBoardGraphBuilder.setTiles(seed.tiles);
+        planeBoardGraphBuilder.setTiles(board.tiles);
         planeBoardGraphBuilder.setSize(boardSize);
         graph = planeBoardGraphBuilder.build();
         break;
@@ -65,16 +63,16 @@ public class DefaultSolutionService implements SolutionService {
         //fall through
       case CYLINDER_ALT:
         CylinderBoardGraphBuilder cylinderBoardGraphBuilder = new CylinderBoardGraphBuilder();
-        cylinderBoardGraphBuilder.setTiles(seed.tiles);
+        cylinderBoardGraphBuilder.setTiles(board.tiles);
         cylinderBoardGraphBuilder.setSize(boardSize);
-        if ( seed.gameSettings.boardTopology == BoardTopology.CYLINDER_ALT ) {
+        if ( board.boardTopology == BoardTopology.CYLINDER_ALT ) {
           cylinderBoardGraphBuilder.setVertical();
         }
         graph = cylinderBoardGraphBuilder.build();
         break;
       case TORUS:
         TorusBoardGraphBuilder torusBoardGraphBuilder = new TorusBoardGraphBuilder();
-        torusBoardGraphBuilder.setTiles(seed.tiles);
+        torusBoardGraphBuilder.setTiles(board.tiles);
         torusBoardGraphBuilder.setSize(boardSize);
         graph = torusBoardGraphBuilder.build();
         break;
@@ -161,8 +159,8 @@ public class DefaultSolutionService implements SolutionService {
       .toLowerCase();
   }
 
-  private int getBoardSize(GameSettings settings) throws SolutionServiceException {
-    switch ( settings.boardSize ) {
+  private int getBoardSize(Board board) throws SolutionServiceException {
+    switch ( board.boardSize ) {
       case FOUR:
         return 4;
       case FIVE:
@@ -170,7 +168,7 @@ public class DefaultSolutionService implements SolutionService {
       case SIX:
         return 6;
       default :
-        LOG.warn("unhandled board size " + settings.boardSize );
+        LOG.warn("unhandled board size " + board.boardSize );
         throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
     }
   }
