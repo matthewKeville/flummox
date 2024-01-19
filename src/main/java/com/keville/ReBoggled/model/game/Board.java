@@ -8,7 +8,10 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 @Configurable
 public class Board {
 
-  @MappedCollection(idColumn = "GAME")
+  /* default behaviour of keyColumn for mapped collection in embedded entity
+   * is to take the name of the embedded. Spring JDBC was trying to create a statement
+   * with BOARD_KEY ... */
+  @MappedCollection(idColumn = "GAME", keyColumn = "GAME_KEY")
   public List<Tile> tiles;
 
   public BoardSize boardSize;
@@ -24,5 +27,8 @@ public class Board {
     this.boardSize = boardSize;
     this.boardTopology = boardTopology;
   }
+
+  /* spring data jdbc needs this */
+  public Board(){};
 
 }

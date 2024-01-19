@@ -10,9 +10,9 @@ public class GameUserViewDTO {
   //public game information
   public GameViewDTO gameViewDTO;
   //answers for the requesting user
-  public Set<GameAnswer> answers;
+  public Set<GameAnswerDTO> answers;
 
-  public GameUserViewDTO(Game game,Set<GameAnswer> answers) {
+  public GameUserViewDTO(Game game,Set<GameAnswerDTO> answers) {
     gameViewDTO = new GameViewDTO(game);
     this.answers = answers;
   }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
@@ -50,9 +51,13 @@ public class GameViewService {
       User user = userService.getUser(userId);
 
       //extract users answers 
-      Set<GameAnswer> userAnswers = game.answers.stream().filter( ans -> {
-        return ans.user.getId().equals(userId);
-      }).collect(Collectors.toSet());
+      Set<GameAnswerDTO> userAnswers = 
+        game.answers.stream()
+        .filter( ans -> {
+          return ans.user.getId().equals(userId);
+        })
+        .map( uga ->  new GameAnswerDTO(uga) )
+        .collect(Collectors.toSet());
 
       return new GameUserViewDTO(game,userAnswers);
     }

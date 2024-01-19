@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.keville.ReBoggled.DTO.GameAnswerDTO;
+import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
 import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
 import com.keville.ReBoggled.sse.GameSseEventDispatcher;
@@ -100,7 +100,7 @@ public class GameController {
   @PostMapping("/{id}/answer")
   public ResponseEntity<?> answer (
       @PathVariable("id") Integer id,
-      @Valid @RequestBody GameAnswerDTO gameAnswerDTO,
+      @Valid @RequestBody GameAnswerSubmissionDTO gameAnswerSubmissionDTO,
       @Autowired HttpSession session) {
 
     rlog.log("post",String.format("/%d/answer",id));
@@ -112,7 +112,7 @@ public class GameController {
     }
 
     try {
-      Game game = gameService.addGameAnswer(id, userId, gameAnswerDTO.answer);
+      Game game = gameService.addGameAnswer(id, userId, gameAnswerSubmissionDTO.answer);
       return new ResponseEntity<Game>(game,HttpStatus.OK);
     } catch (GameServiceException e)  {
       handleGameServiceException(e);
