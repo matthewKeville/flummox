@@ -20,9 +20,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,9 +134,11 @@ public class DefaultGameSummaryService implements GameSummaryService {
     class UserTally {
       public int score;
       public int words;
-      UserTally(int score,int words){
+      public Integer userId; //so we can sort before creating ScoreBoardEntry
+      UserTally(int score,int words,Integer userId){
         this.score = score;
         this.words = words;
+        this.userId = userId;
       }
     }
 
@@ -176,11 +180,10 @@ public class DefaultGameSummaryService implements GameSummaryService {
         if ( userPoints.containsKey(userId) ) {
           currentUser = userPoints.get(userId);
         } else {
-          userPoints.put(userId,new UserTally(0,0));
+          userPoints.put(userId,new UserTally(0,0,userId));
           currentUser = userPoints.get(userId);
         }
 
-        LOG.info("currentUser " + currentUser);
         currentUser.words++;
         currentUser.score+=points;
 
@@ -191,9 +194,37 @@ public class DefaultGameSummaryService implements GameSummaryService {
     // repackage UserTally Map
     List<ScoreBoardEntry> scoreBoard = new ArrayList<ScoreBoardEntry>();
 
-    userPoints.entrySet().forEach( entry -> {
-      scoreBoard.add(new ScoreBoardEntry(entry.getKey(), entry.getValue().score, entry.getValue().words));
-    });
+    //sort user tallies by points
+    List<Entry<Integer,UserTally>> sortedUserPoints = userPoints.entrySet()
+      .stream()
+      .sorted( (a,b) -> Integer.compare(a.getValue().score, b.getValue().score) )
+      .toList();
+
+
+    Iterator<Entry<Integer,UserTally>> iterator = sortedUserPoints.iterator();
+      
+    int rank = 1;
+    int ties = 0;
+    UserTally tally;
+    UserTally tallyPrev = null;
+    while ( iterator.hasNext() ) {
+
+      tally = iterator.next().getValue();
+
+      if ( tallyPrev == null || tallyPrev.score == tally.score ) {
+        //rank stays
+        if ( tallyPrev != null ) {
+          ties++;
+        }
+      } else {
+        rank+=(ties+1);
+        ties = 0;
+      }
+
+      tallyPrev = tally;
+      scoreBoard.add(new ScoreBoardEntry(tally.userId,rank,tally.score,tally.words));
+
+    }
 
     return scoreBoard;
 

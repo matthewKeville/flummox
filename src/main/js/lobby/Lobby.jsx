@@ -28,7 +28,7 @@ export default function Lobby() {
     console.log("loading lobby " + lobbyId + " data")
     const response = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
     let lobbyData = await response.json()
-    console.log("response in fetchLobbyData " + JSON.stringify(lobbyData))
+    console.log(lobbyData)
     return lobbyData
   }
 
@@ -69,6 +69,7 @@ export default function Lobby() {
       let data = JSON.parse(e.data)
       computeLobbyState(data)
       setLobby(data)
+      console.log(data)
     });
 
     return () => {

@@ -131,19 +131,22 @@ boggleDice_Super_Big = ['AAAFRS', 'AAEEEE', 'AAEEOO', 'AAFIRS', 'ABDEIO', 'ADENN
     this.tileCodeStringMap = tileCodeStringMap;
   }
 
-
   public List<Tile> generate(BoardSize boardSize) throws BoardGenerationException {
+    return generate(boardSize,false);
+  }
+
+  public List<Tile> generate(BoardSize boardSize,boolean tileRotation) throws BoardGenerationException {
 
     if ( boardSize.equals(BoardSize.FOUR)) {
-      return generate(originalBoggleChars);
+      return generate(originalBoggleChars,tileRotation);
     }
 
     if ( boardSize.equals(BoardSize.FIVE)) {
-      return generate(bigBoggleChars);
+      return generate(bigBoggleChars,tileRotation);
     }
 
     if ( boardSize.equals(BoardSize.SIX)) {
-      return generate(superBigBoggleChars);
+      return generate(superBigBoggleChars,tileRotation);
     }
 
     throw new BoardGenerationException("invalid board size for classic generator" + boardSize);
@@ -157,7 +160,7 @@ boggleDice_Super_Big = ['AAAFRS', 'AAEEEE', 'AAEEOO', 'AAFIRS', 'ABDEIO', 'ADENN
     throw new BoardGenerationException("generateFromTileString only works for 16 or 25 characters not " + tileString.length());
   }
 
-  private List<Tile> generate(List<String> chars) {
+  private List<Tile> generate(List<String> chars,boolean tileRotation) {
     List<Tile> tiles = new ArrayList<Tile>();
     chars.forEach( die -> {
       char c = die.charAt(random.nextInt(6));
@@ -196,7 +199,28 @@ boggleDice_Super_Big = ['AAAFRS', 'AAEEEE', 'AAEEOO', 'AAFIRS', 'ABDEIO', 'ADENN
           code = (int) c;
       }
 
-      tiles.add(new Tile( code ));
+      if ( tileRotation ) {
+        int cardinal = 0;
+        switch ( random.nextInt(4) ) {
+          case 0:
+            cardinal = Tile.RotateDefault;
+            break;
+          case 1:
+            cardinal = Tile.RotateDown;
+            break;
+          case 2:
+            cardinal = Tile.RotateLeft;
+            break;
+          case 3:
+            cardinal = Tile.RotateRight;
+            break;
+        }
+        tiles.add(new Tile( code , cardinal ));
+      } else {
+        tiles.add(new Tile( code ));
+      }
+
+
     });
 
     return tiles;

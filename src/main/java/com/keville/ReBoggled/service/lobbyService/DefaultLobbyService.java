@@ -167,6 +167,10 @@ public class DefaultLobbyService implements LobbyService {
           lobby.gameSettings.boardSize = gameSettings.boardSize;
         }
 
+        if ( gameSettings.tileRotation != null ) {
+          lobby.gameSettings.tileRotation = gameSettings.tileRotation;
+        }
+
         if ( gameSettings.findRule != null ) {
           lobby.gameSettings.findRule = gameSettings.findRule;
         }

@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 
 import Board from "./Board.jsx";
 import AllAnswerDisplay from './AllAnswerDisplay.jsx';
+import Scoreboard from "./Scoreboard.jsx";
 
 export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
@@ -34,6 +35,10 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
   return (
 
     <div className="lobby-grid post-game-grid-template">
+
+      <div className="post-game-grid-scoreboard">
+        <Scoreboard lobby={lobby} scoreboard={gameSummary.scoreboard}/>
+      </div>
 
       <div className="game-grid-board">
         <Board dice={gameSummary.gameViewDTO.tiles} />

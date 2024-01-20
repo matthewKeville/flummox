@@ -14,7 +14,6 @@ export default function Header() {
       return
     }
 
-    console.log("toggling dropdown")
     dropdownContentRef.current.classList.toggle("show-flex") 
 
   }
@@ -22,15 +21,12 @@ export default function Header() {
   //close this drop down if we click outside of it
   window.addEventListener('click', function(event) {
 
-    console.log("click event")
-
     const dropdown = event.target.closest('.user-info-dropdown')
 
     if (dropdown && dropdown == dropdownRef.current) {
       return;
     }
     if (dropdownContentRef.current && dropdownContentRef.current.classList.contains('show-flex')) {
-      console.log("removing show from dropdown")
       dropdownContentRef.current.classList.remove('show-flex');
     }
 

@@ -13,6 +13,7 @@ export default function GameSettings({lobby}) {
   const editIsPrivateRef = useRef(null)
   const editBoardSizeRef = useRef(null)
   const editBoardTopologyRef = useRef(null)
+  const editTileRotationRef = useRef(null)
   const editFindRuleRef = useRef(null)
   const editDurationRef = useRef(null)
 
@@ -34,7 +35,7 @@ export default function GameSettings({lobby}) {
 
   async function onApplySettingsChanges() {
 
-    console.log("submitting settings changes")
+    //Lobby Settings
 
     let lobbyUpdate = {}
 
@@ -48,7 +49,14 @@ export default function GameSettings({lobby}) {
       lobbyUpdate.capacity = newCapacity
     }
 
+    let newIsPrivate = editIsPrivateRef.current.checked
+    if ( newIsPrivate != lobby.isPrivate ) {
+      lobbyUpdate.isPrivate = newIsPrivate
+    }
+
     let newGameSettings = {}
+
+    //Board Settings
 
     let newBoardSize = editBoardSizeRef.current.value;
     if ( newBoardSize != lobby.gameSettings.boardSize ) {
@@ -59,6 +67,13 @@ export default function GameSettings({lobby}) {
     if ( newBoardTopology != lobby.gameSettings.boardTopology ) {
       newGameSettings.boardTopology = newBoardTopology
     }
+
+    let newTileRotation = editTileRotationRef.current.checked
+    if ( newTileRotation != lobby.gameSettings.tileRotation ) {
+      newGameSettings.tileRotation = newTileRotation
+    }
+
+    //Game Settings
 
     let newFindRule = editFindRuleRef.current.value;
     if ( newFindRule != lobby.gameSettings.findRule ) {
@@ -148,12 +163,15 @@ export default function GameSettings({lobby}) {
             </select>
 
             <div className="settings-grid-label">Topology</div>
-            <select ref={editBoardTopologyRef} name="topology" defaultValue={lobby.gameSettings.boardTopology}>
+            <select ref={editBoardTopologyRef} name="topology" checked={lobby.gameSettings.boardTopology}>
               <option value="PLANE">Plane</option>
               <option value="CYLINDER">Cylinder (H)</option>
               <option value="CYLINDER_ALT">Cylinder (V)</option>
               <option value="TORUS">Torus</option>
             </select>
+
+            <div className="settings-grid-label">Tile Rotation</div>
+            <input ref={editTileRotationRef} type="checkbox" defaultChecked={lobby.gameSettings.tileRotation} />
              
             <div className="settings-grid-label">Find Rule</div>
             <select ref={editFindRuleRef} name="find" defaultValue={lobby.gameSettings.findRule}>
@@ -176,9 +194,10 @@ export default function GameSettings({lobby}) {
           <div className="game-settings-grid thick-blue-border">
             <div className="settings-grid-label">Name</div><div className="settings-grid-value">{lobby.name}</div>
             <div className="settings-grid-label">Capacity</div><div className="settings-grid-value">{lobby.capacity}</div>
-            <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "public" : "private"}</div>
+            <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "private" : "public"}</div>
             <div className="settings-grid-label">Size</div><div className="settings-grid-value">{lobby.gameSettings.boardSize}</div>
             <div className="settings-grid-label">Topology</div><div className="settings-grid-value">{lobby.gameSettings.boardTopology}</div>
+            <div className="settings-grid-label">Tile Rotation</div><div className="settings-grid-value">{lobby.gameSettings.tileRotation ? "enabled" : "disabled"}</div>
             <div className="settings-grid-label">Find Rule</div><div className="settings-grid-value">{lobby.gameSettings.findRule}</div>
             <div className="settings-grid-label">Time Limit</div><div className="settings-grid-value">{lobby.gameSettings.duration}</div>
             { isOwner ?

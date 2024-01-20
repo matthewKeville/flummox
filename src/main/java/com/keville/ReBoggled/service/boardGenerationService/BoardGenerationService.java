@@ -26,11 +26,11 @@ public class BoardGenerationService {
     this.classicTilesGenerator = classicTilesGenerator;
   }
 
-  public Board generate(BoardSize size,BoardTopology topology) throws BoardGenerationException {
+  public Board generate(BoardSize size,BoardTopology topology,boolean tileRotation) throws BoardGenerationException {
 
     //In the future we delegate (important for tileset and mutation)
     LOG.warn(" defaulting to classic tile generation ");
-    List<Tile> tiles = classicTilesGenerator.generate(size);
+    List<Tile> tiles = classicTilesGenerator.generate(size,tileRotation);
 
     Board board = new Board(size,topology,tiles);
     return board;

@@ -336,7 +336,7 @@ header {
 
 
 /*  --------------------------------------------------------------------  */
-/*  Lobby (PreGame)
+/*  Lobby
 /*  --------------------------------------------------------------------  */
 
 #lobby-name-span {
@@ -480,6 +480,9 @@ header {
 }
 
 /* PostGame layout */
+.post-game-grid-scoreboard {
+  grid-area: scoreboard;
+}
 
 .post-game-grid-exit {
   grid-area: exit;
@@ -488,7 +491,7 @@ header {
 .post-game-grid-template {
   grid-template-areas: 
     ". . ."
-    ". board ."
+    "scoreboard board ."
     ". exit ."
     ". answers .";
 }
@@ -660,6 +663,7 @@ header {
   /*box-shadow: -2px -4px 8px rgb(255 255 255 / 60%), 2px 4px 8px rgb(0 0 0 / 30%);*/
 }
 
+
 .board {
   display: table;
 
@@ -670,6 +674,28 @@ header {
 
 .board-row {
   display: table-row;
+}
+
+/*  --------------------------------------------------------------------  */
+/*  Scoreboard (Comp)
+/*  --------------------------------------------------------------------  */
+
+.scoreboard-flex {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  padding: 10px;
+  max-width: 200px;
+}
+.scoreboard-entry-flex {
+  display: flex;
+  flex-direction: row;
+  justify-items: start;
+  column-gap: 5px;
+}
+
+.scoreboard-entry-flex > * {
+  color:white;
 }
 
 /*  --------------------------------------------------------------------  */

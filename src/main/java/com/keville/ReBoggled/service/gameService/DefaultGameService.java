@@ -65,7 +65,7 @@ public class DefaultGameService implements GameService {
 
       try {
 
-        game.board = boardGenerationService.generate(gameSettings.boardSize,gameSettings.boardTopology);
+        game.board = boardGenerationService.generate(gameSettings.boardSize,gameSettings.boardTopology,gameSettings.tileRotation);
 
         game.start = LocalDateTime.now();
         game.end = game.start.plusSeconds(gameSettings.duration);

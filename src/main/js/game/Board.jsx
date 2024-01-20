@@ -26,12 +26,14 @@ function getTileString(tile) {
 }
 
 function Die({tile, handleClick}) {
+
+  let styleString = {
+    transform: "rotate("+tile.rotation+"deg)"
+  }
+
   return (
-    <button 
-     className="die"
-    onClick={handleClick}
-    >
-    {getTileString(tile)}
+    <button className="die" onClick={handleClick} style={styleString} >
+      {getTileString(tile)}
     </button>
   );
 }
