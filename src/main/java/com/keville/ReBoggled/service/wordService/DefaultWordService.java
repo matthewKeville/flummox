@@ -1,35 +1,35 @@
 package com.keville.ReBoggled.service.wordService;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultWordService implements WordService {
 
   private static Logger LOG = LoggerFactory.getLogger(WordService.class);
-
-  //private final String wordListPath = "./src/main/resources/words_alpha.txt";
-  private final String wordListPath = "./src/main/resources/corncob_lowercase.txt";
-
+  //private static Resource wordFile = new ClassPathResource("words_alpha.txt");
+  private static Resource wordFile = new ClassPathResource("corncob_lowercase.txt");
   private List<String> words;
   private Set<String> wordSet;
 
   public DefaultWordService() throws IOException {
-    Path path = Paths.get(wordListPath);
-    words = new ArrayList<String>(Files.lines(path).toList());
-    Collections.sort(words);
-    wordSet = new TreeSet<String>(words);
+    loadWordsFromFile();
+    this.wordSet = new TreeSet<String>(words);
   }
 
   public boolean isWord(String word) {
@@ -128,5 +128,20 @@ public class DefaultWordService implements WordService {
   private boolean checkLegality(String word) {
     //LOG.warn("WordService.checkLegality is not fully implemented");
     return word.length() >= 3;
+  }
+
+  /*
+  https://docs.spring.io/spring-framework/reference/core/resources.html
+  ---
+  In order to load a file that is in the classpath, but inside a jar,
+  we have to use getInputStream() to get the data , we can't get a File object,
+  because it is not a real file on the file system, its in the JAR
+  */
+  private void loadWordsFromFile() throws IOException {
+    InputStream wordFileByteStream = wordFile.getInputStream();
+    words = new BufferedReader(
+      new InputStreamReader(wordFileByteStream, StandardCharsets.UTF_8))
+      .lines()
+      .collect(Collectors.toList());
   }
 }
