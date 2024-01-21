@@ -10,15 +10,15 @@ import com.keville.ReBoggled.model.lobby.Lobby;
 public interface LobbyRepository extends CrudRepository<Lobby, Integer> {
 
   @Query("""
-  SELECT  LOB.* FROM LOBBY_USER_REFERENCE as LUR 
-    join LOBBY as LOB 
+  SELECT  LOB.* FROM lobby_user_reference as LUR 
+    join lobby as LOB 
     on LUR.LOBBY = LOB.ID 
       where LUR.USERINFO = :userId
   """)
   Optional<Lobby> findUserLobby(Integer userId);
 
   @Query("""
-  SELECT * FROM LOBBY WHERE OWNER = :userId;
+  SELECT * FROM lobby WHERE OWNER = :userId;
   """)
   Optional<Lobby> findOwnedLobby(Integer userId);
 

@@ -9,7 +9,7 @@ import com.keville.ReBoggled.model.user.User;
 
 public class GameAnswer {
 
-  @Column("USERINFO")
+  @Column("userinfo")
   public AggregateReference<User, Integer> user;
   public String answer;
 

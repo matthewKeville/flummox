@@ -3,7 +3,7 @@ package com.keville.ReBoggled.model.user;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("USERINFO")
+@Table("userinfo")
 public class User {
 
     @Id

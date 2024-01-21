@@ -30,7 +30,7 @@ public class Lobby {
     public AggregateReference<User, Integer> owner ;
     public AggregateReference<Game, Integer> game ;
 
-    @MappedCollection(idColumn = "LOBBY")
+    @MappedCollection(idColumn = "lobby")
     public Set<LobbyUserReference> users = new HashSet<LobbyUserReference>();
 
     @LastModifiedDate

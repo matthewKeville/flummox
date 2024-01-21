@@ -35,10 +35,10 @@ public class DefaultSolutionService implements SolutionService {
 
   public Map<String,BoardWord> solve(Board board) throws SolutionServiceException {
     if (solveCache.containsKey(board) ) {
-      LOG.info("solve cache hit!");
+      LOG.trace("solve cache hit!");
       return solveCache.get(board);
     }
-    LOG.info("solve cache miss!");
+    LOG.warn("solve cache miss!");
     Map<String,BoardWord> solution = solveBoard(board);
     solveCache.put(board,solution);
     return solution;
@@ -46,7 +46,7 @@ public class DefaultSolutionService implements SolutionService {
 
   private Map<String,BoardWord> solveBoard(Board board) throws SolutionServiceException {
 
-    LOG.info("building graph");
+    LOG.trace("building graph");
     int boardSize = getBoardSize(board);    
     final TileGraph graph;
 
@@ -84,7 +84,7 @@ public class DefaultSolutionService implements SolutionService {
       throw new SolutionServiceException(SolutionServiceError.INCONSISTENT_BOARD_PARAMETERS);
     }
 
-    LOG.info("solving graph");
+    LOG.trace("solving graph");
 
     Set<List<Integer>> frontier = new HashSet<List<Integer>>();
     Set<List<Integer>> closed = new HashSet<List<Integer>>();

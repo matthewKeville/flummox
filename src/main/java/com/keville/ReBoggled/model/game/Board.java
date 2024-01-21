@@ -31,4 +31,8 @@ public class Board {
   /* spring data jdbc needs this */
   public Board(){};
 
+
+  //FIXME SolutionService Cache on Board model , it always misses because it's comparing equality of reference
+  //TODO implement hashCode and equals so Board can be used effectively in HashMap 
+
 }
