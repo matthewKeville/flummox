@@ -73,7 +73,7 @@ public class DefaultWordService implements WordService {
 
     int lastUnmatch = match+1;
     //FIXME : these logical statements are far from readable
-    while ( firstUnmatch < words.size() &&
+    while ( lastUnmatch < words.size() &&
         words.get(lastUnmatch).length() >= word.length() &&
         word.equals( words.get(lastUnmatch).substring(0,word.length())) ) {
       lastUnmatch++;

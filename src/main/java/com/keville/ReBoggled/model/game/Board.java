@@ -32,7 +32,41 @@ public class Board {
   public Board(){};
 
 
-  //FIXME SolutionService Cache on Board model , it always misses because it's comparing equality of reference
-  //TODO implement hashCode and equals so Board can be used effectively in HashMap 
+  @Override
+  public boolean equals(Object other) {
+
+    if ( other == null ) {
+      return false;
+    }
+    if ( !other.getClass().equals(Board.class)  ) {
+      return false;
+    }
+
+    final Board board = (Board) other;
+    if ( !board.tiles.equals(this.tiles) ){
+      return false;
+    }
+    if ( !board.tiles.equals(this.tiles) ){
+      return false;
+    }
+    if ( !board.boardSize.equals(this.boardSize) ){
+      return false;
+    }
+    if ( !board.boardTopology.equals(this.boardTopology) ){
+      return false;
+    }
+    return true;
+
+  }
+
+  @Override
+  public int hashCode() {
+
+    int result = 31; 
+    result*= tiles.hashCode() * boardSize.hashCode() * boardTopology.hashCode();
+    return result;
+    
+
+  }
 
 }
