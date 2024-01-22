@@ -1,6 +1,6 @@
 
-USE reboggleddb; --local mariadb
--- USE reboggled_dev_db; --dev server 
+-- USE reboggled_local_dev_db;
+USE reboggled_dev_db;
 
 DROP TABLE IF EXISTS authorities;
 DROP TABLE IF EXISTS users;

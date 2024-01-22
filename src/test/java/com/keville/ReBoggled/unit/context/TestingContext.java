@@ -2,10 +2,13 @@ package com.keville.ReBoggled.unit.context;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootApplication
-@PropertySource("file:./src/main/resources/application.properties")
+
+//@ActiveProfiles("local") 
+//for now the default profile (local) is sufficient testing
+//in the future perhaps a different profile will be necessary
 public class TestingContext {
 
   public static void main(String[] args) {
