@@ -34,6 +34,11 @@ public class Tile {
 
   }
 
+  @Override
+  public int hashCode() {
+    return 31 * this.code;
+  }
+
   @Override 
   public String toString() {
     return  " Code : " + code ;

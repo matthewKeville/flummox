@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,9 +19,6 @@ import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
-import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.model.game.GameSeed;
-import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
