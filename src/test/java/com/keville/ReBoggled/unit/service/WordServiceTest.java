@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.keville.ReBoggled.service.wordService.WordService;
 
+//FIXME : We don't need the spring context for this
 @SpringBootTest
 class WordServiceTest {
 

@@ -1,29 +1,35 @@
-package com.keville.ReBoggled.unit.service;
+package com.keville.ReBoggled.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
+import com.keville.ReBoggled.model.game.BoardWord;
+import com.keville.ReBoggled.model.game.ClassicTilesGenerator;
+import com.keville.ReBoggled.model.game.TileCodeStringMap;
 import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
+import com.keville.ReBoggled.service.solutionService.DefaultSolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
+import com.keville.ReBoggled.service.wordService.DefaultWordService;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DefaultSolutionService.class,TileCodeStringMap.class,DefaultWordService.class,BoardGenerationService.class,ClassicTilesGenerator.class})
 class SolutionServiceTest {
 
   public static Logger LOG = LoggerFactory.getLogger(SolutionServiceTest.class);

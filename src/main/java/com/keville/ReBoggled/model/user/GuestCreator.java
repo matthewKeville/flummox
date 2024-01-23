@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.util;
+package com.keville.ReBoggled.model.user;
 
 import java.util.Random;
 

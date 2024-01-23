@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.config.SecurityConfig;
@@ -40,11 +39,14 @@ import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
 import com.keville.ReBoggled.service.userService.UserService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
-import com.keville.ReBoggled.unit.context.TestingContext;
+import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 
-@ContextConfiguration(classes = { TestingContext.class , SecurityConfig.class, LobbyController.class, AuthenticationSuccessHandlerImpl.class })
 @WebMvcTest(LobbyController.class)
+@ContextConfiguration(classes = { SecurityConfig.class, LobbyController.class })
 public class LobbyControllerTest {
+
+  @MockBean
+  private AuthenticationSuccessHandlerImpl authSuccessImp;
 
   @MockBean
   private UserService userService;
@@ -399,8 +401,6 @@ public class LobbyControllerTest {
       lobbyDTOs.add(roomADto);
       lobbyDTOs.add(roomBDto);
 
-
-      // Expected JSON response
       
     }
   }

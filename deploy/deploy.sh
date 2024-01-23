@@ -12,17 +12,13 @@ DEV_SERVER_USER=reboggled-dev
 DEV_SERVER_SQL_SA=reboggled_dev_sa
 DEV_SERVER_DB=reboggled_dev_db
 ARTIFACT_PATH='./target/ReBoggled-0.0.1-SNAPSHOT.jar'
-ARTIFACT='ReBoggled-0.0.1-SNAPSHOT.jar'
 
 # get user password
 
 
 scp "$ARTIFACT_PATH" "$DEV_SERVER_USER"@"$DEV_SERVER":"./"
 
-# Whiptail stream juggle trick, we want the data from 2 (STDERR) but VAR=$() 
-# is assigned from STDOUT 1, uses a 3rd and 'printing' to STDERR we can redirect.
-# 3>&1 1>&2 2>&3 juggles the output and error streams ( we want the err stream data , but VAR=$() readds from STDOUT
-
+# whiptail prints the answer to STDERR (2) , but we want it in STOUT, so we juggle the streams
 DEV_SERVER_SQL_SA_PASS=$(whiptail --passwordbox "Enter password for $DEV_SERVER_SQL_SA@$DEV_SERVER for $DEV_SERVER_DB" 8 78 --title " SQL SA PASSWORD " 3>&1 1>&2 2>&3)
 echo $DEV_SERVER_SQL_SA_PASS
 if [ -z "$DEV_SERVER_SQL_SA_PASS" ]; then
@@ -31,7 +27,7 @@ if [ -z "$DEV_SERVER_SQL_SA_PASS" ]; then
 fi
 
 # create/reset database
-mysql -h "$DEV_SERVER" "$DEV_DB"  -u "$DEV_SERVER_SQL_SA" -p"$DEV_SERVER_SQL_SA_PASS" < ./src/main/resources/schema.sql
+mysql -h "$DEV_SERVER" "$DEV_SERVER_DB" -u "$DEV_SERVER_SQL_SA" -p"$DEV_SERVER_SQL_SA_PASS" < ./src/main/resources/schema.sql
 EXIT_CODE=$?
 
 if [ $EXIT_CODE = 0 ]; then

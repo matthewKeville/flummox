@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,16 +14,25 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.keville.ReBoggled.config.SecurityConfig;
 import com.keville.ReBoggled.controllers.UserController;
 import com.keville.ReBoggled.controllers.UserController.UserInfo;
 import com.keville.ReBoggled.model.user.User;
+import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.userService.UserService;
-import com.keville.ReBoggled.unit.context.TestingContext;
 
-@ContextConfiguration(classes = TestingContext.class)
+
+//I don't understand why this fails if I don't add UserController.class to
+//@ContextConfiguration , I would think the bean gets loaded through it being
+//specified in WebMvcTest ...
 @WebMvcTest(UserController.class)
-@Import(UserController.class)//throws 404 if I don't import...
+@ContextConfiguration(classes = { SecurityConfig.class, UserController.class })
+
 public class UserControllerTest {
+
+  //SecurityConfig Depends On One
+  @MockBean
+  AuthenticationSuccessHandlerImpl authSuccessHandler;
 
   @MockBean
   UserService userService;
@@ -38,16 +46,17 @@ public class UserControllerTest {
 
     //arrange
     User user = User.createUser("bob@email.com","bob42");
-    user.id = 1;
+    user.id = 1234;
     ObjectMapper mapper = new ObjectMapper();
     when(userService.getUser(any(Integer.class))).thenReturn(user);
 
     //act & assert
     mockMvc.perform(
         MockMvcRequestBuilders.get("/api/user/info")
-        .sessionAttr("userId", 1234)
+        .sessionAttr("userId", user.id)
         )
-      .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(new UserInfo(1,"bob42",false))))
+      .andDo( (mvcResult) -> System.out.println(MockMvcResultMatchers.content()))
+      .andExpect(MockMvcResultMatchers.content().json(mapper.writeValueAsString(new UserInfo(user.id,"bob42",false))))
       .andExpect(MockMvcResultMatchers.status().isOk());
 
   }
