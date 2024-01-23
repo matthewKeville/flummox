@@ -5,29 +5,22 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keville.ReBoggled.config.SecurityConfig;
-import com.keville.ReBoggled.controllers.UserController;
 import com.keville.ReBoggled.controllers.UserController.UserInfo;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.userService.UserService;
 
-
-//I don't understand why this fails if I don't add UserController.class to
-//@ContextConfiguration , I would think the bean gets loaded through it being
-//specified in WebMvcTest ...
-@WebMvcTest(UserController.class)
-@ContextConfiguration(classes = { SecurityConfig.class, UserController.class })
-
+@SpringBootTest
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
   //SecurityConfig Depends On One

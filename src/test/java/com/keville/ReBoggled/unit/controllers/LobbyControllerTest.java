@@ -13,20 +13,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.DTO.LobbyViewDTO;
-import com.keville.ReBoggled.config.SecurityConfig;
-import com.keville.ReBoggled.controllers.LobbyController;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
@@ -41,8 +39,10 @@ import com.keville.ReBoggled.service.userService.UserService;
 import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 
-@WebMvcTest(LobbyController.class)
-@ContextConfiguration(classes = { SecurityConfig.class, LobbyController.class })
+// Note @WebMvcTest can be used to get smaller slices of the context, but it proved to be a headache.
+// Pulling in the whole context, is not ideal, but I understand it and the overhead isn't an issue NOW.
+@SpringBootTest
+@AutoConfigureMockMvc
 public class LobbyControllerTest {
 
   @MockBean
