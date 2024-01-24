@@ -1,46 +1,35 @@
 DROP TABLE IF EXISTS authorities;
-DROP TABLE IF EXISTS users;
 
 DROP TABLE IF EXISTS game_answer;
 DROP TABLE IF EXISTS tile;
 DROP TABLE IF EXISTS lobby_user_reference;
-DROP TABLE IF EXISTS userinfo;
+DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS lobby;
 DROP TABLE IF EXISTS game;
 
----------------------------------------------------------------------------------
--- User Auth
----------------------------------------------------------------------------------
+-- CREATE TABLE IF NOT EXISTS authorities(
+--     USERNAME VARCHAR(50) NOT NULL,
+--     AUTHORITY VARCHAR(50) NOT NULL,
+--     CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username) on DELETE CASCADE
+-- );
+-- CREATE UNIQUE INDEX IF NOT EXISTS ix_auth_username ON authorities (username,authority);
 
--- https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/jdbc.html
-CREATE TABLE IF NOT EXISTS users(
-  USERNAME VARCHAR(50) not null primary key,
-  PASSWORD VARCHAR(500) not null,
-  ENABLED boolean not null
-);
 
-CREATE TABLE IF NOT EXISTS authorities(
-    USERNAME VARCHAR(50) NOT NULL,
-    AUTHORITY VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username) on DELETE CASCADE
-);
---
-CREATE UNIQUE INDEX IF NOT EXISTS ix_auth_username ON authorities (username,authority);
+-- formerly userinfo
+CREATE TABLE IF NOT EXISTS user(
 
----------------------------------------------------------------------------------
--- User Data
----------------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS userinfo (
   ID INT AUTO_INCREMENT PRIMARY KEY,
+
+  USERNAME VARCHAR(50) not null,
+  PASSWORD VARCHAR(500) not null,
+
   EMAIL VARCHAR(50),
-  USERNAME VARCHAR(50),
   VERIFIED BOOLEAN not null,
   GUEST BOOLEAN not null,
   LOBBY INTEGER,
   OWNED_LOBBY INTEGER
-);
 
+);
 
 CREATE TABLE IF NOT EXISTS game(
   ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,12 +45,12 @@ CREATE TABLE IF NOT EXISTS game(
 
 CREATE TABLE IF NOT EXISTS game_answer(
   ID INT AUTO_INCREMENT PRIMARY KEY,
-  USERINFO INT,
+  USER INT,
   ANSWER VARCHAR(40),
   ANSWER_SUBMISSION_TIME TIMESTAMP,
   GAME INT,
   CONSTRAINT fk_game_answer_game_reference FOREIGN KEY(GAME) REFERENCES game(ID) on DELETE CASCADE,
-  CONSTRAINT fk_game_answer_userinfo_reference FOREIGN KEY(USERINFO) REFERENCES userinfo(ID) on DELETE CASCADE
+  CONSTRAINT fk_game_answer_user_reference FOREIGN KEY(USER) REFERENCES user(ID) on DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tile (
@@ -94,9 +83,9 @@ CREATE TABLE IF NOT EXISTS lobby(
 
 CREATE TABLE IF NOT EXISTS lobby_user_reference(
   ID INT AUTO_INCREMENT PRIMARY KEY,
-  USERINFO INT, -- I can't use USER as column name
+  USER INT, -- I can't use USER as column name
   LOBBY INT,
-  UNIQUE (USERINFO),
+  UNIQUE (USER),
   CONSTRAINT fk_lobby_user_lobby_reference FOREIGN KEY(LOBBY) REFERENCES lobby(ID) on DELETE CASCADE,
-  CONSTRAINT fk_lobby_user_userinfo_reference FOREIGN KEY(USERINFO) REFERENCES userinfo(ID) on DELETE CASCADE
+  CONSTRAINT fk_lobby_user_user_reference FOREIGN KEY(USER) REFERENCES user(ID) on DELETE CASCADE
 );

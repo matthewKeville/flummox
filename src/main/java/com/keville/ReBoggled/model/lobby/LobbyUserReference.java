@@ -10,7 +10,7 @@ public class LobbyUserReference {
   
   @Id
   public Integer id;
-  @Column("userinfo") //rem H2 only has UPPERCASE COLUMSN AND TABLES
+  @Column("user")
   public AggregateReference<User, Integer> user;
 
   public LobbyUserReference(AggregateReference<User, Integer> user){

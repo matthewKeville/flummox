@@ -13,7 +13,7 @@ public interface LobbyRepository extends CrudRepository<Lobby, Integer> {
   SELECT  LOB.* FROM lobby_user_reference as LUR 
     join lobby as LOB 
     on LUR.LOBBY = LOB.ID 
-      where LUR.USERINFO = :userId
+      where LUR.USER = :userId
   """)
   Optional<Lobby> findUserLobby(Integer userId);
 

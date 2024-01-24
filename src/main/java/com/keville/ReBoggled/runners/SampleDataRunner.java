@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.BoardSize;
@@ -16,9 +14,10 @@ import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
-import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
+import com.keville.ReBoggled.service.userService.UserService;
+import com.keville.ReBoggled.service.userService.UserServiceException;
 
 @Component
 public class SampleDataRunner implements CommandLineRunner {
@@ -26,15 +25,14 @@ public class SampleDataRunner implements CommandLineRunner {
   private static final Logger LOG = LoggerFactory.getLogger(SampleDataRunner.class);
 
   @Autowired
-  private LobbyService lobbyService;
+  private UserService userService;
   @Autowired
-  private UserDetailsManager userDetailsManager;
+  private LobbyService lobbyService;
   @Autowired 
-  UserRepository users;
-  @Autowired LobbyRepository lobbies;
+  LobbyRepository lobbies;
 
   @Override
-  public void run(String... args) {
+  public void run(String... args) throws UserServiceException, LobbyServiceException {
 
       boolean skipCreateDevData = true;
 
@@ -73,91 +71,28 @@ public class SampleDataRunner implements CommandLineRunner {
         return;
       }
 
-      // Development User Auth
+      User matt = new User("matt@email.com","matt@email.com","{noop}boggle");
+      User alice = new User("cyberSecurityExample","alice@email.com","{noop}password");
+      User bob = new User("ifYouBuildTheyWillCome","bob@email.com","{noop}password");
+      User charlie = new User("chocolateFactoryOwner","charlie@email.com","{noop}password");
 
-      UserDetails mattDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("matt@email.com")
-        .password("{noop}test") //use no op password encoder
-        .roles("SA")
-        .authorities("read")
-        .build();
+      userService.createUser(matt);
+      userService.createUser(alice);
+      userService.createUser(bob);
+      userService.createUser(charlie);
 
-      UserDetails aliceDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("alice@email.com")
-        .password("{noop}guest") //use no op password encoder
-        .roles("user")
-        .authorities("read")
-        .build();
+      matt = userService.getUserByUsername(matt.getUsername());
+      alice = userService.getUserByUsername(alice.getUsername());
+      bob = userService.getUserByUsername(bob.getUsername());
+      charlie = userService.getUserByUsername(charlie.getUsername());
 
-      UserDetails bobDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("bob@email.com")
-        .password("{noop}guest") //use no op password encoder
-        .roles("user")
-        .authorities("read")
-        .build();
+      GameSettings gameSettings = new GameSettings(BoardSize.FOUR, BoardTopology.PLANE, FindRule.FIRST, 30);
+      Lobby zebes = lobbies.save(new Lobby("ZeBeS", 4, false, ARof(alice), gameSettings));
+      lobbyService.addUserToLobby(alice.id, zebes.id);
 
-      UserDetails charlieDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("charlie@email.com")
-        .password("{noop}guest") //use no op password encoder
-        .roles("user")
-        .authorities("read")
-        .build();
-
-      UserDetails danDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("dan@email.com")
-        .password("{noop}guest") //use no op password encoder
-        .roles("user")
-        .authorities("read")
-        .build();
-
-      UserDetails meDetails = org.springframework.security.core.userdetails.User.builder()
-        .username("emily@email.com")
-        .password("{noop}guest") //use no op password encoder
-        .roles("user")
-        .authorities("read")
-        .build();
-  
-  
-      userDetailsManager.createUser(mattDetails);
-      userDetailsManager.createUser(aliceDetails);
-      userDetailsManager.createUser(bobDetails);
-      userDetailsManager.createUser(charlieDetails);
-      userDetailsManager.createUser(danDetails);
-
-      try {
-
-        User matt = users.save(User.createUser("matt@email.com", "fake"));
-        AggregateReference<User, Integer> mattRef = AggregateReference.to(matt.id);
-
-        User alice = users.save(User.createUser("alice@email.com", "alice"));
-        User bob = users.save(User.createUser("bob@email.com", "bob42"));
-
-        AggregateReference<User, Integer> bobRef = AggregateReference.to(bob.id);
-        User charlie = users.save(User.createUser("charlie@email.com", "bigCharles"));
-        User dan = users.save(User.createUser("dan@email.com", "thePipesArePlaying"));
-        User emily = users.save(User.createUser("emily@email.com", "empemjem"));
-
-        // Development Lobby Data
-
-        //if we add users to any private lobby we throw here TBD
-
-        //Lobby secret = new Lobby("Secret Dungeon", 4, false, mattRef);
-        Lobby secret = lobbyService.createNew(matt.id);
-        lobbyService.addUserToLobby(alice.id, secret.id);
-
-        GameSettings gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.CYLINDER, FindRule.UNIQUE, 120);
-        Lobby roomA = lobbies.save(new Lobby("Room A", 2, false, AggregateReference.to(charlie.id), gameSettings));
-        lobbyService.addUserToLobby(charlie.id, roomA.id);
-        lobbyService.addUserToLobby(dan.id, roomA.id);
-
-        lobbies.save(new Lobby("The Purple Lounge", 12, false, bobRef));
-
-        Lobby single = lobbies.save(new Lobby("The Single", 1, false, AggregateReference.to(emily.id)));
-        lobbyService.addUserToLobby(emily.id, single.id);
-
-      } catch ( LobbyServiceException lse) {
-        LOG.error(lse.getMessage());
-      }
+      gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
+      Lobby bigBlue = lobbies.save(new Lobby("Big Blue", 16, false, ARof(bob), gameSettings));
+      lobbyService.addUserToLobby(bob.id, bigBlue.id);
       
       System.exit(0);
 

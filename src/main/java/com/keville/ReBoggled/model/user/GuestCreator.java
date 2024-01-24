@@ -72,6 +72,7 @@ public class GuestCreator {
       user.verified = false;
       user.guest = true;
       user.username = makeGuestName();
+      user.password = "{noop}defaultGuestPassword";
       return user;
     }
 

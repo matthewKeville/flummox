@@ -1,27 +1,39 @@
 package com.keville.ReBoggled.model.user;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-@Table("userinfo")
-public class User {
+@Table("user")
+public class User implements UserDetails {
 
     @Id
     public Integer id;
 
-    public String email;
+    public String password;
     public String username;
-    public Boolean verified;
-    public Boolean guest;
+    public String email;
+    public Boolean verified = false;
+    public Boolean guest = true;
 
-    public User() {}
+    public User() {};
 
+    public User(String username, String email, String password) {
+      this.email = email;
+      this.username = username;
+      this.password = password;
+      this.verified = false;
+      this.guest = false;
+
+    }
+
+    @Deprecated
     public static User createUser(String email, String username) {
-      User user = new User();
-      user.email = email;
-      user.username = username;
-      user.verified = false;
-      user.guest = false;
+      User user = new User(username,email,"{noop}password");
       return user;
     }
 
@@ -31,6 +43,37 @@ public class User {
         "username :   " + this.username + "\n" + 
         "verified :   " + this.verified + "\n" + 
         "guest :      " + this.guest;
+    }
+
+    @Override
+    public String getPassword() {
+      return this.password;
+    }
+    @Override
+    public String getUsername() {
+      return this.username;
+    }
+
+    // Required for UserDetails interface ( but not used by me )
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+      return new HashSet<GrantedAuthority>();
+    }
+    @Override
+    public boolean isAccountNonExpired() {
+      return true;
+    }
+    @Override
+    public boolean isAccountNonLocked() {
+      return true;
+    }
+    @Override
+    public boolean isCredentialsNonExpired() {
+      return true;
+    }
+    @Override
+    public boolean isEnabled() {
+      return true;
     }
 
 }

@@ -20,7 +20,6 @@ import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.gameSummary.GameSummary;
 import com.keville.ReBoggled.model.gameSummary.WordFinder;
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.service.answerService.AnswerService;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.gameSummaryService.GameSummaryService;
@@ -34,17 +33,14 @@ public class GameViewService {
     private GameService gameService;
     private GameSummaryService gameSummaryService;
     private UserService userService;
-    private AnswerService answerService;
 
     public GameViewService(
         @Autowired GameService gameService,
         @Autowired GameSummaryService gameSummaryService,
-        @Autowired UserService userService,
-        @Autowired AnswerService answerService) {
+        @Autowired UserService userService) {
       this.gameService = gameService;
       this.gameSummaryService = gameSummaryService;
       this.userService = userService;
-      this.answerService = answerService;
     }
 
     /* Return a view of a game to the perspective of a user, when the game is ongoing */

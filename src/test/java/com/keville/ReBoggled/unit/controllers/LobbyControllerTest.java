@@ -40,7 +40,6 @@ import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 
 // Note @WebMvcTest can be used to get smaller slices of the context, but it proved to be a headache.
-// Pulling in the whole context, is not ideal, but I understand it and the overhead isn't an issue NOW.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class LobbyControllerTest {
