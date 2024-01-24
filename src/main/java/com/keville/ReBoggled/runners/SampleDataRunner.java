@@ -76,15 +76,10 @@ public class SampleDataRunner implements CommandLineRunner {
       User bob = new User("ifYouBuildTheyWillCome","bob@email.com","{noop}password");
       User charlie = new User("chocolateFactoryOwner","charlie@email.com","{noop}password");
 
-      userService.createUser(matt);
-      userService.createUser(alice);
-      userService.createUser(bob);
-      userService.createUser(charlie);
-
-      matt = userService.getUserByUsername(matt.getUsername());
-      alice = userService.getUserByUsername(alice.getUsername());
-      bob = userService.getUserByUsername(bob.getUsername());
-      charlie = userService.getUserByUsername(charlie.getUsername());
+      matt = userService.createUser(matt);
+      alice = userService.createUser(alice);
+      bob = userService.createUser(bob);
+      charlie = userService.createUser(charlie);
 
       GameSettings gameSettings = new GameSettings(BoardSize.FOUR, BoardTopology.PLANE, FindRule.FIRST, 30);
       Lobby zebes = lobbies.save(new Lobby("ZeBeS", 4, false, ARof(alice), gameSettings));

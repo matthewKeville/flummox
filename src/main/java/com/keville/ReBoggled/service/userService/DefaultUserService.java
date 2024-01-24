@@ -43,53 +43,15 @@ public class DefaultUserService implements UserService {
       users.save(user);
     }
 
-    // UserDetailsManager
-
     @Override
-    public void changePassword(String oldPassword, String newPassword) {
-      //todo
-      LOG.warn("changePassord not implemented");
-    }
+    public User createUser(User user) {
 
-    @Override
-    public void createUser(UserDetails user) {
-
-      if ( user.getClass().equals(User.class) ) {
-        User newUser = (User) user;
-        users.save(newUser);
-      } else {
-        LOG.warn("Expected User not UserDetails, ignoring");
-      }
+      User newUser = (User) user;
+      return users.save(newUser);
 
     }
 
-    @Override
-    public void deleteUser(String username) {
-      Optional<User> user = users.findByUsername(username);
-      if ( user.isEmpty() ) {
-        return;
-      }
-      users.deleteById(user.get().id);
-    }
-
-    @Override
-    public void updateUser(UserDetails user) {
-      //todo
-      if ( user.getClass().equals(User.class) ) {
-        User updatedUser = (User) user;
-        users.save(updatedUser);
-      } else {
-        LOG.warn("Expected User not UserDetails, ignoring");
-      }
-    }
-
-    @Override
-    public boolean userExists(String username) {
-      //FIXME : use a sql query to check for existance
-      Optional<User> user = users.findByUsername(username);
-      return user.isPresent();
-    }
-
+    //UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
       Optional<User> user = users.findByUsername(username);
