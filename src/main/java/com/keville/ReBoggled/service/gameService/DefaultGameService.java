@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;

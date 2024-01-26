@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -17,10 +18,14 @@ public class DefaultUserService implements UserService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
     private UserRepository users;
+    //private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public DefaultUserService(
-        @Autowired UserRepository users) {
+        @Autowired UserRepository users
+        //@Autowired BCryptPasswordEncoder bCryptPasswordEncoder
+        ) {
       this.users = users;
+      //this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public User getUser(int id) {

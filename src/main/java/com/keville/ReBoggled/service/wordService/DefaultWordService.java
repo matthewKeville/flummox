@@ -105,7 +105,7 @@ public class DefaultWordService implements WordService {
       comparison =  target.compareTo(midWord.substring(0,target.length()));
     }
 
-    LOG.trace(String.format("midpoint word : %s midpoint index : %d comparison value %d ",midWord,midpoint,comparison));
+    LOG.trace(String.format("midpoint word : %s midpoint index : %d comparison value %d  ",midWord,midpoint,comparison));
 
     if ( comparison < 0) {
       upper = (upper - lower != 1) ? midpoint : midpoint-1;

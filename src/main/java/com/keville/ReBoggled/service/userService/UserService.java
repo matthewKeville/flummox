@@ -11,7 +11,6 @@ public interface UserService extends UserDetailsService {
     public User createUser(User user);
     public User getUser(int id);
     public User getUserByUsername(String username) throws UsernameNotFoundException;
-
     public void addLobby(User user);
 
 

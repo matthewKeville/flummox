@@ -14,4 +14,16 @@ public interface UserRepository extends CrudRepository<User, Integer> {
   """)
   Optional<User> findByUsername(String username);
 
+  // existance
+
+  @Query("""
+  SELECT  count(*) FROM user where user.username  = :username
+  """)
+  boolean existsByUsername(String username);
+
+  @Query("""
+  SELECT  count(*) FROM user where user.email  = :email
+  """)
+  boolean existsByEmail(String email);
+
 }

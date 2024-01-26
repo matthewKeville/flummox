@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+  <body>
+  <h1>Sign Up</h1>
+  <!-- th:object is the backing field in the model -->
+  <!-- th:text replaces the text of the DOM element (overrides extant text if any) -->
+  <!-- ${} is a reference to the model -->
+  <!-- *{} is a reference to the form model ... th:object -->
+  <form action="/register" th:object="${registration}" method="POST" enctype="utf8">
+
+    <!-- general error fallback -->
+    <p th:if="${error_unknown}" th:text="${error}">Validation error</p>
+
+    <div>
+      <label>username</label>
+      <input th:field="*{username}"/>
+      <p th:if="${error_username}"
+        th:text="${error}">Validation error</p>
+    </div>
+    <div>
+      <label>email</label>
+      <input type="email" th:field="*{email}"/>
+      <p th:if="${error_email}"
+        th:text="${error}">Validation error</p>
+    </div>
+    <div>
+      <label>password</label>
+      <input type="password" th:field="*{password}"/>
+      <p th:if="${error_password}"
+        th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label>confirm</label>
+        <input type="password" th:field="*{passwordConfirmation}"/>
+    </div>
+    <button type="submit">submit</button>
+  </form>
+  <a th:href="@{/login.html}">login</a>
+  </body>
+</html>
