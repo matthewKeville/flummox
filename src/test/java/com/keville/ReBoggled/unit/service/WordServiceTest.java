@@ -23,29 +23,28 @@ class WordServiceTest {
   @ParameterizedTest
   @ValueSource(strings = { "sardonic", "apple", "zebra", "trine" })
   void isWordReturnsTrue(String word) {
-    assertTrue(wordService.isWord(word),String.format("%s is a word!",word));
+    assertTrue(wordService.isWord(word), String.format("%s is a word!", word));
   }
 
   @Disabled
   @ParameterizedTest
   @ValueSource(strings = { "appleman", "zkasdlfj", "xxxxx", "catdogfish" })
   void isWordReturnsFalse(String word) {
-    assertFalse(wordService.isWord(word),String.format("%s is not a word!",word));
+    assertFalse(wordService.isWord(word), String.format("%s is not a word!", word));
   }
 
   @Disabled
   @ParameterizedTest
-  @ValueSource(strings = { "sard" , "m" , "mandi" , "rac", "meretric", "ho", "HO" })
+  @ValueSource(strings = { "sard", "m", "mandi", "rac", "meretric", "ho", "HO" })
   void isPartialWordReturnsTrue(String word) {
-    assertTrue(wordService.isPartialWord(word),String.format("%s is a partial word!",word));
+    assertTrue(wordService.isPartialWord(word), String.format("%s is a partial word!", word));
   }
 
   @Disabled
   @ParameterizedTest
-  @ValueSource(strings = { "nxvy" , "bbh" , "cdga" , "abababab" })
+  @ValueSource(strings = { "nxvy", "bbh", "cdga", "abababab" })
   void isPartialWordReturnsFalse(String word) {
-    assertFalse(wordService.isPartialWord(word),String.format("%s is not a partial word!",word));
+    assertFalse(wordService.isPartialWord(word), String.format("%s is not a partial word!", word));
   }
-
 
 }

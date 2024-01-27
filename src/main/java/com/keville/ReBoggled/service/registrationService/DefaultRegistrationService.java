@@ -1,10 +1,11 @@
 package com.keville.ReBoggled.service.registrationService;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.keville.ReBoggled.DTO.RegisterUserDTO;
@@ -12,20 +13,22 @@ import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.registrationService.RegistrationServiceException.RegistrationServiceError;
 import com.keville.ReBoggled.service.userService.UserService;
-
 @Service
 public class DefaultRegistrationService  implements RegistrationService {
-
-  private UserRepository users;
-  private Logger LOG = LoggerFactory.getLogger(RegistrationService.class);
 
   private final int MAX_USERNAME_LENGTH     = 40;
   private final int MAX_EMAIL_LENGTH        = 255;
   private final int MAX_PASSWORD_LENGTH     = 80;
   private final int MIN_PASSWORD_LENGTH     = 8;
 
-  public DefaultRegistrationService( @Autowired UserRepository users) {
+  private UserRepository users;
+  private Logger LOG = LoggerFactory.getLogger(RegistrationService.class);
+  private PasswordEncoder passwordEncoder;
+
+  public DefaultRegistrationService(@Autowired UserRepository users,
+      @Autowired PasswordEncoder passwordEncoder) {
     this.users = users;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public void registerUser(RegisterUserDTO dto) throws RegistrationServiceException {
@@ -64,9 +67,7 @@ public class DefaultRegistrationService  implements RegistrationService {
 
     // OKAY!
 
-    // FIXME : Replace With BCRYPT
-    LOG.warn("using NOOP password encoding for new user " + dto.getUsername());
-    String encodedPassword = "{noop}" + dto.getPassword();
+    String encodedPassword = passwordEncoder.encode(dto.getPassword());
     User user = new User(dto.getUsername(),dto.getEmail(),encodedPassword);
     users.save(user);
 

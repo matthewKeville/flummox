@@ -14,9 +14,10 @@ import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
+import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
-import com.keville.ReBoggled.service.userService.UserService;
+import com.keville.ReBoggled.service.registrationService.RegistrationService;
 import com.keville.ReBoggled.service.userService.UserServiceException;
 
 @Component
@@ -25,7 +26,7 @@ public class SampleDataRunner implements CommandLineRunner {
   private static final Logger LOG = LoggerFactory.getLogger(SampleDataRunner.class);
 
   @Autowired
-  private UserService userService;
+  private UserRepository users;
   @Autowired
   private LobbyService lobbyService;
   @Autowired 
@@ -76,10 +77,10 @@ public class SampleDataRunner implements CommandLineRunner {
       User bob = new User("ifYouBuildTheyWillCome","bob@email.com","{noop}password");
       User charlie = new User("chocolateFactoryOwner","charlie@email.com","{noop}password");
 
-      matt = userService.createUser(matt);
-      alice = userService.createUser(alice);
-      bob = userService.createUser(bob);
-      charlie = userService.createUser(charlie);
+      matt = users.save(matt);
+      matt = users.save(alice);
+      matt = users.save(bob);
+      matt = users.save(charlie);
 
       GameSettings gameSettings = new GameSettings(BoardSize.FOUR, BoardTopology.PLANE, FindRule.FIRST, 30);
       Lobby zebes = lobbies.save(new Lobby("ZeBeS", 4, false, ARof(alice), gameSettings));

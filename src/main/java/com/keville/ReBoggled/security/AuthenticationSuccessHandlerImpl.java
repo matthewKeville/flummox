@@ -41,23 +41,27 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
         Authentication authentication
       ) throws IOException, ServletException {
 
+        //Down the line, I really should be home brewing a AuthenticationManager implementation
+        //that returns User from getPrincipal ...
+
+        //Default AuthenticationManger will return a UserDetails as principal
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        LOG.info("Successfully authenticated : " + userDetails.getUsername());
-
-        //Get matching (User)
-        Iterator<User> iterator = users.findAll().iterator();
-        while ( iterator.hasNext() ) {
-
-          User user = iterator.next();
-          if ( user.email.equals(userDetails.getUsername())) {
-            session.setAttribute("userId",user.id);
-            LOG.info("Authenticated User Session started for \n" + user);
-            break;
-          } else if ( !iterator.hasNext() ){
-            LOG.error("Could not find User data for authenticated user " + userDetails.getUsername() );
-          }
-
+        //My implementation of UserDetails has (model) User information
+        if ( !(userDetails instanceof User) ) {
+          LOG.error(" expected instance UserDetails of type com.keville.ReBoggled.model.User ");
+          return;
         }
+        User user = (User) userDetails;
+        //The current architecture requires the user.id in the session. (atleast for inauthenticated users)
+        //As guest accounts map to User objects, but we since we don't have authenticatoin we can't access User
+        //variables directly through the authentication context. Currently we always check this session attribute,
+        //even though it's not necessary when the user is already authenticated. 
+        //
+        //Hmm what happens when to the AuthenticationContext when the User changes its information, during the session? 
+        //Does the information become stale?
+        session.setAttribute("userId",user.id);
+        LOG.info("Authenticated User Session started for \n" + user.getUsername());
+
 
         super.onAuthenticationSuccess(request, response, authentication);
 

@@ -34,10 +34,6 @@ public class Game {
   @MappedCollection(idColumn = "GAME")
   public Set<GameAnswer> answers = new HashSet<GameAnswer>();
 
-  //packed into Board
-  //@MappedCollection(idColumn = "GAME")
-  //public List<Tile> tiles;
-
   @LastModifiedDate
   @Column("LAST_MODIFIED")
   public LocalDateTime lastModifiedDate;
@@ -50,16 +46,6 @@ public class Game {
 
   @Embedded.Nullable
   public Board board;
-
-  /*
-  @Transient
-  public Board board;
-
-  @MappedCollection(idColumn = "GAME")
-  public List<Tile> tiles;
-  public BoardSize boardSize;
-  public BoardTopology boardTopology;
-  */
 
   public  Game() {}
 

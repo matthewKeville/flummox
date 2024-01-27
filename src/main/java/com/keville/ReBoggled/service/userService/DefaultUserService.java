@@ -48,14 +48,6 @@ public class DefaultUserService implements UserService {
       users.save(user);
     }
 
-    @Override
-    public User createUser(User user) {
-
-      User newUser = (User) user;
-      return users.save(newUser);
-
-    }
-
     //UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
