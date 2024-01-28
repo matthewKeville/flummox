@@ -530,11 +530,19 @@ header {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-auto-rows: 30px;
-  column-gap: 20px;
+  column-gap: 5px;
   row-gap: 10px;
 
   color: white;
   font-size: 16px;
+}
+
+.settings-grid-lobby-name {
+  font-weight: bold;
+  grid-column: span 2;
+  border-bottom-width: 3px;
+  border-color: var(--dark-blue-color);
+  border-bottom-style: solid;
 }
 
 .settings-grid-label {

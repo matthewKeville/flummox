@@ -5,6 +5,11 @@ if test "$(basename "$(pwd)")" != "ReBoggled"; then
   exit 1
 fi
 
+if ! mvn package; then
+  exit 1
+fi
+
+
 # This needs to adapt when version changes
 # copy the artifact to DEV_SERVER_USER home 
 DEV_SERVER=dream-land

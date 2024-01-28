@@ -192,7 +192,7 @@ export default function GameSettings({lobby}) {
         : 
         (
           <div className="game-settings-grid thick-blue-border">
-            <div className="settings-grid-label">Name</div><div className="settings-grid-value">{lobby.name}</div>
+            <div className="settings-grid-lobby-name">{lobby.name}</div>
             <div className="settings-grid-label">Capacity</div><div className="settings-grid-value">{lobby.capacity}</div>
             <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "private" : "public"}</div>
             <div className="settings-grid-label">Size</div><div className="settings-grid-value">{lobby.gameSettings.boardSize}</div>
