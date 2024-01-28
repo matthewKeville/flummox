@@ -41,9 +41,9 @@ public class SecurityConfig {
           .frameOptions().sameOrigin()
       )
 
-      // customize login form replaces built : .httpBasic(withDefaults()); 
       .formLogin((form) -> form
           .permitAll()
+          .loginPage("/login")
           .successHandler( authenticationSuccessHandler )
       )
 

@@ -49,7 +49,7 @@ export default function Header() {
             { userInfo.isGuest &&
               <>
                 <a className="alternate-button header-login-link" href="/login">Login</a>
-                <a className="tertiary-button header-signup-link" href="/signup">Sign UP</a>
+                <a className="tertiary-button header-signup-link" href="/signup">Sign Up</a>
               </>
             }
           </div>

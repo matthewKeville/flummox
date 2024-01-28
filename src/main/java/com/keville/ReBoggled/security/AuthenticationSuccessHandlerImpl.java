@@ -62,6 +62,9 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
         session.setAttribute("userId",user.id);
         LOG.info("Authenticated User Session started for \n" + user.getUsername());
 
+        // forward the user to the home page
+        response.setHeader("Location", "/");
+        response.setStatus(302);
 
         super.onAuthenticationSuccess(request, response, authentication);
 

@@ -15,7 +15,7 @@ public class LobbyWebController {
 
   @GetMapping(value = { "lobby/{lobbyId}/" , "/lobby", "/" })
   public String lobby() {
-    return "lobby";
+    return "main";
   }
 
 }

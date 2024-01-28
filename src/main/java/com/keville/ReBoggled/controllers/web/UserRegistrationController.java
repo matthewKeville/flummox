@@ -54,35 +54,65 @@ public class UserRegistrationController {
       //TODO :  we should log the user in now as if they authenticated ...
       //I can inject something into the default (authentication success) page
       //that has react or the JS engine display an account creation success toast.
-      return new ModelAndView("/registrationSuccess",modelMap);
+      modelMap.addAttribute("registered",true);
+      return new ModelAndView("login",modelMap);
 
     } catch (RegistrationServiceException ex) {
 
       switch ( ex.error ) {
 
         case EMPTY_EMAIL:
-        case EMAIL_TOO_LONG:
-        case EMAIL_IN_USE:
           modelMap.addAttribute("error_email",true);
+          modelMap.addAttribute("error","Email cannot be empty.");
+          break;
+        case EMAIL_TOO_LONG:
+          modelMap.addAttribute("error_email",true);
+          modelMap.addAttribute("error","Invalid email.");
+          break;
+        case EMAIL_IN_USE:
+          // Is it okay to release this information?
+          // I don't think we should leak data about what emails are signed up.
+          modelMap.addAttribute("error_email",true);
+          modelMap.addAttribute("error","Invalid email.");
           break;
 
         case EMTPY_USERNAME:
+          modelMap.addAttribute("error_username",true);
+          modelMap.addAttribute("error","Username cannot be empty.");
+          break;
         case USERNAME_TOO_LONG:
+          modelMap.addAttribute("error_username",true);
+          //TODO : I should let the user know what that limit is
+          modelMap.addAttribute("error","Username exceeds character limit.");
+          break;
         case USERNAME_IN_USE:
           modelMap.addAttribute("error_username",true);
+          modelMap.addAttribute("error","Username taken.");
           break;
 
         case EMTPY_PASSWORD:
+          modelMap.addAttribute("error_password",true);
+          modelMap.addAttribute("error","Password cannot be empty.");
+          break;
         case PASSWORD_TOO_SHORT:
+          //TODO : show min
+          modelMap.addAttribute("error_password",true);
+          modelMap.addAttribute("error","Password is too short.");
+          break;
         case PASSWORD_TOO_LONG:
+          //TODO : show max
+          modelMap.addAttribute("error_password",true);
+          modelMap.addAttribute("error","Password is too long.");
+          break;
         case PASSWORD_UNEQUAL:
           modelMap.addAttribute("error_password",true);
+          modelMap.addAttribute("error","The passwords do not match.");
           break;
+
         default:
           modelMap.addAttribute("error_unknown",true);
+          modelMap.addAttribute("error","Unable to fulfill registration.");
       }
-
-      modelMap.addAttribute("error",ex.error.name());
 
     }
 
