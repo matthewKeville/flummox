@@ -110,8 +110,8 @@ export default function Lobbies() {
   return (
     <>
 
-    <div className={styles["container"] + " lobbyTableDiv"}>
-      <table className={"thick-blue-border"}>
+    <div className={styles["container"]}>
+      <table className={styles.table}>
 
         <thead>
           <tr>

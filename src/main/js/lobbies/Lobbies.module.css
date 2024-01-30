@@ -1,13 +1,17 @@
 .container {
-  margin-top: 40px;
-  margin-left: 10%;
+  margin-top: 5%;
+  margin-left: 5%;
   margin-right: 10%;
 }
 
-.container table {
-  width: 60%;
+.table {
+  border-style: solid;
+  border-color: var(--dark-blue-color);
+  border-width: 5px;
+  /* table will take as much space needed, center within the empty */
   margin: 0 auto;
 }
+
 
 
 .container th,td {

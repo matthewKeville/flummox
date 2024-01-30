@@ -202,7 +202,7 @@ export default function GameSettings({lobby}) {
             { isOwner ?
               (
                 <>
-                <button id="edit-settings-button" className={styles["basic-button"]} onClick={onChangeSettings}>Edit</button>
+                <button id="edit-settings-button" className="basic-button" onClick={onChangeSettings}>Edit</button>
                 </>
               ) 
               :
