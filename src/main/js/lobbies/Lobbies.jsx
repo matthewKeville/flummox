@@ -1,7 +1,9 @@
 import React from 'react';
-import { useLoaderData, useRouteLoaderData, Link, useNavigate } from "react-router-dom";
+import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import styles from '/src/main/resources/static/css/button.module.css';
 
 export async function loader({params}) {
 
@@ -129,7 +131,7 @@ export default function Lobbies() {
                 <td>{lobby.name}</td>
                 <td>{lobby.users.length} / {lobby.capacity}</td>
                 <td>{lobby.isPrivate ? "locked" : "open"}</td>
-                <td><button className="basic-button" onClick={() => joinLobby(lobby.id)} >Join</button></td>
+                <td><button className={styles["basic-button"]} onClick={() => joinLobby(lobby.id)} >Join</button></td>
               </tr>
             )
           })
@@ -141,7 +143,7 @@ export default function Lobbies() {
             <td></td>
             <td></td>
             <td></td>
-            <td><button className="basic-button" onClick={createLobby}>Create</button></td>
+            <td><button className={styles["basic-button"]} onClick={createLobby}>Create</button></td>
           </tr>
         }
 

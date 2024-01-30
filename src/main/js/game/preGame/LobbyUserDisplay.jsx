@@ -2,8 +2,6 @@ import React, { useRef } from 'react';
 import { useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-import UserDisplay from "../common/UserDisplay.jsx";
-
 export default function LobbyUserDisplay(props) {
 
   const userActionDropdown                = useRef(null)
@@ -142,7 +140,12 @@ export default function LobbyUserDisplay(props) {
 
   return (
     <div id="user-action-dropdown" ref={userActionDropdown} className="user-action-dropdown" onClick={toggleUserActionDropdownContent}>
-      <UserDisplay username={props.player.username} contextBadge={props.contextBadge} isSelf={props.isSelf} />
+
+      <div className={props.isSelf ? "user-display user-display-self" : "user-display"}>
+        <div>{props.player.username}</div>
+        <div className="user-badge">&nbsp;{props.contextBadge}</div>
+      </div>
+
       <div id="user-action-dropdown-content" className="user-action-dropdown-content" ref={userActionDropdownContentRef}>
       <div className="user-action-dropdown-content-actions">
         { props.isOwner ? ownerUserActions : allUserActions }

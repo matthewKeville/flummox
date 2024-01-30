@@ -1,7 +1,8 @@
 import React from 'react';
-import Header from "./Header";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
+
+import Header from "/src/main/js/Header.jsx"
 
 export default function Root() {
   return (

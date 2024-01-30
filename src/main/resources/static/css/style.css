@@ -1,128 +1,18 @@
-/*  --------------------------------------------------------------------  */
-/*  Color
-/*  --------------------------------------------------------------------  */
-
-/*
- *
-  https://mycolor.space/?hex=%23002EAD&sub=1
-  #0096FF
-  #002EAD
-  #AC109D
-  #F13078
-  #FF7558
-  #FFB94C
-  #F9F871
-
-  #0c0c0d
-  #ADA9BB
-  #797586
-  #DA1630
-  #FFF
-  #000
-
-*/
 
 :root {
-
   --dark-blue-color: #002EAD;
   --orange-color: orange;
-
   --four-letter-color : white;
   --five-letter-color : green;
   --six-letter-color: blue;
   --seven-letter-color: purple;
   --eight-letter-color: fuchsia;
-
 }
-
-
 
 
 /*  --------------------------------------------------------------------  */
 /*  Common / Util
 /*  --------------------------------------------------------------------  */
-
-
-
-
-/* perhaps I should have css var for button defaults and make
- * primary-button , danger-button ... */
-.basic-button {
-  width: 100px;
-  box-sizing: border-box;
-  border: 0;
-  border-radius: 20px;
-
-  color: white;
-  background-color: var(--dark-blue-color);
-
-  cursor: pointer;
-  font-size: .875em;
-  margin: 0;
-  padding: 8px 16px;
-  text-align: center;
-  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  /* text-transform: uppercase; */
-  font-weight: bold;
-}
-
-.alternate-button {
-  width: 100px;
-  /* ripped from chrome ux*/
-  border: 0;
-  border-radius: 20px;
-  box-sizing: border-box;
-  color: var(--dark-blue-color);
-  background-color: white;
-  cursor: pointer;
-  font-size: .875em;
-  margin: 0;
-  padding: 8px 16px;
-  text-align: center;
-  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  /* text-transform: uppercase; */
-  font-weight: bold;
-}
-
-.tertiary-button {
-  width: 100px;
-  /* ripped from chrome ux*/
-  border: 0;
-  border-radius: 20px;
-  box-sizing: border-box;
-  color: var(--dark-blue-color);
-  background-color: var(--orange-color);
-  cursor: pointer;
-  font-size: .875em;
-  margin: 0;
-  padding: 8px 16px;
-  text-align: center;
-  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  /* text-transform: uppercase; */
-  font-weight: bold;
-}
-
-.danger-button {
-  width: 100px;
-  /* ripped from chrome ux*/
-  border: 0;
-  border-radius: 20px;
-  box-sizing: border-box;
-  color: white;
-  background-color: red;
-  cursor: pointer;
-  font-size: .875em;
-  margin: 0;
-  padding: 8px 16px;
-  text-align: center;
-  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  /* text-transform: uppercase; */
-  font-weight: bold;
-}
 
 .thick-blue-border {
   border-style: solid;
@@ -216,10 +106,25 @@ header {
   margin-right: 2%;
 }
 
-.header-left-flex {
-  display: flex;
-  align-items:  center;
-  gap: 40px;
+/* mobile */
+@media (max-width: 1280px) {
+  .header-left-flex {
+    display: none
+  }
+  .header-left-flex-mobile {
+  }
+}
+
+/* desktop */
+@media (min-width: 1280px) {
+  .header-left-flex {
+    display: flex;
+    align-items:  center;
+    gap: 40px;
+  }
+  .header-left-flex-mobile {
+    display: none;
+  }
 }
 
 .title-span {

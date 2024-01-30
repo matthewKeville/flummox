@@ -1,5 +1,5 @@
 import React from 'react';
-import AnswerDisplay from './AnswerDisplay.jsx';
+import AnswerDisplay from '/src/main/js/game/AnswerDisplay.jsx';
 
 export default function AllAnswerDisplay({words}) {
 

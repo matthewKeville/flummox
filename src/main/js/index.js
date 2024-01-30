@@ -5,13 +5,12 @@ import {
   RouterProvider
 } from "react-router-dom";
 
-import Lobbies, {loader as lobbiesLoader }        from "./lobby/Lobbies.jsx";
-import Lobby, {loader as lobbyLoader }            from "./lobby/Lobby.jsx";
-import ErrorPage                                  from "./common/Error.jsx";
-import Root                                       from "./Root.jsx";
+import Lobbies, {loader as lobbiesLoader }        from '/src/main/js/lobbies/Lobbies.jsx'
+import Lobby, {loader as lobbyLoader }            from "/src/main/js/lobby/Lobby.jsx";
+import ErrorPage                                  from "/src/main/js/Error.jsx";
+import Root                                       from "/src/main/js/Root.jsx";
 
 async function rootLoader({params}) {
-  console.log("loading root")
 
   const userInfoResponse = await fetch("/api/user/info");
   var userInfo = await userInfoResponse.json()

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
+import styles from '/src/main/resources/static/css/button.module.css';
 
 export default function Header() {
 
@@ -43,13 +44,17 @@ export default function Header() {
             <Link className="header-link" to="/lobby">Lobbies</Link>
         </div>
 
+        <div className="header-left-flex-mobile">
+            <span className="title-span">Reboggled</span>
+        </div>
+
         <div className="header-right-flex">
 
           <div className="user-button-cluster-flex">
             { userInfo.isGuest &&
               <>
-                <a className="alternate-button header-login-link" href="/login">Login</a>
-                <a className="tertiary-button header-signup-link" href="/signup">Sign Up</a>
+                <a className={styles["alternate-button"] + " header-login-link"} href="/login">Login</a>
+                <a className={styles["tertiary-button"] + " header-signup-link"} href="/signup">Sign Up</a>
               </>
             }
           </div>

@@ -55,7 +55,7 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern("/h2-console/*")).permitAll()
 
         .requestMatchers(mvcMatcherBuilder.pattern("/built/bundle.js")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern("/style.css")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern("/css/style.css")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/favicon.ico")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/icons/user-profile-white-trans.png")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/icons/user-profile-black-trans.png")).permitAll()

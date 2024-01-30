@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLoaderData, useRouteLoaderData, useNavigate, useOutletContext, useOutlet } from "react-router-dom";
+import React from 'react';
+import {  useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-import PlayerList from "./PlayerList.jsx";
-import GameSettings from "./GameSettings.jsx";
-import LobbyChat from "../lobby/LobbyChat.jsx";
+import PlayerList from "/src/main/js/game/preGame/PlayerList.jsx";
+import GameSettings from "/src/main/js/game/preGame/GameSettings.jsx";
+import LobbyChat from "/src/main/js/game/preGame/LobbyChat.jsx";
+
+import styles from '/src/main/resources/static/css/button.module.css';
 
 export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 
@@ -134,15 +136,15 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
           <LobbyChat lobby={lobby}/>
         </div>
         <div className="pre-game-grid-user-actions">
-          <button className="basic-button" onClick={onStartGame}>Start</button> 
+          <button className={styles["basic-button"]} onClick={onStartGame}>Start</button> 
           { 
             playedPrev &&
-            <button className="tertiary-button" onClick={onReturnToPostGame}>Last</button>
+            <button className={styles["tertiary-button"]} onClick={onReturnToPostGame}>Last</button>
           }
           { isOwner ? 
-            <button className="danger-button" onClick={() => deleteLobby(lobby.id)} >Delete</button>
+            <button className={styles["danger-button"]} onClick={() => deleteLobby(lobby.id)} >Delete</button>
             :
-            <button className="alternate-button" onClick={() => leaveLobby(lobby.id)} >Leave</button>
+            <button className={styles["alternate-button"]} onClick={() => leaveLobby(lobby.id)} >Leave</button>
           }
         </div>
       </div>

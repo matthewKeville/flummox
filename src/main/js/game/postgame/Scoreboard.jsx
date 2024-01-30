@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 
-import ScoreboardUserDisplay from "./ScoreboardUserDisplay.jsx"
+import ScoreboardUserDisplay from "/src/main/js/game/postgame/ScoreboardUserDisplay.jsx"
 
 export default function Scoreboard({lobby,scoreboard}) {
 

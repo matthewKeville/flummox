@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 
-import LobbyUserDisplay from "../lobby/LobbyUserDisplay.jsx";
+import LobbyUserDisplay from "/src/main/js/game/preGame/LobbyUserDisplay.jsx";
 
 
 export default function PlayerList({lobby}) {
