@@ -1,17 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
-import { toast } from 'react-toastify';
-
-// import Board from "./Board.jsx";
-// import AllAnswerDisplay from './AllAnswerDisplay.jsx';
-// import Scoreboard from "./Scoreboard.jsx";
-
-import ScoreboardUserDisplay from "/src/main/js/game/postgame/ScoreboardUserDisplay.jsx"
 
 import Board from "/src/main/js/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/game/postgame/AllAnswerDisplay.jsx";
 import Scoreboard from "/src/main/js/game/postgame/Scoreboard.jsx";
-import styles from '/src/main/resources/static/css/button.module.css';
 
 export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
@@ -52,7 +44,7 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
       </div>
 
       <div className="post-game-grid-exit">
-  -     <button className={styles["basic-button"]} onClick={onReturnToLobby}>Lobby</button>
+  -     <button className="basic-button" onClick={onReturnToLobby}>Lobby</button>
       </div>
 
       <div className="game-grid-answer-display">
