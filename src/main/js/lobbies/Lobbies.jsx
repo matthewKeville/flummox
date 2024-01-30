@@ -3,7 +3,7 @@ import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import styles from '/src/main/resources/static/css/Lobbies.module.css';
+import styles from '/src/main/js/lobbies/Lobbies.module.css';
 
 export async function loader({params}) {
 
@@ -33,7 +33,6 @@ export default function Lobbies() {
 
     if (response.status == 200) {
 
-      //navigate("/lobby/" + lobbyId+"/pregame");
       navigate("/lobby/" + lobbyId+"/");
 
     } else {
@@ -112,7 +111,8 @@ export default function Lobbies() {
     <>
 
     <div className={styles["container"] + " lobbyTableDiv"}>
-      <table className="thick-blue-border">
+      <table className={"thick-blue-border"}>
+
         <thead>
           <tr>
             <th>#</th>
@@ -122,6 +122,7 @@ export default function Lobbies() {
             <th></th>
           </tr>
         </thead>
+
         <tbody>
         {
           lobbies.map( (lobby) => {
@@ -146,7 +147,6 @@ export default function Lobbies() {
             <td><button className="basic-button" onClick={createLobby}>Create</button></td>
           </tr>
         }
-
 
         </tbody>
       </table>

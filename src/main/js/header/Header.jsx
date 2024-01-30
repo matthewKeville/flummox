@@ -3,21 +3,22 @@ import React  from 'react';
 import AccountControls from '/src/main/js/header/AccountControls.jsx'
 import NavBar from '/src/main/js/header/NavBar.jsx'
 
+import styles from '/src/main/js/header/Header.module.css'
+
 export default function Header() {
 
   return (
-    <header>
-      <div className="header-flex">
+    <header className={styles.header}>
+      <div className={styles.flex}>
 
-        <div className="header-left-flex">
+        <div className={styles["left-flex"]}>
           <NavBar/> 
         </div>
-
-        <div className="header-left-flex-mobile">
-          <span className="title-span">Reboggled</span>
+        <div className={styles["left-flex-mobile"]}>
+          <NavBar mobile={true}/> 
         </div>
 
-        <div className="header-right-flex">
+        <div className={styles["right-flex"]}>
           <AccountControls/>
         </div>
 

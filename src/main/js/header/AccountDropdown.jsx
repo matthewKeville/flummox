@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
 
+import styles from '/src/main/js/header/AccountDropdown.module.css'
+
 export default function AccountDropdown({userInfo}) {
 
   const dropdownRef  = useRef(null);
@@ -19,7 +21,7 @@ export default function AccountDropdown({userInfo}) {
   //close this drop down if we click outside of it
   window.addEventListener('click', function(event) {
 
-    const dropdown = event.target.closest('.user-info-dropdown')
+    const dropdown = event.target.closest("." + styles.dropdown)
 
     if (dropdown && dropdown == dropdownRef.current) {
       return;
@@ -33,16 +35,16 @@ export default function AccountDropdown({userInfo}) {
 
   return (
 
-    <div id="user-info-dropdown" className="user-info-dropdown" onClick={toggleDropdownContent} ref={dropdownRef}>
-      <span className="username-span">{userInfo.username}</span>
-      <img className="user-profile-icon" src="/icons/user-profile-white-full-trans.png"/>
-      <div id="user-info-dropdown-content" className="user-info-dropdown-content" ref={dropdownContentRef}>
+    <div className={styles.dropdown} onClick={toggleDropdownContent} ref={dropdownRef}>
+
+      <span className={styles.span} >{userInfo.username}</span>
+      <img className={styles.img}  src="/icons/user-profile-white-full-trans.png"/>
+
+      <div className={styles["dropdown-content"]} ref={dropdownContentRef}>
         {userInfo.isGuest ? 
           <div> No Guest Settings </div>
           :
-          <>
-            <a className="logout-link" href="/logout">logout</a>
-          </>
+          <a className={styles.a}  href="/logout">logout</a>
         }
       </div>
     </div>

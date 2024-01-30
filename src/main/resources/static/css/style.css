@@ -92,7 +92,7 @@
 
 
 /*  --------------------------------------------------------------------  */
-/*  Common / Util
+/*   Util
 /*  --------------------------------------------------------------------  */
 
 .thick-blue-border {
@@ -122,62 +122,6 @@ body {
 /*  Header
 /*  --------------------------------------------------------------------  */
 
-header {
-  background-color: var(--dark-blue-color);
-}
-
-.header-link {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.header-link:hover {
-  color: orange;
-}
-
-.header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items:  center;
-  height: 70px;
-  margin-left: 2%;
-  margin-right: 2%;
-}
-
-/* mobile */
-@media (max-width: 1280px) {
-  .header-left-flex {
-    display: none
-  }
-  .header-left-flex-mobile {
-  }
-}
-
-/* desktop */
-@media (min-width: 1280px) {
-  .header-left-flex {
-    display: flex;
-    align-items:  center;
-    gap: 40px;
-  }
-  .header-left-flex-mobile {
-    display: none;
-  }
-}
-
-.title-span {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  vertical-align: center;
-}
-
-.header-right-flex {
-  display: flex;
-}
-
 /* user button-links */
 
 .user-button-cluster-flex {
@@ -197,85 +141,6 @@ header {
 }
 
 .header-signup-link {
-  text-decoration: none;
-}
-
-/* user dropdown */
-
-.user-info-dropdown {
-  position: relative; /*enable children to position absolutely*/
-  
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 200px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-
-  background-color: var(--dark-blue-color);
-
-  border-style: solid;
-  border-color: white;
-  border-width: 2px;
-  border-radius: 5px;
-
-  cursor: pointer;
-
-}
-
-.username-span{
-  font-size: 12;
-  font-weight: bold;
-  color: white;
-  margin-right: 5px;
-}
-
-.username-span:hover {
-  color: var(--orange-color);
-}
-
-.user-profile-icon {
-  width: 30px;
-  height: 30px;
-  margin-right: 5px;
-}
-
-.user-info-dropdown-content {
-  display: none;
-  position: absolute; /*absolute of parent*/
-
-  /* 
-   * 100% refers to parent height 
-   * Position the dropdown below the parent end of content (vertically)
-  */
-  top: 100%;
-  left: 0%;
-
-  width: 100%;
-  z-index: 1;
-  background-color: var(--dark-blue-color);
-  color: var(--orange-color);
-
-  border: 2px;
-  border-style: solid;
-  border-color: white;
-
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  
-}
-
-.logout-link {
-  color: white;
-  font-size: 24px;
-  text-decoration: none;
-  text-align: center;
-}
-
-.logout-link-react {
-  color: white;
-  font-size: 24px;
   text-decoration: none;
 }
 
@@ -735,12 +600,13 @@ header {
   color: rgba(43, 43, 43,1.0);
 }
 
-/* this must appear after elements that use it... */
+/* these should appear after elements that use them */
+
 .show {
-  display:block;
+  display:block !important;
 }
 
 .show-flex {
-  display:flex;
+  display:flex !important;
 }
 

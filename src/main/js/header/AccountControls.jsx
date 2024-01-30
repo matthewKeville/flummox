@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useLoaderData } from 'react-router-dom';
 
 import AccountDropdown from '/src/main/js/header/AccountDropdown.jsx'
+import styles from '/src/main/js/header/AccountControls.module.css'
 
 export default function AccountControls() {
 
@@ -10,11 +11,11 @@ export default function AccountControls() {
   return (
 
     <>
-    <div className="user-button-cluster-flex">
+    <div class={styles.div}>
       { userInfo.isGuest &&
         <>
-          <a className="alternate-button header-login-link" href="/login">Login</a>
-          <a className="tertiary-button  header-signup-link" href="/signup">Sign Up</a>
+          <a className={styles.login + " alternate-button link"} href="/login">Login</a>
+          <a className={styles.signup + " tertiary-button link"} href="/signup">Sign Up</a>
         </>
       }
     </div>

@@ -1,0 +1,71 @@
+.dropdown {
+  position: relative; /*enable children to position absolutely*/
+  
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 200px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+
+  background-color: var(--dark-blue-color);
+
+  border-style: solid;
+  border-color: white;
+  border-width: 2px;
+  border-radius: 5px;
+
+  cursor: pointer;
+
+}
+
+.span {
+  font-size: 12;
+  font-weight: bold;
+  color: white;
+  margin-right: 5px;
+}
+
+.username-span:hover {
+  color: var(--orange-color);
+}
+
+.img {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute; /*absolute of parent*/
+
+  /* 
+   * 100% refers to parent height 
+   * Position the dropdown below the parent end of content (vertically)
+  */
+  top: 100%;
+  left: 0%;
+
+  width: 100%;
+  z-index: 1;
+  background-color: var(--dark-blue-color);
+  color: var(--orange-color);
+
+  border: 2px;
+  border-style: solid;
+  border-color: white;
+
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.a {
+  color: white;
+  font-size: 24px;
+  text-decoration: none;
+  text-align: center;
+}
+
