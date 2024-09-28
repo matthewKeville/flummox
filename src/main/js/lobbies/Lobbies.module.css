@@ -2,22 +2,34 @@
   margin-top: 5%;
   margin-left: 5%;
   margin-right: 10%;
+  width: min(900px, 100% - 3rem);
+  margin: 0 auto;
 }
 
 .table {
-  border-style: solid;
-  border-color: var(--dark-blue-color);
-  border-width: 5px;
   /* table will take as much space needed, center within the empty */
-  margin: 0 auto;
+  /* spread the table out over the available space */
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.caption {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  text-align: left;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 
 
 .container th,td {
-  padding: 20px;
-  text-align: center;
-  font-size: 16px;
+  padding: 15px;
+  /*text-align: center;*/
+  text-align: left;
+  font-size: 1rem;
   font-weight: bold;
 }
 
@@ -32,4 +44,14 @@
 .container tbody tr:nth-child(even) {
   background-color: #FFFFFF;
 }
+
+
+/* drop fields on mobile */
+
+@media (max-width: 600px) {
+  .non-essential-field {
+    display: none;
+  }
+}
+
 

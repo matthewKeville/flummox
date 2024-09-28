@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.controllers;
+package com.keville.ReBoggled.controllers.web.api;
 
 import java.util.Optional;
 

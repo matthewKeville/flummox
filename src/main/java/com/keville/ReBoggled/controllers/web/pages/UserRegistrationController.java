@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.controllers.web;
+package com.keville.ReBoggled.controllers.web.pages;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

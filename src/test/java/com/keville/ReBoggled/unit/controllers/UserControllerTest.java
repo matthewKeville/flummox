@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keville.ReBoggled.controllers.UserController.UserInfo;
+import com.keville.ReBoggled.controllers.web.api.UserController.UserInfo;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.userService.UserService;

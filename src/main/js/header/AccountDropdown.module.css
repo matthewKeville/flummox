@@ -4,7 +4,9 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 200px;
+  @media ( min-width: 600px ) {
+    width: 200px;
+  }
   padding-top: 2px;
   padding-bottom: 2px;
 
@@ -23,17 +25,26 @@
   font-size: 12;
   font-weight: bold;
   color: white;
-  margin-right: 5px;
+  margin-right: 2px;
+  margin-left: 2px;
 }
 
 .username-span:hover {
   color: var(--orange-color);
 }
 
-.img {
-  width: 30px;
-  height: 30px;
-  margin-right: 5px;
+/* hide icon if not enough horizontal space */
+@media (max-width: 600px) {
+  .img {
+    display: none;
+  }
+}
+@media (min-width: 600px) {
+  .img {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+  }
 }
 
 .dropdown-content {

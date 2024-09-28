@@ -1,13 +1,13 @@
 # Boggle Game Architecture
 
-The vision plan for this project was to be able to play boggle online with 
+The vision for this project was to be able to play boggle online with 
 friends in new game modes that are simply not possible outside of a computer.
 Some ideas where **multiplier tiles** , **decaying tiles**, and **wildcards**.
 
 The intent was to be able to play these modes on the desktop or through mobile
 which have different preferred input mechanism **path drawing** and **text**.
 **text** support must be supported because **I want** to be able to type my answers
-this would be a massive improvement to vanilla boggle because I type more swiftly.
+this would be a massive improvement to vanilla boggle because I can type much faster than write.
 
 With mobile, typing would be clunky so naturally I must support some sort of 
 touch interface.
@@ -16,7 +16,7 @@ touch interface.
 
 ## Game mode difficulties
 
-Some game modes make using a certain interface challenging.
+Some game modes make using a common interface challenging.
 
 > Wildcard game modes are path agnostic
 
@@ -43,7 +43,7 @@ Some game modes make using a certain interface challenging.
         are invariant in points.
         - Decaying path choice is fine because it adds strategy
         - Boards with multiplier tiles are poor because users might be
-            led to a higher scoring path then the conceptualized.
+            led to a higher scoring path then the one conceptualized.
 
 ## Implications
 

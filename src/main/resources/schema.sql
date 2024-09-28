@@ -1,19 +1,9 @@
-DROP TABLE IF EXISTS authorities;
-
 DROP TABLE IF EXISTS game_answer;
 DROP TABLE IF EXISTS tile;
 DROP TABLE IF EXISTS lobby_user_reference;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS lobby;
 DROP TABLE IF EXISTS game;
-
--- CREATE TABLE IF NOT EXISTS authorities(
---     USERNAME VARCHAR(50) NOT NULL,
---     AUTHORITY VARCHAR(50) NOT NULL,
---     CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username) on DELETE CASCADE
--- );
--- CREATE UNIQUE INDEX IF NOT EXISTS ix_auth_username ON authorities (username,authority);
-
 
 -- formerly userinfo
 CREATE TABLE IF NOT EXISTS user(
@@ -67,7 +57,8 @@ CREATE TABLE IF NOT EXISTS lobby(
   NAME VARCHAR(255) NOT NULL,
   CAPACITY INT NOT null,
   IS_PRIVATE BOOLEAN NOT NULL,
-  OWNER INT UNIQUE,
+  -- OWNER INT UNIQUE, (in prod not in test)
+  OWNER INT,
   GAME INT,
   LAST_MODIFIED TIMESTAMP,
   -- GameSettings
@@ -83,7 +74,7 @@ CREATE TABLE IF NOT EXISTS lobby(
 
 CREATE TABLE IF NOT EXISTS lobby_user_reference(
   ID INT AUTO_INCREMENT PRIMARY KEY,
-  USER INT, -- I can't use USER as column name
+  USER INT,
   LOBBY INT,
   UNIQUE (USER),
   CONSTRAINT fk_lobby_user_lobby_reference FOREIGN KEY(LOBBY) REFERENCES lobby(ID) on DELETE CASCADE,

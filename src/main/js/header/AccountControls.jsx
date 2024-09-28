@@ -11,7 +11,7 @@ export default function AccountControls() {
   return (
 
     <>
-    <div class={styles.div}>
+    <div className={styles.div}>
       { userInfo.isGuest &&
         <>
           <a className={styles.login + " alternate-button link"} href="/login">Login</a>

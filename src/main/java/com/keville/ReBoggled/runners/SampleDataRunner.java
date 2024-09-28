@@ -17,7 +17,6 @@ import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
-import com.keville.ReBoggled.service.registrationService.RegistrationService;
 import com.keville.ReBoggled.service.userService.UserServiceException;
 
 @Component
@@ -72,23 +71,44 @@ public class SampleDataRunner implements CommandLineRunner {
         return;
       }
 
-      User matt = new User("matt@email.com","matt@email.com","{noop}boggle");
-      User alice = new User("cyberSecurityExample","alice@email.com","{noop}password");
-      User bob = new User("ifYouBuildTheyWillCome","bob@email.com","{noop}password");
-      User charlie = new User("chocolateFactoryOwner","charlie@email.com","{noop}password");
+      User ada = new User("ada","matt@email.com","{noop}boggle");
+      User lily = new User("lily","lily@email.com","{noop}boggle");
 
-      matt = users.save(matt);
-      matt = users.save(alice);
-      matt = users.save(bob);
-      matt = users.save(charlie);
+      User alice = new User("alice","alice@email.com","{noop}password");
+      User bob = new User("bob","bob@email.com","{noop}password");
+      User charlie = new User("charlie","charlie@email.com","{noop}password");
+
+      ada = users.save(ada);
+      lily = users.save(lily);
+
+      alice = users.save(alice);
+      bob = users.save(bob);
+      charlie = users.save(charlie);
+
+      // dev accs
 
       GameSettings gameSettings = new GameSettings(BoardSize.FOUR, BoardTopology.PLANE, FindRule.FIRST, 30);
-      Lobby zebes = lobbies.save(new Lobby("ZeBeS", 4, false, ARof(alice), gameSettings));
-      lobbyService.addUserToLobby(alice.id, zebes.id);
+      Lobby fountainOfDreams = lobbies.save(new Lobby("Fountain of Dreams", 16, false, ARof(ada), gameSettings));
+      lobbyService.addUserToLobby(ada.id, fountainOfDreams.id);
+
+      gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.PLANE, FindRule.ANY, 60);
+      Lobby pokemonStadium = lobbies.save(new Lobby("Pokemon Stadium", 16, false, ARof(lily), gameSettings));
+      lobbyService.addUserToLobby(lily.id, pokemonStadium.id);
+
+      // dummy accs
+
+      gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
+      Lobby planetZebes = lobbies.save(new Lobby("Planet ZebeS", 4, false, ARof(alice), gameSettings));
+      lobbyService.addUserToLobby(alice.id, planetZebes.id);
 
       gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
       Lobby bigBlue = lobbies.save(new Lobby("Big Blue", 16, false, ARof(bob), gameSettings));
       lobbyService.addUserToLobby(bob.id, bigBlue.id);
+
+      gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
+      Lobby yoshisIsland = lobbies.save(new Lobby("Yoshi's Island", 16, false, ARof(charlie), gameSettings));
+      lobbyService.addUserToLobby(charlie.id, yoshisIsland.id);
+
       
       System.exit(0);
 
