@@ -4,46 +4,37 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import styles from '/src/main/js/lobbies/Lobbies.module.css';
+import { Table, Container, Text, Button, Center, Flex } from '@mantine/core';
 
-export async function loader({params}) {
-
-  console.log(`loading lobbies list`)
-
+export async function loader({ params }) {
   const lobbiesResponse = await fetch("/api/lobby/view/lobby");
   const lobbies = await lobbiesResponse.json()
-
+  console.log('loaded lobbies', lobbies)
   return { lobbies };
-
 }
 
 export default function Lobbies() {
-
   const { lobbies } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
 
-  let joinLobby = async function(lobbyId) {
+  let joinLobby = async function (lobbyId) {
 
-    const response = await fetch("/api/lobby/"+lobbyId+"/join", {
+    const response = await fetch("/api/lobby/" + lobbyId + "/join", {
       method: "POST",
-      headers: {
-      },
+      headers: {},
       body: null
     });
+    console.log('received lobby info: ', await response.json())
 
     if (response.status == 200) {
-
-      navigate("/lobby/" + lobbyId+"/");
-
+      navigate("/lobby/" + lobbyId + "/");
     } else {
-
-      const content = await response.json()
-
+      const content = response.json()
       console.log(`unable to join lobby because : ${content.message}`)
-
       let notice = content.status + " : Unknown error"
 
-      switch(content.message) {
+      switch (content.message) {
         case "LOBBY_IS_FULL":
           notice = " Unable to join lobby because it is full"
           break;
@@ -55,7 +46,7 @@ export default function Lobbies() {
           return;
         case "INTERNAL_ERROR":
         default:
-          //pass
+        //pass
       }
 
       toast.error(notice);
@@ -64,7 +55,7 @@ export default function Lobbies() {
 
   }
 
-  let createLobby = async function() {
+  let createLobby = async function () {
 
     console.log("creating lobby")
 
@@ -75,9 +66,9 @@ export default function Lobbies() {
       body: null
     });
 
-    const content  = await response.json();
+    const content = await response.json();
 
-    if ( response.status == 201 ) {
+    if (response.status == 201) {
 
       console.log(content)
 
@@ -89,10 +80,10 @@ export default function Lobbies() {
 
       let notice = content.status + " : Unknown error"
 
-      switch(content.message) {
+      switch (content.message) {
         case "INTERNAL_ERROR":
         default:
-          //pass
+        //pass
       }
 
       toast.error(notice);
@@ -102,62 +93,52 @@ export default function Lobbies() {
 
   }
 
-
-  if ( !lobbies ) {
+  if (!lobbies) {
     return (<><div>no lobbies</div></>)
   }
 
+  const rows = lobbies.map((lobby) => (
+    <Table.Tr key={lobby.id}>
+      <Table.Td>{lobby.name}</Table.Td>
+      <Table.Td>{lobby.users.length} / {lobby.capacity}</Table.Td>
+      <Table.Td>{lobby.isPrivate ? "locked" : "open"}</Table.Td>
+      <Table.Td>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-square-fill" viewBox="0 0 16 16" onClick={() => joinLobby(lobby.id)}>
+          <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1" />
+        </svg>
+      </Table.Td>
+    </Table.Tr>
+  ))
+
   return (
-    <>
+    <Container className={styles.container}>
+      <Text className={styles.caption}>
+        Lobbies
+      </Text>
 
-    <div className={styles["container"]}>
-      <table className={styles.table}>
-        <caption className={styles.caption}>
-          Lobbies
-        </caption>
-
-        <thead>
-          <tr>
-            <th className={styles["essential-field"]}>lobby</th>
-            <th className={styles["essential-field"]}>party</th>
-            <th className={styles["non-essential-field"]}>public</th>
-            <th></th>
-          </tr>
-        </thead>
-
-        <tbody>
-        {
-          lobbies.map( (lobby) => {
-            return (
-              <tr key={lobby.id}>
-                <td className={styles["essential-field"]} >{lobby.name}</td>
-                <td className={styles["essential-field"]} >{lobby.users.length} / {lobby.capacity}</td>
-                <td className={styles["non-essential-field"]} >{lobby.isPrivate ? "locked" : "open"}</td>
-                <td>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square-fill" viewBox="0 0 16 16" onClick={() => joinLobby(lobby.id)}>
-                    <path d="M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1"/>
-                  </svg>
-                </td>
-              </tr>
-            )
-          })
-        }
-
-        {!userInfo.isGuest &&
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td><button className="basic-button" onClick={createLobby}>Create</button></td>
-          </tr>
-        }
-
-        </tbody>
-      </table>
-    </div>
-
-    </>
+      <Table miw={700} className={styles.table}>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Lobby</Table.Th>
+            <Table.Th>Party</Table.Th>
+            <Table.Th>Public</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {rows}
+          {!userInfo.isGuest &&
+            <Table.Tr>
+              <Table.Td></Table.Td>
+              <Table.Td></Table.Td>
+              <Table.Td></Table.Td>
+              <Table.Td>
+                <Button className={styles.createbtn} onClick={createLobby}>Create</Button>
+              </Table.Td>
+            </Table.Tr>
+          }
+        </Table.Tbody>
+      </Table>
+    </Container>
   );
 
 }
