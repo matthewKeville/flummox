@@ -1,23 +1,48 @@
-import React from 'react';
-import {  Link } from 'react-router-dom';
+import React, { useState } from 'react';
+
 import styles from '/src/main/js/header/NavBar.module.css'
+
+
+import { Container, Group, Button, MenuItem, NavLink } from '@mantine/core';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 /* 
   * TODO :
   * Intent here is to produce different nav bars based on @Media queries
   * horizontal navbar for desktop, vertical (hide-away) navbar for mobile 
   * */
-export default function NavBar({mobile}) {
 
-  if (mobile) {
-    return (<></>)
-  }
+const links = [
+  { link: '/', label: 'Home' },
+  { link: '/lobby', label: 'Lobbies' },
+];
+
+export default function NavBar() {
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const [active, setActive] = useState(location.pathname);
+
+  const items = links.map((link) => (
+    <Button
+      key={link.label}
+      className={styles.navbtn}
+      data-active={active === link.link}
+      onClick={() => {
+        if (active != link.link) {
+          setActive(link.link)
+          navigate(link.link)
+        }
+      }}
+    >
+      {link.label}
+    </Button>
+  ));
   
   return (
     <>
-        <span className={styles.span}>Reboggled</span>
-        <Link className={styles.link} to="/">Home</Link>
-        <Link className={styles.link} to="/lobby">Lobbies</Link>
+      {items}
     </>
   )
 

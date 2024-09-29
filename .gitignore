@@ -3,6 +3,7 @@ target/
 .mvn/
 node_modules/
 tmp/
+src/main/resources/static/built/
 
 ### STS ###
 .apt_generated

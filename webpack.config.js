@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
     entry: './src/main/js/index.js',
     cache: true,
-    mode: "development", 
+    mode: "development",
     output: {
         path: __dirname,
         filename: './src/main/resources/static/built/bundle.js'
@@ -22,7 +22,29 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader','css-loader'],
+                use: [
+                    'style-loader',
+                    'css-loader',
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    ['postcss-preset-mantine', {}],
+                                    ['postcss-simple-vars', {
+                                        variables: {
+                                            'mantine-breakpoint-xs': '36em',
+                                            'mantine-breakpoint-sm': '48em',
+                                            'mantine-breakpoint-md': '62em',
+                                            'mantine-breakpoint-lg': '75em',
+                                            'mantine-breakpoint-xl': '88em',
+                                        },
+                                    }]
+                                ],
+                            },
+                        },
+                    }
+                ],
             }
         ]
     }

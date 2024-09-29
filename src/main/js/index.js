@@ -1,29 +1,13 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createTheme, MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css"
 
-import Lobbies, {loader as lobbiesLoader }        from '/src/main/js/lobbies/Lobbies.jsx'
-import Lobby, {loader as lobbyLoader }            from "/src/main/js/lobby/Lobby.jsx";
-import ErrorPage                                  from "/src/main/js/Error.jsx";
-import Root                                       from "/src/main/js/Root.jsx";
-
-async function rootLoader({params}) {
-
-  const userInfoResponse = await fetch("/api/user/info");
-  var userInfo = await userInfoResponse.json()
-
-  if ( userInfoResponse.status != 200 || userInfo == null) {
-    console.log("there was an error getting user info")
-    userInfo = { id:-1, username:"error", isGuest:true }
-    return { userInfo }
-  }
-
-  return { userInfo };
-
-}
+import Lobbies, {loader as lobbiesLoader } from '/src/main/js/lobbies/Lobbies.jsx'
+import Lobby, {loader as lobbyLoader } from "/src/main/js/lobby/Lobby.jsx";
+import Root, {loader as rootLoader } from "/src/main/js/Root.jsx";
+import ErrorPage from "/src/main/js/Error.jsx";
 
 const router = createBrowserRouter([
   {
@@ -50,10 +34,16 @@ const router = createBrowserRouter([
   },
 ]);
 
+const theme = createTheme({
+  defaultRadius: 'md',
+});
+
 const root = createRoot(document.getElementById("root"));
 
 root.render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <MantineProvider theme={theme} defaultColorScheme="dark">
+      <RouterProvider router={router} />
+    </MantineProvider>
   </StrictMode>
 );

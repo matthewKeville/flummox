@@ -1,17 +1,18 @@
-.link {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
+.navbtn {
+  padding: rem(8px) rem(12px);
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--mantine-color-blue-7);
+  color: var(--mantine-color-light-0);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
 }
 
-.link:hover {
-  color: orange;
+.navbtn[data-active=true] {
+  background-color: var(--mantine-color-blue-9);
+  text-decoration: underline;
 }
 
-.span {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  vertical-align: center;
+.navbtn:hover[data-active=false] {
+  background-color: var(--mantine-color-blue-9)
 }
+

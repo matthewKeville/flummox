@@ -1,28 +1,29 @@
-import React  from 'react';
+import React, { useState } from 'react';
 
-import AccountControls from '/src/main/js/header/AccountControls.jsx'
-import NavBar from '/src/main/js/header/NavBar.jsx'
+import AccountControls from './AccountControls.jsx'
 
-import styles from '/src/main/js/header/Header.module.css'
+import styles from './Header.module.css'
+import { Container, Group } from '@mantine/core';
+import NavBar from './NavBar.jsx';
+
 
 export default function Header() {
 
   return (
     <header className={styles.header}>
-      <div className={styles.flex}>
+      <Container className={styles.inner}>
 
-        <div className={styles["left-flex"]}>
-          <NavBar/> 
-        </div>
-        <div className={styles["left-flex-mobile"]}>
-          <NavBar mobile={true}/> 
-        </div>
+        <Group>
+          <h1>ReBoggled</h1>
+          <NavBar />
+        </Group>
 
-        <div className={styles["right-flex"]}>
-          <AccountControls/>
-        </div>
+        <Group>
+          <AccountControls />
+        </Group>
 
-      </div>
+      </Container>
     </header>
+
   )
 }

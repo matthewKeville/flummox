@@ -1,20 +1,7 @@
-/* user button-links */
-
-.div {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-right: 10px;
-  gap: 10px;
+.userbtn {
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-dark-0));
 }
 
-.login,.signup {
-  text-decoration: none;
-}
-
-.login:hover {
-  color: var(--orange-color);
-}
-.signup:hover {
-  color: white;
+.userbtn:hover {
+  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
 }
