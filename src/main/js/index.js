@@ -17,7 +17,7 @@ async function rootLoader({params}) {
 
   if ( userInfoResponse.status != 200 || userInfo == null) {
     console.log("there was an error getting user info")
-    userInfo = { id:-1, username:"error", isGuest:true }
+    userInfo = { id:-1, username:"error", isGuest:true, lobbyId:-1 }
     return { userInfo }
   }
 

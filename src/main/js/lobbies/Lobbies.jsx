@@ -64,43 +64,6 @@ export default function Lobbies() {
 
   }
 
-  let createLobby = async function() {
-
-    console.log("creating lobby")
-
-    const response = await fetch("/api/lobby/create", {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
-
-    const content  = await response.json();
-
-    if ( response.status == 201 ) {
-
-      console.log(content)
-
-      navigate("/lobby/" + content.id);
-
-    } else {
-
-      console.log(`unable to create lobby because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "INTERNAL_ERROR":
-        default:
-          //pass
-      }
-
-      toast.error(notice);
-
-    }
-
-
-  }
 
 
   if ( !lobbies ) {
@@ -142,17 +105,6 @@ export default function Lobbies() {
             )
           })
         }
-
-        {!userInfo.isGuest &&
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td><button className="basic-button" onClick={createLobby}>Create</button></td>
-          </tr>
-        }
-
         </tbody>
       </table>
     </div>

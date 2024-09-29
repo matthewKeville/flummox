@@ -301,10 +301,6 @@ public class LobbyController {
 
       Integer userId = (Integer) session.getAttribute("userId");
       User user = userService.getUser(userId);
-      if ( user.guest ) {
-        LOG.warn(String.format("Guest %d is trying to create a lobby.",userId));
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_CANT_CREATE_LOBBY");
-      }
 
       try {
         Lobby lobby = lobbyService.createNew(userId);

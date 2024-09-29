@@ -60,6 +60,17 @@ public class DefaultLobbyService implements LobbyService {
       return lobby.owner.getId();
     }
 
+    public Integer getUserLobbyId(int id) {
+
+      Optional<Lobby> optUserLobby = lobbies.findUserLobby(id);
+      if ( optUserLobby.isPresent()) {
+        return optUserLobby.get().id;
+      }
+
+      return -1;
+
+    }
+
     public void addLobby(Lobby lobby) {
       lobbies.save(lobby);
     }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.keville.ReBoggled.model.user.User;
+import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.userService.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +23,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private LobbyService lobbyService;
 
     @GetMapping("/api/user/info")
     public UserInfo test(HttpSession session) {
@@ -39,9 +42,9 @@ public class UserController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to locate details for identified user");
       }
 
-      return new UserInfo(user.id,user.username,user.guest);
+      return new UserInfo(user.id,user.username,user.guest,lobbyService.getUserLobbyId(user.id));
     }
 
-    public record UserInfo(Integer id,String username,boolean isGuest) {};
+    public record UserInfo(Integer id,String username,boolean isGuest,Integer lobbyId) {};
 
 }

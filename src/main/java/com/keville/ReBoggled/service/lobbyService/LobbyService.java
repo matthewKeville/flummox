@@ -13,6 +13,8 @@ public interface LobbyService {
 
     public Integer getLobbyOwnerId(int id) throws LobbyServiceException;
 
+    public Integer getUserLobbyId(int id);
+
     public void addLobby(Lobby lobby);
 
     public Lobby addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
