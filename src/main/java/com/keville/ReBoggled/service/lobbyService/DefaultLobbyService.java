@@ -116,7 +116,7 @@ public class DefaultLobbyService implements LobbyService {
 
     }
 
-    public Lobby removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
+    public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
 
       // Find entities
 
@@ -125,9 +125,7 @@ public class DefaultLobbyService implements LobbyService {
 
       // Remove User
 
-      lobby = removeUserFromLobby(user,lobby);
-
-      return lobby;
+      return removeUserFromLobby(user,lobby);
     }
 
 
@@ -325,7 +323,7 @@ public class DefaultLobbyService implements LobbyService {
       return optUser.get();
     }
 
-    private Lobby removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
+    private Optional<Lobby> removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(user.id));
         
@@ -339,7 +337,12 @@ public class DefaultLobbyService implements LobbyService {
 
       LOG.info(String.format("removed user : %d from lobby : %d",user.id,lobby.id));
 
-      return lobby;
+      if ( lobby.users.size() == 0 ) {
+        lobbies.delete(lobby);
+        return null;
+      }
+
+      return Optional.of(lobby);
 
     }
 

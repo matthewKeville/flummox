@@ -1,6 +1,7 @@
 package com.keville.ReBoggled.service.lobbyService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
@@ -19,7 +20,7 @@ public interface LobbyService {
 
     public Lobby addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
 
-    public Lobby removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
+    public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
 
     public Lobby transferLobbyOwnership(Integer lobbyId,Integer userId) throws LobbyServiceException;
 

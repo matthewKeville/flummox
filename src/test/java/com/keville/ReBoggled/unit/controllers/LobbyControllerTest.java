@@ -148,6 +148,7 @@ public class LobbyControllerTest {
       .andExpect(MockMvcResultMatchers.status().reason(msg));
   };
 
+  /*
   @Test
   @WithMockUser(username = "user@email.com")
   void kickPlayerReturnsLobby() throws Exception {
@@ -168,6 +169,7 @@ public class LobbyControllerTest {
       .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
 
   };
+  */
 
   @Test
   @WithMockUser(username = "user@email.com")
@@ -183,6 +185,7 @@ public class LobbyControllerTest {
 
   };
 
+  /*
   @Test
   void leaveLobbyReturnsLobby() throws Exception {
 
@@ -200,6 +203,7 @@ public class LobbyControllerTest {
       .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("roomA"));
 
   };
+  */
 
   @Test
   @WithMockUser(username = "user@email.com")

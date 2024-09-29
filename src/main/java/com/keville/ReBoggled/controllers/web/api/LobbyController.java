@@ -1,6 +1,7 @@
 package com.keville.ReBoggled.controllers.web.api;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -233,8 +234,8 @@ public class LobbyController {
     Integer userId = (Integer) session.getAttribute("userId");
 
     try { 
-      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
-      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+      Optional<Lobby> lobby = lobbyService.removeUserFromLobby(userId, id);
+      return new ResponseEntity<Lobby>(lobby.isPresent() ? lobby.get() : null,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
