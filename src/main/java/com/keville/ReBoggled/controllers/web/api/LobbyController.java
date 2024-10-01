@@ -197,8 +197,11 @@ public class LobbyController {
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
-      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
-      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+      Optional<Lobby> lobbyOpt = lobbyService.removeUserFromLobby(userId, id);
+      if ( lobbyOpt.isPresent() ) {
+        return new ResponseEntity<Lobby>(lobbyOpt.get(),HttpStatus.OK);
+      }
+      return ResponseEntity.ok().build();
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
