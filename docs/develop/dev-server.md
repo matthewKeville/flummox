@@ -1,10 +1,16 @@
 
-ReBoggled (development) is deployed on my linux box at dream-land@duckdns.org
+ReBoggled (development) is deployed on my linux box at reboggled.duckdns.org
+
 Due to some of the quirks of my verizon issued router, services will be using non-conventional 
-ports.
+ports as exposed through the router. The actual services run on defaults but the port forwarding
+maps to different public ports.
 
 sshd    : 2222 (22)
 mariadb : 3333 (3306)
+tomcat  : 8085 (8080)
+
+When accessing the server, use the LHS ports.
+So for example to access the website we go to `http://reboggled.duckdns.org:8085`
 
 # Accessing the development server
 
@@ -64,7 +70,7 @@ To access the session started by the deployment script.
 
 1. ssh into the server 
     ```bash
-    ssh reboggled-dev@dream-land.duckdns.org
+    ssh reboggled-dev@reboggled.duckdns.org
     ```
 2. attach to the session
     ```bash

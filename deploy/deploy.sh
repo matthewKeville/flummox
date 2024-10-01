@@ -57,10 +57,8 @@ else
 fi
 
 # kill existing instance if any
-#ssh reboggled-dev@dream-land 'kill `pgrep -f ReBoggled`'
 ssh -p "$DEV_SERVER_SSH_PORT" "$DEV_SERVER_USER"@"$DEV_SERVER" 'kill `pgrep -f ReBoggled`'
 # create dev dataset
-#ssh reboggled-dev@dream-land 'java -jar -Dspring.profiles.active=dev  ReBoggled-0.0.1-SNAPSHOT.jar --create-dev-data=true'
 ssh -p "$DEV_SERVER_SSH_PORT" "$DEV_SERVER_USER"@"$DEV_SERVER" 'java -jar -Dspring.profiles.active=dev  ReBoggled-0.0.1-SNAPSHOT.jar --create-dev-data=true'
 
 ################################################################################
@@ -68,7 +66,6 @@ ssh -p "$DEV_SERVER_SSH_PORT" "$DEV_SERVER_USER"@"$DEV_SERVER" 'java -jar -Dspri
 ################################################################################
 
 # launch in tmux session
-#ssh reboggled-dev@dream-land 'tmux new-session -d -s "ReBoggled" /home/reboggled-dev/start.sh'
 ssh -p "$DEV_SERVER_SSH_PORT" "$DEV_SERVER_USER"@"$DEV_SERVER" 'tmux new-session -d -s "ReBoggled" /home/reboggled-dev/start.sh'
 
 clear
