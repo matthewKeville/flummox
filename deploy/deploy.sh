@@ -32,7 +32,7 @@ fi
 # TODO : use ssh keys for sql authentication
 # query boggle-dev sql password
 
-scp -p "$DEV_SERVER_SSH_PORT" "$DEV_SERVER_USER" "$ARTIFACT_PATH" "$DEV_SERVER_USER"@"$DEV_SERVER":"./"
+scp -P "$DEV_SERVER_SSH_PORT" "$ARTIFACT_PATH" "$DEV_SERVER_USER"@"$DEV_SERVER":"./"
 
 # whiptail prints the answer to STDERR (2) , but we want it in STOUT, so we juggle the streams
 DEV_SERVER_SQL_SA_PASS=$(whiptail --passwordbox "Enter password for $DEV_SERVER_SQL_SA@$DEV_SERVER for $DEV_SERVER_DB" 8 78 --title " SQL SA PASSWORD " 3>&1 1>&2 2>&3)
