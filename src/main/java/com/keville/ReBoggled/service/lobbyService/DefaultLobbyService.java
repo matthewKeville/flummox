@@ -32,18 +32,21 @@ public class DefaultLobbyService implements LobbyService {
     private LobbyRepository lobbies;
     private UserRepository users;
     private GameService gameService;
+    private LobbyTokenService tokenService;
 
     public DefaultLobbyService(
         @Autowired LobbyRepository lobbies,
         @Autowired UserRepository users, 
         @Autowired GameRepository games,
         @Autowired GameService gameService,
+        @Autowired LobbyTokenService tokenService,
         @Autowired ApplicationEventPublisher applicationEventPublisher) {
 
       this.lobbies = lobbies;
       this.users = users;
       this.games = games;
       this.gameService = gameService;
+      this.tokenService = tokenService;
     }
 
     public Iterable<Lobby> getLobbies() {
@@ -71,11 +74,26 @@ public class DefaultLobbyService implements LobbyService {
 
     }
 
+    public String getUserInviteLink(Integer userId) throws LobbyServiceException {
+
+      Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
+      if ( !optUserLobby.isPresent()) {
+        throw new LobbyServiceException(LobbyServiceError.LOBBY_NOT_FOUND);
+      }
+      int lobbyId = optUserLobby.get().id;
+
+      String token = tokenService.getLobbyToken(lobbyId);
+      String url = "/join?id=" + lobbyId + "&token=" + token;
+
+      return url;
+
+    }
+
     public void addLobby(Lobby lobby) {
       lobbies.save(lobby);
     }
 
-    public Lobby addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException {
+    public Lobby addUserToLobby(Integer userId,Integer lobbyId, Optional<String> token) throws LobbyServiceException {
 
       // find entities
 
@@ -84,9 +102,24 @@ public class DefaultLobbyService implements LobbyService {
 
       // can user join?
 
+      /*
       if( lobby.isPrivate && !lobby.owner.getId().equals(userId) ) {
         LOG.warn(String.format("Can't add user : %d to lobby : %d, because it's private",userId,lobbyId));
         throw new LobbyServiceException(LobbyServiceError.LOBBY_PRIVATE);
+      }
+      */
+      if( lobby.isPrivate ) {
+        if ( token.isEmpty() && !lobby.owner.getId().equals(userId) ) {
+          LOG.warn(String.format("Can't add user : %d to lobby : %d, because it's private and no token is provided",userId,lobbyId));
+          throw new LobbyServiceException(LobbyServiceError.LOBBY_PRIVATE);
+        }
+
+        LOG.info("token recv : " + token.get());
+        LOG.info("token act  : " + tokenService.getLobbyToken(lobbyId));
+        if ( token.isPresent() && !tokenService.getLobbyToken(lobbyId).equals(token.get()) ) {
+          LOG.warn(String.format("Can't add user : %d to lobby : %d, because the token is wrong",userId,lobbyId));
+          throw new LobbyServiceException(LobbyServiceError.LOBBY_PRIVATE);
+        }
       }
 
       if( lobby.users.size() == lobby.capacity ) {

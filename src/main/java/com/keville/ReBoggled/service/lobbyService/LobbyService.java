@@ -16,9 +16,11 @@ public interface LobbyService {
 
     public Integer getUserLobbyId(int id);
 
+    public String getUserInviteLink(Integer userId) throws LobbyServiceException;
+
     public void addLobby(Lobby lobby);
 
-    public Lobby addUserToLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
+    public Lobby addUserToLobby(Integer userId,Integer lobbyId,Optional<String> Token) throws LobbyServiceException;
 
     public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
 

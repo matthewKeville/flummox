@@ -162,12 +162,40 @@ public class LobbyController {
 
   }
 
+  @GetMapping("/invite")
+  public ResponseEntity<?> getInvite(HttpSession session) {
+
+    logReq("get","/invite");
+
+    try { 
+
+      Integer userId = (Integer) session.getAttribute("userId");
+
+      if ( userId == null ) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+      }
+      
+      String inviteLink = lobbyService.getUserInviteLink(userId);
+      return new ResponseEntity<String>(inviteLink,HttpStatus.OK);
+
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
+    }
+
+  }
+
   @PostMapping("/{id}/join")
   public ResponseEntity<?> joinLobby (
       @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
+      @Autowired HttpSession session,
+      @RequestParam(required = false, name = "token") String token
+      ) {
 
-    logReq("post",String.format("/%d/join",id));
+    if ( token != null ) {
+      logReq("post",String.format("/%d/join?token=%s",id,token));
+    } else {
+      logReq("post",String.format("/%d/join",id));
+    }
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -176,13 +204,12 @@ public class LobbyController {
     }
 
     try {
-      Lobby lobby = lobbyService.addUserToLobby(userId, id);
+      Lobby lobby = lobbyService.addUserToLobby(userId, id, token == null ? Optional.empty() : Optional.of(token));
       return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e)  {
       handleLobbyServiceException(e);
       return ResponseEntity.internalServerError().build();
     }
-
 
   }
 
@@ -376,8 +403,11 @@ public class LobbyController {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
       case CAPACITY_SHORTENING:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
+      case LOBBY_NOT_FOUND:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_NOT_FOUND");
       case ERROR:
       default:
+        LOG.error("unexpected Lobby Service Error : " + e.getMessage());
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 

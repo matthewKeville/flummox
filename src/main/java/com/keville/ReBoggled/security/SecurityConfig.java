@@ -74,11 +74,14 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
 
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/join")).permitAll() //follow invite link
+
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/view/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/view/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/view/lobby/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/invite")).permitAll() //get invite link
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/create")).permitAll()
