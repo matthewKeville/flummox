@@ -11,6 +11,7 @@
   /* spread the table out over the available space */
   border-collapse: collapse;
   width: 100%;
+  color: black;
 }
 
 .caption {
@@ -43,6 +44,11 @@
 
 .container tbody tr:nth-child(even) {
   background-color: #FFFFFF;
+}
+
+.createbtn {
+  padding: rem(8px) rem(12px);
+  font-weight: 500;
 }
 
 

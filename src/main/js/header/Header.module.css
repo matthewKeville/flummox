@@ -1,41 +1,13 @@
 .header {
+  height: rem(56px);
+  margin-bottom: rem(120px);
   background-color: var(--dark-blue-color);
-  margin: 0px;
-  padding: 0px;
-  width: 100%;
 }
 
-.flex {
+.inner {
+  height: rem(56px);
   display: flex;
   justify-content: space-between;
-  align-items:  center;
-  height: 70px; /* TODO : should be relative to viewport */
-  margin-left: 2%;
-  margin-right: 2%;
+  align-items: center;
 }
 
-
-/* mobile */
-@media (max-width: 1280px) {
-  .left-flex {
-    display: none
-  }
-  .left-flex-mobile {
-  }
-}
-
-/* desktop */
-@media (min-width: 1280px) {
-  .left-flex {
-    display: flex;
-    align-items:  center;
-    gap: 40px;
-  }
-  .left-flex-mobile {
-    display: none;
-  }
-}
-
-.right-flex {
-  display: flex;
-}

@@ -1,27 +1,50 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useLoaderData } from 'react-router-dom';
+import { UnstyledButton, Group, Avatar, Text, Menu } from '@mantine/core';
 
-import AccountDropdown from '/src/main/js/header/AccountDropdown.jsx'
 import styles from '/src/main/js/header/AccountControls.module.css'
 
 export default function AccountControls() {
-
+  
   const { userInfo } = useLoaderData();
 
   return (
-
-    <>
-    <div className={styles.div}>
-      { userInfo.isGuest &&
-        <>
-          <a className={styles.login + " alternate-button link"} href="/login">Login</a>
-          <a className={styles.signup + " tertiary-button link"} href="/signup">Sign Up</a>
-        </>
-      }
-    </div>
-    <AccountDropdown userInfo={userInfo}/>
-    </>
-
+    <Menu position='bottom-end'>
+      <Menu.Target>
+        <UnstyledButton className={styles.userbtn}>
+          <Group>
+            <div style={{ flex: 1 }}>
+              <Text size="sm" fw={500}>
+                {userInfo.username}
+              </Text>
+            </div>
+            <Avatar
+              src={userInfo.avatarUrl} //doesnt exist (yet)
+              radius="xl"
+            />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Label>Account</Menu.Label>
+        {/* cant use useNavigate here since its taking us out of the react app. maybe can use once moving those pages here */}
+        {userInfo.isGuest ?
+          <>
+            <Menu.Item leftSection="L" onClick={() => {window.location.href="/login"}}>
+              Login
+            </Menu.Item>
+            <Menu.Item leftSection="R" onClick={() => {window.location.href="/signup"}}>
+              Sign Up
+            </Menu.Item>
+          </>
+          :
+          <>
+            <Menu.Item leftSection="L" onClick={() => {window.location.href="/logout"}}>
+              Logout
+            </Menu.Item>
+          </>
+        }
+      </Menu.Dropdown>
+    </Menu>
   )
-
 }

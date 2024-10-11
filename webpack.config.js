@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
     entry: './src/main/js/index.js',
     cache: true,
-    mode: "development", 
+    mode: "development",
     output: {
         path: __dirname,
         filename: './src/main/resources/static/built/bundle.js'
@@ -22,7 +22,10 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader','css-loader'],
+                use: [
+                    'style-loader',
+                    'css-loader'
+                ],
             }
         ]
     }

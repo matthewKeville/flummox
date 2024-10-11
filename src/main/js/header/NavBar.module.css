@@ -1,17 +1,12 @@
-.link {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
+.navbtn {
+  padding: rem(8px) rem(12px);
+  font-weight: 500;
 }
 
-.link:hover {
-  color: orange;
+.navbtn[data-active=true] {
+  text-decoration: underline;
 }
 
-.span {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  vertical-align: center;
+.navbtn:hover {
 }
+
