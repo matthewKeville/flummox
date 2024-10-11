@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
 
-import Board from "/src/main/js/game/Board.jsx";
-import AllAnswerDisplay from "/src/main/js/game/postgame/AllAnswerDisplay.jsx";
-import Scoreboard from "/src/main/js/game/postgame/Scoreboard.jsx";
+import Board from "/src/main/js/components/game/Board.jsx";
+import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
+import Scoreboard from "/src/main/js/components/game/postgame/Scoreboard.jsx";
 
 export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 

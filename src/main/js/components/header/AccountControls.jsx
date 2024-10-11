@@ -2,7 +2,7 @@ import React from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { UnstyledButton, Group, Avatar, Text, Menu } from '@mantine/core';
 
-import styles from '/src/main/js/header/AccountControls.module.css'
+import styles from './AccountControls.module.css'
 
 export default function AccountControls() {
   

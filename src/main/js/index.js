@@ -7,11 +7,11 @@ import "@mantine/core/styles.css"
 import "/src/main/resources/static/css/style.css"
 import "/src/main/resources/static/css/buttons.css"
 
-import Lobbies, {loader as lobbiesLoader } from '/src/main/js/lobbies/Lobbies.jsx'
-import Lobby, {loader as lobbyLoader } from "/src/main/js/lobby/Lobby.jsx";
-import Root, {loader as rootLoader } from "/src/main/js/Root.jsx";
-import ErrorPage from "/src/main/js/Error.jsx";
-import LobbyInvite from "/src/main/js/redirects/LobbyInvite.jsx";
+import Root, {loader as rootLoader } from "/src/main/js/pages/Root.jsx";
+import ErrorPage from "/src/main/js/pages/Error.jsx";
+import LobbyBrowser, {loader as lobbyBrowserLoader } from '/src/main/js/pages/LobbyBrowser.jsx'
+import Lobby, {loader as lobbyLoader } from "/src/main/js/pages/Lobby.jsx";
+import LobbyInvite from "/src/main/js/pages/redirects/LobbyInvite.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,8 +23,8 @@ const router = createBrowserRouter([
     children: [
       {
         path: "lobby",
-        element: <Lobbies />,
-        loader: lobbiesLoader,
+        element: <LobbyBrowser />,
+        loader: lobbyBrowserLoader,
         id:"lobbies"
       },
       {

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-
-import styles from '/src/main/js/header/NavBar.module.css'
-
-
 import { Container, Group, Button, MenuItem, NavLink } from '@mantine/core';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import styles from './NavBar.module.css'
 
 /* 
   * TODO :

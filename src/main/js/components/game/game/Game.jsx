@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-import GameTimer from "/src/main/js/game/game/GameTimer.jsx";
-import Board from "/src/main/js/game/Board.jsx";
-import UserAnswerDisplay from "/src/main/js/game/game/UserAnswerDisplay.jsx"
-import WordInput from "/src/main/js/game/game/WordInput.jsx"
+import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
+import Board from "/src/main/js/components/game/Board.jsx";
+import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
+import WordInput from "/src/main/js/components/game/game/WordInput.jsx"
 
 export async function loader({ params }) {
   const lobbyId = params.lobbyId

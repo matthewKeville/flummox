@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLoaderData } from 'react-router-dom';
-import styles from '/src/main/js/header/PlayNow.module.css'
+
+import styles from './PlayNow.module.css'
 
 export default function PlayNow() {
 

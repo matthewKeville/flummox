@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { Container, Group } from '@mantine/core';
 
-import AccountControls from './AccountControls.jsx'
+import AccountControls from '/src/main/js/components/header/AccountControls.jsx'
+import NavBar from '/src/main/js/components/header/NavBar.jsx';
+import PlayNow from '/src/main/js/components/header/PlayNow.jsx'
 
 import styles from './Header.module.css'
-import { Container, Group } from '@mantine/core';
-import NavBar from './NavBar.jsx';
-import PlayNow from '/src/main/js/header/PlayNow.jsx'
 
 export default function Header() {
 

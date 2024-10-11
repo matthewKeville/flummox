@@ -2,9 +2,9 @@ import React from 'react';
 import {  useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
-import PlayerList from "/src/main/js/game/preGame/PlayerList.jsx";
-import GameSettings from "/src/main/js/game/preGame/GameSettings.jsx";
-import LobbyChat from "/src/main/js/game/preGame/LobbyChat.jsx";
+import PlayerList from "/src/main/js/components/game/preGame/PlayerList.jsx";
+import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
+import LobbyChat from "/src/main/js/components/game/preGame/LobbyChat.jsx";
 
 export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 

@@ -3,8 +3,8 @@ import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import styles from '/src/main/js/lobbies/Lobbies.module.css';
 import { Table, Container, Text, Button, Center, Flex } from '@mantine/core';
+import styles from './LobbyBrowser.module.css';
 
 export async function loader({ params }) {
   const lobbiesResponse = await fetch("/api/lobby/view/lobby");

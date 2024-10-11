@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 
-import Header from "/src/main/js/header/Header.jsx"
+import Header from "/src/main/js/components/header/Header.jsx"
 
 export async function loader({ params }) {
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, } from 'react';
 import {  useLoaderData, useRouteLoaderData } from "react-router-dom";
 
-import PreGame from "/src/main/js/game/preGame/PreGame.jsx";
-import Game from "/src/main/js/game/game/Game.jsx";
-import PostGame from "/src/main/js/game/postgame/PostGame.jsx";
+import PreGame from "/src/main/js/components/game/preGame/PreGame.jsx";
+import Game from "/src/main/js/components/game/game/Game.jsx";
+import PostGame from "/src/main/js/components/game/postgame/PostGame.jsx";
 
 export async function loader({params}) {
   console.log("loading lobby " + params.lobbyId)
