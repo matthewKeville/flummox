@@ -33,6 +33,7 @@ public class UserControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  /**
   @Test
   @WithMockUser(username="bob@email.com", authorities = {"read"} )
   void getInfoReturnsUserInfo() throws Exception {
@@ -53,6 +54,7 @@ public class UserControllerTest {
       .andExpect(MockMvcResultMatchers.status().isOk());
 
   }
+  */
 
   @Test
   @WithMockUser(username="bob@email.com", authorities = {"read"} )

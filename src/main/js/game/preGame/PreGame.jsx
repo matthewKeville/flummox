@@ -18,6 +18,24 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 
   const isOwner = (lobby.owner.id == userInfo.id);
 
+  // TODO when http is exchanged for https
+  // modern clipboard access is through the navigator api,
+  // but it requires https, this is a hack sourced from
+  // https://stackoverflow.com/questions/72237719/not-being-able-to-copy-url-to-clipboard-without-adding-the-protocol-https
+  function unsecuredCopyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+            document.execCommand('copy');
+          } catch (err) {
+                console.error('Unable to copy to clipboard', err);
+              }
+      document.body.removeChild(textArea);
+  }
+
   let leaveLobby = async function(lobbyId) {
 
     console.log("leaving lobby")
@@ -43,6 +61,37 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
         case "INTERNAL_ERROR":
         default:
           //pass
+      }
+
+      toast.error(notice);
+
+    }
+  }
+
+  let copyInviteLink = async function() {
+
+    console.log("fetching invite link")
+
+    const response = await fetch("/api/lobby/invite", {
+      method: "GET",
+      headers: {},
+      body: null
+    });
+
+    if ( response.status == 200 ) {
+      var lobbyInviteLink = await response.text()
+      console.log("lobby invite link is " + lobbyInviteLink)
+      unsecuredCopyToClipboard(lobbyInviteLink)
+      toast.info("Invite Copied To Clipboard")
+    } else {
+    
+      const content  = await response.json();
+      console.log(`error getting invite link ${content.message}`)
+      let notice = content.status + " : Unknown error"
+
+      switch(content.message) {
+        default:
+          notice = "unknown error occurred"
       }
 
       toast.error(notice);
@@ -134,11 +183,14 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
           <LobbyChat lobby={lobby}/>
         </div>
         <div className="pre-game-grid-user-actions">
-          <button className="basic-button" onClick={onStartGame}>Start</button> 
-          { 
-            playedPrev &&
-            <button className="tertiary-button" onClick={onReturnToPostGame}>Last</button>
+          { isOwner &&
+            <button className="basic-button" onClick={onStartGame}>Start</button> 
           }
+          {
+            playedPrev &&
+              <button className="tertiary-button" onClick={onReturnToPostGame}>Last</button>
+          }
+          { <button className="basic-button" onClick={() => copyInviteLink()}>Invite</button> }
           { isOwner ? 
             <button className="danger-button" onClick={() => deleteLobby(lobby.id)} >Delete</button>
             :

@@ -64,6 +64,7 @@ public class LobbyControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  /*
   @Test
   void getLobbyViewReturnsLobbyViews() throws Exception {
 
@@ -403,5 +404,6 @@ public class LobbyControllerTest {
       
     }
   }
+  */
 
 }

@@ -1,6 +1,7 @@
 package com.keville.ReBoggled.controllers.web.api;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -161,12 +162,40 @@ public class LobbyController {
 
   }
 
+  @GetMapping("/invite")
+  public ResponseEntity<?> getInvite(HttpSession session) {
+
+    logReq("get","/invite");
+
+    try { 
+
+      Integer userId = (Integer) session.getAttribute("userId");
+
+      if ( userId == null ) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+      }
+      
+      String inviteLink = lobbyService.getUserInviteLink(userId);
+      return new ResponseEntity<String>(inviteLink,HttpStatus.OK);
+
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
+    }
+
+  }
+
   @PostMapping("/{id}/join")
   public ResponseEntity<?> joinLobby (
       @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
+      @Autowired HttpSession session,
+      @RequestParam(required = false, name = "token") String token
+      ) {
 
-    logReq("post",String.format("/%d/join",id));
+    if ( token != null ) {
+      logReq("post",String.format("/%d/join?token=%s",id,token));
+    } else {
+      logReq("post",String.format("/%d/join",id));
+    }
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -175,13 +204,12 @@ public class LobbyController {
     }
 
     try {
-      Lobby lobby = lobbyService.addUserToLobby(userId, id);
+      Lobby lobby = lobbyService.addUserToLobby(userId, id, token == null ? Optional.empty() : Optional.of(token));
       return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
     } catch (LobbyServiceException e)  {
       handleLobbyServiceException(e);
       return ResponseEntity.internalServerError().build();
     }
-
 
   }
 
@@ -196,8 +224,11 @@ public class LobbyController {
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
-      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
-      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+      Optional<Lobby> lobbyOpt = lobbyService.removeUserFromLobby(userId, id);
+      if ( lobbyOpt.isPresent() ) {
+        return new ResponseEntity<Lobby>(lobbyOpt.get(),HttpStatus.OK);
+      }
+      return ResponseEntity.ok().build();
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
@@ -233,8 +264,8 @@ public class LobbyController {
     Integer userId = (Integer) session.getAttribute("userId");
 
     try { 
-      Lobby lobby = lobbyService.removeUserFromLobby(userId, id);
-      return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+      Optional<Lobby> lobby = lobbyService.removeUserFromLobby(userId, id);
+      return new ResponseEntity<Lobby>(lobby.isPresent() ? lobby.get() : null,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);
     }
@@ -301,10 +332,6 @@ public class LobbyController {
 
       Integer userId = (Integer) session.getAttribute("userId");
       User user = userService.getUser(userId);
-      if ( user.guest ) {
-        LOG.warn(String.format("Guest %d is trying to create a lobby.",userId));
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "GUEST_CANT_CREATE_LOBBY");
-      }
 
       try {
         Lobby lobby = lobbyService.createNew(userId);
@@ -376,8 +403,11 @@ public class LobbyController {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "NOT_IN_LOBBY");
       case CAPACITY_SHORTENING:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "CAPACITY_SHORTENING_CONFLICT");
+      case LOBBY_NOT_FOUND:
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "LOBBY_NOT_FOUND");
       case ERROR:
       default:
+        LOG.error("unexpected Lobby Service Error : " + e.getMessage());
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 

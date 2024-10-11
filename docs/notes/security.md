@@ -215,7 +215,7 @@ In order to construct one, we need a `DataSource` which a handle
 to interface with a db, implementation agnostic.
 
 We could create a `@bean` to and set up a custom `DataSource` but
-**Spring Boot** automaticallly registers an **H2** `DataSource` bean
+**Spring Boot** automatically registers an **H2** `DataSource` bean
 if **H2** is a in the project. Thus we can just autowire the default 
 `DataSource`
 

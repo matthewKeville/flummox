@@ -11,6 +11,7 @@ import Lobbies, {loader as lobbiesLoader } from '/src/main/js/lobbies/Lobbies.js
 import Lobby, {loader as lobbyLoader } from "/src/main/js/lobby/Lobby.jsx";
 import Root, {loader as rootLoader } from "/src/main/js/Root.jsx";
 import ErrorPage from "/src/main/js/Error.jsx";
+import LobbyInvite from "/src/main/js/redirects/LobbyInvite.jsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,12 @@ const router = createBrowserRouter([
         element: <Lobby />,
         loader: lobbyLoader,
         id:"lobby",
+        children: []
+      },
+      {
+        path: "join",
+        element: <LobbyInvite />,
+        id:"lobby-invite",
         children: []
       }
     ]

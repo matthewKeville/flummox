@@ -1,6 +1,9 @@
-# Controller Tests
+This document outlines what and what not is considered worth testing.
+Very much a WIP.
 
-## Test
+## Controller Tests
+
+### TEST
 
 - Positive Response             (..ReturnsLobby)
   - correct headers
@@ -15,8 +18,7 @@
 
 - UI Expected error messages    (...ReturnsReasonForFailure)
 
-## Test
+### DO NOT TEST
 
-Do not test
 - service methods
 - service logical errors ex. FailsWhenGuest
