@@ -48,9 +48,6 @@
 
 .createbtn {
   padding: rem(8px) rem(12px);
-  border-radius: var(--mantine-radius-sm);
-  background-color: var(--mantine-color-blue-7);
-  font-size: var(--mantine-font-size-sm);
   font-weight: 500;
 }
 

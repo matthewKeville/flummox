@@ -1,17 +1,12 @@
 .navbtn {
   padding: rem(8px) rem(12px);
-  border-radius: var(--mantine-radius-sm);
-  background-color: var(--mantine-color-blue-7);
-  font-size: var(--mantine-font-size-sm);
   font-weight: 500;
 }
 
 .navbtn[data-active=true] {
-  background-color: var(--mantine-color-blue-9);
   text-decoration: underline;
 }
 
 .navbtn:hover {
-  background-color: var(--mantine-color-blue-9);
 }
 
