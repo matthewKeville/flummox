@@ -3,21 +3,11 @@ import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 
 import Header from "/src/main/js/components/header/Header.jsx"
+import { GetUserInfo } from "/src/main/js/services/UserService.ts"
 
 export async function loader({ params }) {
-
-  const userInfoResponse = await fetch("/api/user/info");
-  var userInfo = await userInfoResponse.json()
-
-  if (userInfoResponse.status != 200 || userInfo == null) {
-    console.log("there was an error getting user info")
-    userInfo = { id: -1, username: "error", isGuest: true }
-    return { userInfo }
-  }
-
-  console.log('loaded userInfo', userInfo)
-  return { userInfo };
-
+  var userInfo = await GetUserInfo()
+  return { userInfo }
 }
 
 export default function Root() {
