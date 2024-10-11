@@ -338,6 +338,7 @@ body {
 
 .die {
   background: #fff;
+  color: black;
   float: left;
   font-size: 32px;
   font-weight: bold;

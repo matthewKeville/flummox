@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 
 import Header from "/src/main/js/header/Header.jsx"
-import { Paper } from '@mantine/core';
 
 export async function loader({ params }) {
 

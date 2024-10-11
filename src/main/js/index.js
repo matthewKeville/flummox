@@ -2,7 +2,10 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, MantineProvider } from "@mantine/core";
+
 import "@mantine/core/styles.css"
+import "/src/main/resources/static/css/style.css"
+import "/src/main/resources/static/css/buttons.css"
 
 import Lobbies, {loader as lobbiesLoader } from '/src/main/js/lobbies/Lobbies.jsx'
 import Lobby, {loader as lobbyLoader } from "/src/main/js/lobby/Lobby.jsx";

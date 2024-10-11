@@ -11,6 +11,7 @@
   /* spread the table out over the available space */
   border-collapse: collapse;
   width: 100%;
+  color: black;
 }
 
 .caption {
