@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
 
+import { KickPlayer, PromotePlayer } from "/src/main/js/services/LobbyService.ts";
+
 export default function LobbyUserDisplay(props) {
 
   const userActionDropdown                = useRef(null)
@@ -38,91 +40,27 @@ export default function LobbyUserDisplay(props) {
 
   const kickPlayer = async function() {
 
-    const response = await fetch("/api/lobby/"+props.lobby.id+"/kick/"+props.player.id, {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
+    let serviceResponse = await KickPlayer(props.lobby.id,props.player.id)
 
-    const authenticateUrl = "http://localhost:8080/login"
-
-    if ( response.status == 200 && response.url != authenticateUrl ) {
-
+    if ( serviceResponse.success ) {
       revalidator.revalidate();
-
-    } else if ( response.url == authenticateUrl) {
-
-      toast.error("Authentication Error...");
-
-    } else {
-    
-      const content  = await response.json();
-
-      console.log(`unable to leave kick player because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "NOT_IN_LOBBY":
-          notice = " Kick target is not in lobby "
-          break;
-        case "NOT_AUTHORIZED":
-          notice = "You are not the lobby owner "
-          break;
-        default:
-        case "INTERNAL_ERROR":
-          //pass
-      }
-
-      toast.error(notice);
-
+      return
     }
+
+    toast.error(serviceResponse.errorMessage);
 
   }
 
   const promotePlayer = async function() {
 
-    const response = await fetch("/api/lobby/"+props.lobby.id+"/promote/"+props.player.id, {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
+    let serviceResponse = await PromotePlayer(props.lobby.id,props.player.id)
 
-    const authenticateUrl = "http://localhost:8080/login"
-
-    if ( response.status == 200 && response.url != authenticateUrl ) {
-
+    if ( serviceResponse.success ) {
       revalidator.revalidate();
-
-    } else if ( response.url == authenticateUrl) {
-
-      toast.error("Authentication Error...");
-
-    } else {
-    
-      const content  = await response.json();
-
-      console.log(`unable to promote player because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "NOT_IN_LOBBY":
-          notice = " Kick target is not in lobby "
-          break;
-        case "NOT_AUTHORIZED":
-          notice = "You are not the lobby owner "
-          break;
-        default:
-        case "INTERNAL_ERROR":
-          //pass
-      }
-
-      toast.error(notice);
-
+      return
     }
+
+    toast.error(serviceResponse.errorMessage);
 
   }
 

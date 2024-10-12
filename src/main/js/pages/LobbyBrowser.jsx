@@ -2,99 +2,44 @@ import React from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import { Table, Container, Text, Button, Center, Flex } from '@mantine/core';
+
+import { CreateLobby, JoinLobby, GetLobbies } from "/src/main/js/services/LobbyService.ts";
+
 import styles from './LobbyBrowser.module.css';
 
 export async function loader({ params }) {
-  const lobbiesResponse = await fetch("/api/lobby/view/lobby");
-  const lobbies = await lobbiesResponse.json()
-  console.log('loaded lobbies', lobbies)
-  return { lobbies };
+  let serviceResponse = await GetLobbies();
+  let lobbies = serviceResponse.data
+  return { lobbies }
 }
 
 export default function Lobbies() {
+
   const { lobbies } = useLoaderData();
   const { userInfo } = useRouteLoaderData("root");
   const navigate = useNavigate();
 
   let joinLobby = async function (lobbyId) {
-
-    const response = await fetch("/api/lobby/" + lobbyId + "/join", {
-      method: "POST",
-      headers: {},
-      body: null
-    });
-    console.log('received lobby info: ', await response.json())
-
-    if (response.status == 200) {
-      navigate("/lobby/" + lobbyId + "/");
-    } else {
-      const content = response.json()
-      console.log(`unable to join lobby because : ${content.message}`)
-      let notice = content.status + " : Unknown error"
-
-      switch (content.message) {
-        case "LOBBY_IS_FULL":
-          notice = " Unable to join lobby because it is full"
-          break;
-        case "LOBBY_IS_PRIVATE":
-          notice = " Unable to join lobby because it is private"
-          break;
-        case "ALREADY_IN_LOBBY":
-          navigate("/lobby/" + lobbyId);
-          return;
-        case "INTERNAL_ERROR":
-        default:
-        //pass
-      }
-
-      toast.error(notice);
-
+    let serviceResponse = await JoinLobby(lobbyId);
+    if ( !serviceResponse.success ) {
+      toast.error(serviceResponse.errorMessage)
+      return
     }
-
+    navigate("/lobby/"+lobbyId)
   }
 
   let createLobby = async function () {
-
-    console.log("creating lobby")
-
-    const response = await fetch("/api/lobby/create", {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
-
-    const content = await response.json();
-
-    if (response.status == 201) {
-
-      console.log(content)
-
-      navigate("/lobby/" + content.id);
-
-    } else {
-
-      console.log(`unable to create lobby because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch (content.message) {
-        case "INTERNAL_ERROR":
-        default:
-        //pass
-      }
-
-      toast.error(notice);
-
+    let serviceResponse = await CreateLobby()
+    if ( !serviceResponse.success ) {
+      toast.error("unable to create lobby");
+      return
     }
-
-
+    navigate("/lobby/" + serviceResponse.data)
   }
 
   if (!lobbies) {
-    return (<><div>no lobbies</div></>)
+    return (<></>)
   }
 
   const rows = lobbies.map((lobby) => (

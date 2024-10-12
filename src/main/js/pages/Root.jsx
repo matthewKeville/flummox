@@ -6,7 +6,8 @@ import Header from "/src/main/js/components/header/Header.jsx"
 import { GetUserInfo } from "/src/main/js/services/UserService.ts"
 
 export async function loader({ params }) {
-  var userInfo = await GetUserInfo()
+  var UserInfoResponse = await GetUserInfo()
+  var userInfo = UserInfoResponse.data
   return { userInfo }
 }
 

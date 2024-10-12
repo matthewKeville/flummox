@@ -8,6 +8,10 @@ export default function AccountControls() {
   
   const { userInfo } = useLoaderData();
 
+  if (userInfo == null) {
+    return <></>
+  }
+
   return (
     <Menu position='bottom-end'>
       <Menu.Target>

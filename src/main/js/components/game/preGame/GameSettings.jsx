@@ -2,10 +2,11 @@ import React, { useState, useRef } from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 import { toast } from 'react-toastify';
 
+import { UpdateLobby } from "/src/main/js/services/LobbyService.ts";
+
 export default function GameSettings({lobby}) {
 
   const { userInfo } = useRouteLoaderData("root");
-
   const [edit, setEdit]    = useState(false)
   const editNameRef = useRef(null)
   const editCapacityRef = useRef(null)
@@ -15,11 +16,6 @@ export default function GameSettings({lobby}) {
   const editTileRotationRef = useRef(null)
   const editFindRuleRef = useRef(null)
   const editDurationRef = useRef(null)
-
-  // Don't render if API error
-  if (lobby == null) {
-    return
-  }
 
   const isOwner = (lobby.owner.id == userInfo.id);
 
@@ -88,55 +84,22 @@ export default function GameSettings({lobby}) {
       lobbyUpdate.gameSettings = newGameSettings
     }
 
-    console.log(JSON.stringify(lobbyUpdate,null,2))
+    //here
+    let serviceResponse = await UpdateLobby(lobby.id,lobbyUpdate);
 
-    const response = await fetch("/api/lobby/"+lobby.id+"/update", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(lobbyUpdate)
-    });
-
-    const authenticateUrl = "http://localhost:8080/login"
-
-    if ( response.status == 200 && response.url != authenticateUrl ) {
-
-      setEdit(!edit)
-      toast.success("Updated");
-
-    } else if ( response.url == authenticateUrl ) {
-
-      toast.error("Authentication Error...");
-
-    } else {
-    
-      const content  = await response.json();
-
-      console.log(`unable to update lobby because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "CAPACITY_SHORTENING_CONFLICT":
-          notice = "Can't shorten lobby beyond current player count."
-          break;
-        /* Anyone who is not the lobby owner should never see this page,
-            is there any point handling this response? */
-        case "NOT_AUTHORIZED":
-          notice = "This is not your lobby to update."
-          break;
-        case "INTERNAL_ERROR":
-        default:
-          //pass
-      }
-
-      toast.error(notice);
-
+    if ( !serviceResponse.success ) {
+      toast.error(serviceResponse.errorMessage);
+      return
     }
+
+    setEdit(!edit)
+    toast.success("Updated");
 
   }
 
+  if (lobby == null) {
+    return
+  }
 
   return (
 

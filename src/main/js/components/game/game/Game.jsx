@@ -6,6 +6,9 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/game/game/WordInput.jsx"
 
+import { GetGameUserInfo, PostGameAnswer } from "/src/main/js/services/GameService.ts"
+
+
 export async function loader({ params }) {
   const lobbyId = params.lobbyId
   return { lobbyId };
@@ -13,26 +16,33 @@ export async function loader({ params }) {
 
 export default function Game({ lobby, onGameEnd }) {
 
+  async function onSubmitAnswer(word) {
+
+    var serviceResponse = await PostGameAnswer(lobby.gameId,{ answerText : word })
+    var gameAnswerResult = serviceResponse.data
+
+    if ( gameAnswerResult.success) {
+      toast.success(gameAnswerResult.successMessage)
+    } else {
+      toast.error(gameAnswerResult.failMessage);
+    }
+
+  }
+
   const [game, setGame] = useState(null)
 
   useEffect(() => {
 
-    console.log("in game use effect ")
+    // Data Fetch
 
-    const fetchInitialGame = async () => {
-
-      const response = await fetch("/api/game/" + lobby.gameId + "/view/user");
-      let initialGame = await response.json()
-
-      console.log("loaded inital game")
-      console.log(initialGame)
-
-      setGame(initialGame)
+    const fetchData = async () => {
+      var serviceResponse = await GetGameUserInfo(lobby.gameId)
+      setGame(serviceResponse.data)
     }
+    fetchData()
 
-    fetchInitialGame()
+    // SSE
 
-    console.log("setting up game source")
     const evtSource = new EventSource("/api/game/" + lobby.gameId + "/view/user/sse")
 
     evtSource.addEventListener("game_change", (e) => {
@@ -49,59 +59,8 @@ export default function Game({ lobby, onGameEnd }) {
 
   }, []);
 
-  //  We need useEffect to load inital data ...
-  if (lobby == null) {
-    return
-  }
-
-  async function onSubmitAnswer(word) {
-
-    let answerBody = {}
-    answerBody.answer = word
-
-    const response = await fetch("/api/game/" + lobby.gameId + "/answer", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(answerBody)
-    });
-
-    if (response.status == 200) {
-
-      toast.success("nice");
-
-    } else {
-
-      const content = await response.json();
-      console.log(`unable to update lobby because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch (content.message) {
-        //case "": //already found
-        //case "": //not found
-        case "INVALID_ANSWER":
-          notice = " nope ."
-          break;
-        case "ANSWER_ALREADY_FOUND":
-          notice = " word already found ..."
-          break;
-        case "GAME_OVER":
-          notice = " game is over ... "
-          break;
-        case "INTERNAL_ERROR":
-        default:
-        //pass
-      }
-
-      toast.error(notice);
-
-    }
-  }
-
-  if (game == null) {
-    return
+  if (lobby == null || game == null) {
+    return <></>
   }
 
   return (
@@ -125,8 +84,6 @@ export default function Game({ lobby, onGameEnd }) {
       </div>
 
     </div>
-
-
 
   );
 

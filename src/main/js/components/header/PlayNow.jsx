@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate, useLoaderData } from 'react-router-dom';
+import { CreateLobby } from '/src/main/js/services/LobbyService.ts'
 
-import styles from './PlayNow.module.css'
+import { toast } from 'react-toastify';
 
 export default function PlayNow() {
 
@@ -10,45 +11,20 @@ export default function PlayNow() {
 
   async function createOrReturnToLobby() { 
 
-    console.log("returning to lobby")
+    console.log("lobbyId " + userInfo.lobbyId)
 
     if ( userInfo.lobbyId != -1 ) {
       navigate("/lobby/" + userInfo.lobbyId);
       return;
     }
 
-    console.log("creating new lobby")
-
-    const response = await fetch("/api/lobby/create", {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
-
-    const content  = await response.json();
-
-    if ( response.status == 201 ) {
-
-      console.log(content)
-      navigate("/lobby/" + content.id);
-
-    } else {
-
-      console.log(`unable to create lobby because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "INTERNAL_ERROR":
-        default:
-          //pass
-      }
-
-      toast.error(notice);
-
+    let serviceResponse = await CreateLobby()
+    if ( !serviceResponse.success ) {
+      toast.error("unable to create lobby");
+      return
     }
-
+    
+    navigate("/lobby/" + serviceResponse.data)
 
   }
 

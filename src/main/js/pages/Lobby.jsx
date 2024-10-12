@@ -5,6 +5,8 @@ import PreGame from "/src/main/js/components/game/preGame/PreGame.jsx";
 import Game from "/src/main/js/components/game/game/Game.jsx";
 import PostGame from "/src/main/js/components/game/postgame/PostGame.jsx";
 
+import { GetLobbyViewData } from "/src/main/js/services/LobbyService.ts";
+
 export async function loader({params}) {
   console.log("loading lobby " + params.lobbyId)
   return params.lobbyId
@@ -22,14 +24,6 @@ export default function Lobby() {
   async function onGameEnd() {
     setPrevGameExists(true)
     setLobbyState("postgame");
-  }
-
-  async function fetchLobbyData() {
-    console.log("loading lobby " + lobbyId + " data")
-    const response = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
-    let lobbyData = await response.json()
-    console.log(lobbyData)
-    return lobbyData
   }
 
   function computeLobbyState(initialLobby) {
@@ -53,15 +47,25 @@ export default function Lobby() {
 
   useEffect(() => {
 
+    // Data Fetch
+
+    // this really should be a dataloader ...
     let loadInitialLobby = async () => {
-      let data = await fetchLobbyData()
-      console.log("response in loadInitialLobby " + JSON.stringify(data))
-      computeLobbyState(data)
-      setLobby(data)
+      
+      let serviceResponse = await GetLobbyViewData(lobbyId)
+      let lobbyData = serviceResponse.data
+
+      console.log("lobby data")
+      console.log(lobbyData)
+      
+      computeLobbyState(lobbyData)
+      setLobby(lobbyData)
+
     }
     loadInitialLobby()
 
-    console.log("setting up lobby source")
+    // SSE
+
     const evtSource = new EventSource("/api/lobby/"+lobbyId+"/view/lobby/sse")
 
     evtSource.addEventListener("lobby_change", (e) => {
@@ -81,8 +85,7 @@ export default function Lobby() {
 
 
   if (lobby == null || lobbyState == null) {
-    console.log("lobby : " + lobby + " lobbyState : " + lobbyState)
-    return null
+    return (<></>)
   }
 
   if ( lobbyState == "pregame" ) {
@@ -110,13 +113,7 @@ export default function Lobby() {
     )
 
   } else {
-
-    return (
-      <>
-        <div style={{color: "red"}}> Oops </div>
-      </>
-    )
-
+    return (<></>)
   }
 
 }

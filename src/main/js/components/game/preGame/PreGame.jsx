@@ -1,172 +1,87 @@
 import React from 'react';
-import {  useRouteLoaderData, useNavigate } from "react-router-dom";
+import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 import PlayerList from "/src/main/js/components/game/preGame/PlayerList.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
 import LobbyChat from "/src/main/js/components/game/preGame/LobbyChat.jsx";
 
+import { GetInviteLink, StartLobby, LeaveLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
+import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
+
 export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
 
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
   const { userInfo } = useRouteLoaderData("root");
-
-  // Don't render if API error
-  if (lobby == null) {
-    return
-  }
 
   const isOwner = (lobby.owner.id == userInfo.id);
 
-  // TODO when http is exchanged for https
-  // modern clipboard access is through the navigator api,
-  // but it requires https, this is a hack sourced from
-  // https://stackoverflow.com/questions/72237719/not-being-able-to-copy-url-to-clipboard-without-adding-the-protocol-https
-  function unsecuredCopyToClipboard(text) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-            document.execCommand('copy');
-          } catch (err) {
-                console.error('Unable to copy to clipboard', err);
-              }
-      document.body.removeChild(textArea);
-  }
-
   let leaveLobby = async function(lobbyId) {
 
-    console.log("leaving lobby")
+    let serviceResponse = await LeaveLobby(lobbyId);
 
-    const response = await fetch("/api/lobby/"+lobbyId+"/leave", {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
-
-    if ( response.status == 200 ) {
-
+    if ( serviceResponse.success ) {
+      revalidator.revalidate()
       navigate("/lobby");
+      return
+    } 
 
-    } else {
-    
-      const content  = await response.json();
-      console.log(`unable to leave lobby because : ${content.message}`)
-      let notice = content.status + " : Unknown error"
+    toast.error(serviceResponse.errorMessage);
 
-      switch(content.message) {
-        case "INTERNAL_ERROR":
-        default:
-          //pass
-      }
-
-      toast.error(notice);
-
-    }
   }
 
   let copyInviteLink = async function() {
 
-    console.log("fetching invite link")
+    let serviceResponse = await GetInviteLink()
 
-    const response = await fetch("/api/lobby/invite", {
-      method: "GET",
-      headers: {},
-      body: null
-    });
+    if ( !serviceResponse.success ) {
 
-    if ( response.status == 200 ) {
-      var lobbyInviteLink = await response.text()
-      console.log("lobby invite link is " + lobbyInviteLink)
-      unsecuredCopyToClipboard(lobbyInviteLink)
-      toast.info("Invite Copied To Clipboard")
+      toast.error(serviceResponse.errorMessage);
+      return;
+
     } else {
-    
-      const content  = await response.json();
-      console.log(`error getting invite link ${content.message}`)
-      let notice = content.status + " : Unknown error"
 
-      switch(content.message) {
-        default:
-          notice = "unknown error occurred"
-      }
-
-      toast.error(notice);
+      var lobbyInviteLink = serviceResponse.data
+      CopyToClipboardInsecure(lobbyInviteLink)
+      toast.info("Invite Copied To Clipboard")
 
     }
   }
 
   let deleteLobby = async function(lobbyId) {
 
-      console.log("deleting lobby")
+    let serviceResponse = await DeleteLobby(lobbyId)
 
-      const response = await fetch("/api/lobby/"+lobbyId, {
-        method: "DELETE",
-        body: null
-      });
+    if ( !serviceResponse.success ) {
 
-      if ( response.status == 200 ) {
-
-        navigate("/lobby");
-        toast.info(`${lobby.name} has been successfully deleted`);
-
-      } else {
-      
-        const content  = await response.json();
-        console.log(`unable to delete lobby because : ${content.message}`)
-        let notice = content.status + " : Unknown error"
-
-        switch(content.message) {
-          case "INTERNAL_ERROR":
-          default:
-            //pass
-        }
-
-        toast.error(notice);
-
-      }
-    }
-
-  async function onStartGame() {
-
-    const response = await fetch("/api/lobby/"+lobby.id+"/start", {
-      method: "POST",
-      headers: {
-      },
-      body: null
-    });
-
-    if ( response.status == 200 ) {
+      toast.error(serviceResponse.errorMessage);
+      return;
 
     } else {
-    
-      const content  = await response.json();
 
-      console.log(`unable to start game because : ${content.message}`)
-
-      let notice = content.status + " : Unknown error"
-
-      switch(content.message) {
-        case "INTERNAL_ERROR":
-        default:
-          //pass
-      }
-
-      toast.error(notice);
+      revalidator.revalidate()
+      navigate("/lobby")
 
     }
   }
 
+  let startLobby = async function(lobbyId) {
+
+    let serviceResponse = await StartLobby(lobbyId)
+
+    if ( !serviceResponse.success ) {
+      toast.error(serviceResponse.errorMessage);
+      return;
+    } 
+  }
+
   if ( !lobby ) {
-    return (<><div>no lobby data</div></>)
+    return (<></>)
   }
 
   return (
     <>
-
 
     <div className="lobby-grid pre-game-grid-template">
 
@@ -184,7 +99,7 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
         </div>
         <div className="pre-game-grid-user-actions">
           { isOwner &&
-            <button className="basic-button" onClick={onStartGame}>Start</button> 
+            <button className="basic-button" onClick={() => startLobby(lobby.id)}>Start</button> 
           }
           {
             playedPrev &&

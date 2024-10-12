@@ -5,17 +5,23 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
 import Scoreboard from "/src/main/js/components/game/postgame/Scoreboard.jsx";
 
+import { GetGameSummary } from "/src/main/js/services/GameService.ts";
+
 export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
   const { userInfo } = useRouteLoaderData("root");
   const [gameSummary,setGameSummary] = useState(null)
 
   async function fetchGameSummary() {
-    console.log("loading user game summary for game " + lobby.gameId + " for user " + userInfo.id )
-    const userGameSummaryResponse = await fetch("/api/game/"+lobby.gameId+"/view/user/summary");
-    let gameSummaryJson = await userGameSummaryResponse.json();
-    setGameSummary(gameSummaryJson);
-    console.log(gameSummaryJson)
+
+    let serviceResponse = await GetGameSummary(lobby.gameId);
+
+    if ( !serviceResponse.success ) {
+      toast.error(serviceResponse.errorMessage);
+      return;
+    }
+
+    setGameSummary(serviceResponse.data);
   }
 
   useEffect(() => {
