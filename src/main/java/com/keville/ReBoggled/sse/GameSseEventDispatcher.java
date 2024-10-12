@@ -13,12 +13,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.keville.ReBoggled.DTO.GameUserViewDTO;
 import com.keville.ReBoggled.model.game.Game;
+import com.keville.ReBoggled.DTO.GameUserSummaryDTO;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
-import com.keville.ReBoggled.service.view.GameViewService;
-import com.keville.ReBoggled.service.view.GameViewServiceException;
 
 @Component
 public class GameSseEventDispatcher extends SseEventDispatcher {
@@ -27,12 +25,9 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
 
     private Map<Integer,Map<Integer,SseEmitter>> gameEmitters = new HashMap<Integer,Map<Integer,SseEmitter>>();
     private GameService gameService;
-    private GameViewService gameViewService;
 
-    public GameSseEventDispatcher(@Autowired GameService gameService,
-        @Autowired GameViewService  gameViewService) {
+    public GameSseEventDispatcher(@Autowired GameService gameService) {
       this.gameService = gameService;
-      this.gameViewService = gameViewService;
     }
 
     public void register(Integer gameId,Integer userId,SseEmitter emitter) {
@@ -104,7 +99,7 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
       for ( Entry<Integer,SseEmitter> entry : emitters.entrySet() ) {
         try { 
 
-          GameUserViewDTO gameView = gameViewService.getGameUserViewDTO(game.id,entry.getKey());
+          GameUserSummaryDTO gameView = gameService.getGameUserSummary(game.id,entry.getKey());
           SseEventBuilder updateEventBuilder = SseEmitter.event()
             .id(String.valueOf(game.id))
             .name("game_change")
@@ -113,7 +108,7 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
           String failMessage = "Couldn't send game_change for game : " + game.id + " for user " + entry.getKey();
           tryEmitEvent(entry.getValue(),updateEventBuilder,failMessage);
 
-        } catch (GameViewServiceException | GameServiceException e) {
+        } catch (GameServiceException e) {
           LOG.error(String.format("unable to create SSEs for game %d 's update event for user %d",game.id,entry.getKey()));
           LOG.error(e.getMessage());
         }

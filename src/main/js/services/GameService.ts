@@ -8,13 +8,13 @@ interface GameAnswerResult {
   failMessage?: string
 }
 
-export async function GetGameSummary(gameId: number) : Promise<ServiceResponse<any>> {
+export async function GetPostGameUserSummary(gameId: number) : Promise<ServiceResponse<any>> {
 
-  const response = await fetch("/api/game/" + gameId + "/view/user/summary");
+  const response = await fetch("/api/game/" + gameId + "/summary/post");
   let content = await response.json()
 
   if (response.status == 200 || response != null) {
-    console.log('GetGameSummary success')
+    console.log('GetPostGameSummary success')
     return {
       data: content,
       success:  true,
@@ -23,23 +23,23 @@ export async function GetGameSummary(gameId: number) : Promise<ServiceResponse<a
   }
 
   else {
-    console.log('GetGameSummary failed')
+    console.log('GetPostGameSummary failed')
     return {
       data: undefined,
       success:  false,
-      errorMessage: "GetGameSummary failed"
+      errorMessage: "unable to get Post Game Summary"
     }
   }
 
 }
 
-export async function GetGameUserInfo(gameId: number) : Promise<ServiceResponse<any>> {
+export async function GetGameUserSummary(gameId: number) : Promise<ServiceResponse<any>> {
 
-  const response = await fetch("/api/game/" + gameId + "/view/user");
+  const response = await fetch("/api/game/" + gameId + "/summary");
   let content = await response.json()
 
   if (response.status == 200 || response != null) {
-    console.log('GameUserInfo loaded')
+    console.log('GetGameUserSummary success')
     return {
       data: content,
       success:  true,
@@ -48,11 +48,11 @@ export async function GetGameUserInfo(gameId: number) : Promise<ServiceResponse<
   }
 
   else {
-    console.log('GameUserInfo failed to load')
+    console.log('GetGameUserSummary failed')
     return {
       data: undefined,
       success:  false,
-      errorMessage: "UserService : GetUserInfo failed"
+      errorMessage: "unable to get Game Summary"
     }
   }
 

@@ -6,7 +6,7 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/game/game/WordInput.jsx"
 
-import { GetGameUserInfo, PostGameAnswer } from "/src/main/js/services/GameService.ts"
+import { GetGameUserSummary, PostGameAnswer } from "/src/main/js/services/GameService.ts"
 
 
 export async function loader({ params }) {
@@ -36,14 +36,15 @@ export default function Game({ lobby, onGameEnd }) {
     // Data Fetch
 
     const fetchData = async () => {
-      var serviceResponse = await GetGameUserInfo(lobby.gameId)
+      var serviceResponse = await GetGameUserSummary(lobby.gameId)
+      console.log(serviceResponse.data)
       setGame(serviceResponse.data)
     }
     fetchData()
 
     // SSE
 
-    const evtSource = new EventSource("/api/game/" + lobby.gameId + "/view/user/sse")
+    const evtSource = new EventSource("/api/game/" + lobby.gameId + "/summary/sse")
 
     evtSource.addEventListener("game_change", (e) => {
       console.log("game change recieved");

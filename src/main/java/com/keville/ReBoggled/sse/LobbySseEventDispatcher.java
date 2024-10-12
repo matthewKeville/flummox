@@ -15,11 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.keville.ReBoggled.DTO.LobbyViewDTO;
+import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
-import com.keville.ReBoggled.service.view.LobbyViewService;
-import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
+import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 
 @Component
 public class LobbySseEventDispatcher extends SseEventDispatcher {
@@ -29,11 +28,9 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
     private Map<Integer,Lobby> lobbyCache = new HashMap<Integer,Lobby>();
 
     private LobbyService lobbyService;
-    private LobbyViewService lobbyViewService;
 
-    public LobbySseEventDispatcher(@Autowired LobbyService lobbyService,@Autowired LobbyViewService lobbyViewService) {
+    public LobbySseEventDispatcher(@Autowired LobbyService lobbyService) {
       this.lobbyService = lobbyService;
-      this.lobbyViewService = lobbyViewService;
     }
 
     public void unregister(Integer lobbyId,SseEmitter emitter) {
@@ -105,17 +102,17 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
     try {
 
-      LobbyViewDTO lobbyView = lobbyViewService.getLobbyViewDTO(lobby.id);
+      LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(lobby.id);
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(lobby.id))
         .name("lobby_change")
-        .data(lobbyView);
+        .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + lobby.id;
       tryEmitEvents(emitters, updateEventBuilder, failMessage);
 
-    } catch (LobbyViewServiceException e) {
+    } catch (LobbyServiceException e) {
       LOG.error(String.format("unable to create SSEs for lobby %d 's update event",lobby.id));
       LOG.error(e.getMessage());
     }

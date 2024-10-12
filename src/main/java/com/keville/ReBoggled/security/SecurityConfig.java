@@ -34,9 +34,9 @@ public class SecurityConfig {
     MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
 
     return http
+
       .csrf(csrf -> csrf.disable())
 
-      // h2-console sends X-Frame-Options Deny
       .headers( headers -> headers
           .frameOptions().sameOrigin()
       )
@@ -47,15 +47,13 @@ public class SecurityConfig {
           .successHandler( authenticationSuccessHandler )
       )
 
-      //invalid user session when /logout
       .logout((logout) -> logout.permitAll())
 
       .authorizeHttpRequests( request -> request
 
-        .requestMatchers(mvcMatcherBuilder.pattern("/h2-console/*")).permitAll()
+        //pages & resources
 
         .requestMatchers(mvcMatcherBuilder.pattern("/built/bundle.js")).permitAll()
-        /* long term, these things should be bundled */
         .requestMatchers(mvcMatcherBuilder.pattern("/css/style.css")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/css/buttons.css")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/favicon.ico")).permitAll()
@@ -65,38 +63,39 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern("/icons/user-profile-black-full-trans.png")).permitAll()
 
         .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/error")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/login")).permitAll()
-
         .requestMatchers(mvcMatcherBuilder.pattern("/signup")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/register")).permitAll()
-
-        .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
-
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/join")).permitAll() //follow invite link
 
+        //api
+
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
+
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/view/lobby")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/view/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/view/lobby/sse")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/invite")).permitAll() //get invite link
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/create")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/update")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.DELETE, "/api/lobby/*")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/update")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/start")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/kick/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/promote/*")).permitAll()
 
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/summary")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary/sse")).permitAll()
+
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/view/user/sse")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/view/user")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/view/user/summary")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary/post")).permitAll()
 
         .anyRequest().authenticated()
 

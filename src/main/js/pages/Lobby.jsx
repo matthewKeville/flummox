@@ -5,7 +5,7 @@ import PreGame from "/src/main/js/components/game/preGame/PreGame.jsx";
 import Game from "/src/main/js/components/game/game/Game.jsx";
 import PostGame from "/src/main/js/components/game/postgame/PostGame.jsx";
 
-import { GetLobbyViewData } from "/src/main/js/services/LobbyService.ts";
+import { GetLobbySummary } from "/src/main/js/services/LobbyService.ts";
 
 export async function loader({params}) {
   console.log("loading lobby " + params.lobbyId)
@@ -52,7 +52,7 @@ export default function Lobby() {
     // this really should be a dataloader ...
     let loadInitialLobby = async () => {
       
-      let serviceResponse = await GetLobbyViewData(lobbyId)
+      let serviceResponse = await GetLobbySummary(lobbyId)
       let lobbyData = serviceResponse.data
 
       console.log("lobby data")
@@ -66,7 +66,7 @@ export default function Lobby() {
 
     // SSE
 
-    const evtSource = new EventSource("/api/lobby/"+lobbyId+"/view/lobby/sse")
+    const evtSource = new EventSource("/api/lobby/"+lobbyId+"/summary/sse")
 
     evtSource.addEventListener("lobby_change", (e) => {
       console.log("lobby change recieved");

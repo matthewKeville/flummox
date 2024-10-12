@@ -5,7 +5,7 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
 import Scoreboard from "/src/main/js/components/game/postgame/Scoreboard.jsx";
 
-import { GetGameSummary } from "/src/main/js/services/GameService.ts";
+import { GetPostGameUserSummary } from "/src/main/js/services/GameService.ts";
 
 export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
@@ -14,7 +14,7 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
   async function fetchGameSummary() {
 
-    let serviceResponse = await GetGameSummary(lobby.gameId);
+    let serviceResponse = await GetPostGameUserSummary(lobby.gameId);
 
     if ( !serviceResponse.success ) {
       toast.error(serviceResponse.errorMessage);

@@ -1,8 +1,10 @@
 package com.keville.ReBoggled.service.lobbyService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
+import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 
@@ -37,5 +39,13 @@ public interface LobbyService {
     public Lobby startGame(Integer lobbyId) throws LobbyServiceException;
 
     public boolean exists (Integer lobbyId);
+
+    /*
+    public List<LobbySummaryDTO> getLobbySummaryDTOs() throws LobbyViewServiceException;
+    public LobbySummaryDTO getLobbySummaryDTO(int id) throws LobbyViewServiceException;
+    private LobbySummaryDTO createLobbySummaryDTO(Lobby lobby) throws LobbyViewServiceException;
+    */
+    public List<LobbySummaryDTO> getLobbySummaryDTOs() throws LobbyServiceException;
+    public LobbySummaryDTO getLobbySummaryDTO(int id) throws LobbyServiceException;
 
 }

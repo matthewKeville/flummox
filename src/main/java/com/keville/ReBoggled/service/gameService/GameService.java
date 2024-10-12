@@ -1,8 +1,9 @@
 package com.keville.ReBoggled.service.gameService;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
+import com.keville.ReBoggled.DTO.GameUserSummaryDTO;
+import com.keville.ReBoggled.DTO.PostGameUserSummaryDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.lobby.Lobby;
 
@@ -19,5 +20,9 @@ public interface GameService {
     public Game addGameAnswer(Integer gameId, Integer userId, String answer) throws GameServiceException;
 
     public boolean isOutdated(Integer gameId,LocalDateTime lastTime) throws GameServiceException;
+
+    public GameUserSummaryDTO getGameUserSummary(Integer gameId,Integer userId) throws GameServiceException;
+
+    public PostGameUserSummaryDTO getPostGameUserSummary(Integer gameId,Integer userId) throws GameServiceException;
 
 }

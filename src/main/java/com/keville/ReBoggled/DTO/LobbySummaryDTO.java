@@ -6,7 +6,7 @@ import java.util.List;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 
-public class LobbyViewDTO {
+public class LobbySummaryDTO {
 
     //Lobby Locals
     public Integer id;
@@ -25,7 +25,7 @@ public class LobbyViewDTO {
     public LobbyUserDTO owner;
     public List<LobbyUserDTO> users;
 
-    public LobbyViewDTO(Lobby lobby) {
+    public LobbySummaryDTO(Lobby lobby) {
       this.id = lobby.id;
       this.name = lobby.name;
       this.capacity = lobby.capacity;

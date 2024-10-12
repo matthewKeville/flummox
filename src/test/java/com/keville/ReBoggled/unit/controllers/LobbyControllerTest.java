@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
-import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
@@ -36,7 +35,6 @@ import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
 import com.keville.ReBoggled.service.userService.UserService;
-import com.keville.ReBoggled.service.view.LobbyViewService;
 import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 
 // Note @WebMvcTest can be used to get smaller slices of the context, but it proved to be a headache.
@@ -51,8 +49,6 @@ public class LobbyControllerTest {
   private UserService userService;
   @MockBean
   private LobbyService lobbyService;
-  @MockBean
-  private LobbyViewService lobbyViewService;
 
   @MockBean
   private LobbyRepository lobbies;

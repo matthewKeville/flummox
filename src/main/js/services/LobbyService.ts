@@ -46,13 +46,13 @@ export async function UpdateLobby(lobbyId: number,lobbyUpdate: any) : Promise<Se
 
 }
 
-export async function GetLobbyViewData(lobbyId: number) : Promise<ServiceResponse<any>> {
-  const response = await fetch("/api/lobby/"+lobbyId+"/view/lobby");
+export async function GetLobbySummary(lobbyId: number) : Promise<ServiceResponse<any>> {
+  const response = await fetch("/api/lobby/"+lobbyId+"/summary");
   let content = await response.json()
 
   if ( response.status == 200 ) {
 
-    console.log("GetLobbyViewData success")
+    console.log("GetLobbySummary success")
     console.log(content)
     return {
       data: content,
@@ -62,8 +62,8 @@ export async function GetLobbyViewData(lobbyId: number) : Promise<ServiceRespons
 
   } else {
 
-    console.log("GetLobbyViewData failed")
-    let errorMessage = "Unable to get lobby view data because server error"
+    console.log("GetLobbySummary failed")
+    let errorMessage = "Unable to get lobby summary because server error"
 
     return {
       data: undefined,
@@ -73,14 +73,14 @@ export async function GetLobbyViewData(lobbyId: number) : Promise<ServiceRespons
   }
 }
 
-export async function GetLobbies() : Promise<ServiceResponse<Array<any>>> {
+export async function GetLobbySummaries() : Promise<ServiceResponse<Array<any>>> {
 
-  const response = await fetch("/api/lobby/view/lobby");
+  const response = await fetch("/api/lobby/summary")
   const content = await response.json()
 
   if ( response.status == 200 ) {
 
-    console.log("GetLobbies success")
+    console.log("GetLobbySummaries success")
     return {
       data: content,
       success: true,
@@ -89,8 +89,8 @@ export async function GetLobbies() : Promise<ServiceResponse<Array<any>>> {
 
   } else {
 
-    console.log("GetLobbies failed")
-    let errorMessage = "Unable to get lobby list because server error"
+    console.log("GetLobbySummaries failed")
+    let errorMessage = "Unable to get lobby summaries because server error";
 
     return {
       data: undefined,

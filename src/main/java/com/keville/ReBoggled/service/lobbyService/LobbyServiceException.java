@@ -17,6 +17,7 @@ package com.keville.ReBoggled.service.lobbyService;
         SUCCESS,
         ERROR,              //internal
         LOBBY_NOT_FOUND,
+        GAME_NOT_FOUND,
         USER_NOT_FOUND,
         LOBBY_FULL,
         LOBBY_PRIVATE,

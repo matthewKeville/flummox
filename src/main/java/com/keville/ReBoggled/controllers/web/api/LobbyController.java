@@ -23,8 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
+import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
-import com.keville.ReBoggled.DTO.LobbyViewDTO;
 import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
@@ -32,8 +32,6 @@ import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.userService.UserService;
-import com.keville.ReBoggled.service.view.LobbyViewService;
-import com.keville.ReBoggled.service.view.LobbyViewService.LobbyViewServiceException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -48,17 +46,14 @@ public class LobbyController {
   private LobbyService lobbyService;
   private UserService userService;
 
-  private LobbyViewService lobbyViewService;
   private LobbySseEventDispatcher lobbySseEventDispatcher;
 
   public LobbyController(@Autowired LobbyService lobbyService,
       @Autowired UserService userService,
-      @Autowired LobbyViewService lobbyViewService,
       @Autowired LobbySseEventDispatcher lobbySseEventDispatcher) {
 
     this.lobbyService = lobbyService;
     this.userService = userService;
-    this.lobbyViewService = lobbyViewService;
     this.lobbySseEventDispatcher = lobbySseEventDispatcher;
   }
 
@@ -88,12 +83,12 @@ public class LobbyController {
 
   }
 
-  @GetMapping("/{id}/view/lobby/sse")
+  @GetMapping("/{id}/summary/sse")
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    logReq("get","/"+id+"/view/lobby/sse");
+    logReq("get","/"+id+"/summary/sse");
 
     //assemble emitter
 
@@ -104,11 +99,8 @@ public class LobbyController {
       lobbySseEventDispatcher.unregister(id,emitter);
     };
 
-    //shouldn't happen : see cons
-    //emitter.onTimeout(    ()    -> LOG.info(id+"/view/lobby/sse timed out"));
-
     emitter.onError(      (ex)  -> {
-      LOG.info(id+"/view/lobby/sse error ");
+      LOG.info(id+"/summary/sse error ");
       if ( ex instanceof IOException ) {
         LOG.info("IOException caught, likely client destroyed event source ...");
         LOG.info(ex.getMessage());
@@ -119,7 +111,7 @@ public class LobbyController {
       cleanup.run();
     });
     emitter.onCompletion( ()    -> {
-      LOG.info(id+"/view/lobby/sse completed");
+      LOG.info(id+"/summary/sse completed");
       cleanup.run();
     });
 
@@ -131,33 +123,33 @@ public class LobbyController {
 
   }
 
-  @GetMapping("/view/lobby")
+  @GetMapping("/summary")
   public ResponseEntity<?> getLobbyViews(HttpSession session,
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly
       ) {
 
-    logReq("get","/view/lobby");
+    logReq("get","/summary");
 
     try { 
-    Iterable<LobbyViewDTO> lobbies = lobbyViewService.getLobbyViewDTOs();
-    return new ResponseEntity<Iterable<LobbyViewDTO>>(lobbies,HttpStatus.OK);
-    } catch (LobbyViewServiceException e) {
-      return handleLobbyViewServiceException(e);
+    Iterable<LobbySummaryDTO> lobbies = lobbyService.getLobbySummaryDTOs();
+    return new ResponseEntity<Iterable<LobbySummaryDTO>>(lobbies,HttpStatus.OK);
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
     }
 
   }
 
-  @GetMapping("/{id}/view/lobby")
+  @GetMapping("/{id}/summary")
   public ResponseEntity<?> getLobbyView(@PathVariable("id") Integer id,
       HttpSession session) {
 
-    logReq("get",id+"/view/lobby");
+    logReq("get",id+"/summary");
 
     try { 
-      LobbyViewDTO lobby = lobbyViewService.getLobbyViewDTO(id);
-      return new ResponseEntity<LobbyViewDTO>(lobby,HttpStatus.OK);
-    } catch (LobbyViewServiceException e) {
-      return handleLobbyViewServiceException(e);
+      LobbySummaryDTO lobby = lobbyService.getLobbySummaryDTO(id);
+      return new ResponseEntity<LobbySummaryDTO>(lobby,HttpStatus.OK);
+    } catch (LobbyServiceException e) {
+      return handleLobbyServiceException(e);
     }
 
   }
@@ -409,18 +401,6 @@ public class LobbyController {
       default:
         LOG.error("unexpected Lobby Service Error : " + e.getMessage());
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-    }
-
-  }
-
-  public ResponseEntity<?> handleLobbyViewServiceException(LobbyViewServiceException e) {
-
-    switch (e.error) {
-      case USER_NOT_FOUND:
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND");
-      case LOBBY_NOT_FOUND:
-      default:
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "LOBBY_NOT_FOUND");
     }
 
   }

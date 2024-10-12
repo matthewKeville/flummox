@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
+import com.keville.ReBoggled.DTO.LobbyUserDTO;
+import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
@@ -19,9 +21,13 @@ import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
+import com.keville.ReBoggled.util.Conversions;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class DefaultLobbyService implements LobbyService {
@@ -315,6 +321,76 @@ public class DefaultLobbyService implements LobbyService {
 
     public boolean exists (Integer lobbyId) {
       return lobbies.existsById(lobbyId);
+    }
+
+    public List<LobbySummaryDTO> getLobbySummaryDTOs() throws LobbyServiceException {
+
+      Iterable<Lobby> allLobbies = lobbies.findAll();
+      List<LobbySummaryDTO> allLobbiesList = new LinkedList<LobbySummaryDTO>();
+
+      for ( Lobby lobby : allLobbies ) {
+        allLobbiesList.add(createLobbySummaryDTO(lobby));
+      }
+      return allLobbiesList;
+    }
+
+    public LobbySummaryDTO getLobbySummaryDTO(int id) throws LobbyServiceException {
+      Optional<Lobby> optLobby = lobbies.findById(id);
+      if (optLobby.isEmpty()) {
+        throw new LobbyServiceException(LobbyServiceError.LOBBY_NOT_FOUND);
+      }
+      return createLobbySummaryDTO(optLobby.get());
+    }
+
+    /* FIXME : To be replaced by a dedicated query method in LobbyRepository */
+    private LobbySummaryDTO createLobbySummaryDTO(Lobby lobby) throws LobbyServiceException {
+
+      LobbySummaryDTO lobbyDto = new LobbySummaryDTO(lobby);
+
+      // join users
+
+      Optional<User> ownerOpt = users.findById(lobby.owner.getId());
+      if ( ownerOpt.isEmpty() ) {
+        throw new LobbyServiceException(LobbyServiceError.USER_NOT_FOUND);
+      }
+      User owner = ownerOpt.get();
+
+      List<Integer> userIds = lobby.users.stream()
+        .map( x -> x.user.getId() )
+        .collect(Collectors.toList());
+
+      Iterable<User> lobbyUsers =  users.findAllById(userIds);
+      List<User> lobbyUsersList = Conversions.iterableToList(lobbyUsers);
+
+      List<LobbyUserDTO> userDtos = lobbyUsersList.stream().
+        map( x -> new LobbyUserDTO(x))
+        .collect(Collectors.toList());
+
+      lobbyDto.owner = new LobbyUserDTO(owner);
+      lobbyDto.users = userDtos;
+
+      // join game
+
+      if ( lobby.game != null ) {
+
+        Optional<Game> gameOpt = games.findById(lobby.game.getId());
+
+        if ( gameOpt.isEmpty() ) {
+          throw new LobbyServiceException(LobbyServiceError.GAME_NOT_FOUND);
+        }
+
+        Game game = gameOpt.get();
+
+        lobbyDto.gameStart = game.start;
+        lobbyDto.gameEnd = game.end;
+        lobbyDto.gameId = game.id;
+
+        LOG.info("assigned game attribs ");
+
+      }
+
+      return lobbyDto;
+
     }
 
     private Lobby findLobbyById(Integer lobbyId) throws LobbyServiceException {

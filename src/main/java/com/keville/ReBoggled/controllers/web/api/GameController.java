@@ -17,15 +17,13 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
-import com.keville.ReBoggled.DTO.GameUserViewDTO;
-import com.keville.ReBoggled.DTO.PostGameUserViewDTO;
+import com.keville.ReBoggled.DTO.GameUserSummaryDTO;
+import com.keville.ReBoggled.DTO.PostGameUserSummaryDTO;
 import com.keville.ReBoggled.sse.GameSseEventDispatcher;
 import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
-import com.keville.ReBoggled.service.view.GameViewService;
-import com.keville.ReBoggled.service.view.GameViewServiceException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -39,14 +37,11 @@ public class GameController {
   private RequestLogger rlog = new RequestLogger(baseRoute,LOG);
 
   private GameService gameService;
-  private GameViewService gameViewService;
   private GameSseEventDispatcher gameSseEventDispatcher;
 
   public GameController(@Autowired GameService gameService,
-      @Autowired GameViewService gameViewService, 
       @Autowired GameSseEventDispatcher gameSseEventDispatcher) {
     this.gameService = gameService;
-    this.gameViewService = gameViewService;
     this.gameSseEventDispatcher = gameSseEventDispatcher;
   }
 
@@ -76,26 +71,6 @@ public class GameController {
 
   }
 
-  @GetMapping("/{id}/view/user/summary")
-  public ResponseEntity<?> getUserViewSummary(@PathVariable("id") Integer id,
-      HttpSession session) {
-
-    logReq("get",id+"/view/user/summary");
-
-    Integer userId = (Integer) session.getAttribute("userId");
-    if (userId == null) {
-      LOG.warn("unable to identify the userId of the current Session");
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-    }
-
-    try { 
-      PostGameUserViewDTO postGameViewDTO = gameViewService.getPostGameUserViewDTO(id, userId);
-      return new ResponseEntity<PostGameUserViewDTO>(postGameViewDTO,HttpStatus.OK);
-    } catch (GameServiceException e) {
-      return handleGameServiceException(e);
-    }
-
-  }
 
   @PostMapping("/{id}/answer")
   public ResponseEntity<?> answer (
@@ -122,6 +97,7 @@ public class GameController {
 
   }
 
+  /*
   @GetMapping("/{id}/view/user")
   public ResponseEntity<?> getUserView (
       @PathVariable("id") Integer id,
@@ -145,10 +121,77 @@ public class GameController {
     }
     
   }
+  */
+
+  @GetMapping("/{id}/summary")
+  public ResponseEntity<?> getGameUserSummary (
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    logReq("get","/"+id+"/summary");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    try {  
+      GameUserSummaryDTO gameUserSummaryDTO = gameService.getGameUserSummary(id, userId);
+      return new ResponseEntity<GameUserSummaryDTO>(gameUserSummaryDTO,HttpStatus.OK);
+    } catch (GameServiceException e) {
+      return handleGameServiceException(e);
+    }
+    
+  }
+
+  @GetMapping("/{id}/summary/post")
+  public ResponseEntity<?> getPostGameUserSummary(@PathVariable("id") Integer id,
+      HttpSession session) {
+
+    logReq("get",id+"/view/user/summary");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    try { 
+      PostGameUserSummaryDTO postGameUserSummaryDTO = gameService.getPostGameUserSummary(id, userId);
+      return new ResponseEntity<PostGameUserSummaryDTO>(postGameUserSummaryDTO,HttpStatus.OK);
+    } catch (GameServiceException e) {
+      return handleGameServiceException(e);
+    }
+
+  }
+
+  /*
+  @GetMapping("/{id}/view/user/summary")
+  public ResponseEntity<?> getUserViewSummary(@PathVariable("id") Integer id,
+      HttpSession session) {
+
+    logReq("get",id+"/view/user/summary");
+
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
+      LOG.warn("unable to identify the userId of the current Session");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
+    }
+
+    try { 
+      PostGameUserViewDTO postGameViewDTO = gameViewService.getPostGameUserViewDTO(id, userId);
+      return new ResponseEntity<PostGameUserViewDTO>(postGameViewDTO,HttpStatus.OK);
+    } catch (GameServiceException e) {
+      return handleGameServiceException(e);
+    }
+
+  }
+  */
 
   /* Register a Server Side Event Emitter to communicate changes to the game model for
    * the user registered. (In-Game) */
-  @GetMapping("/{id}/view/user/sse")
+  @GetMapping("/{id}/summary/sse")
   public SseEmitter getGameSSEForUser (
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
@@ -205,16 +248,6 @@ public class GameController {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "ANSWER_ALREADY_FOUND");
       case GAME_OVER:
         throw new ResponseStatusException(HttpStatus.CONFLICT, "GAME_OVER");
-      case ERROR:
-      default:
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-    }
-
-  }
-
-  public ResponseEntity<?> handleGameViewServiceException(GameViewServiceException e) {
-
-    switch (e.error) {
       case ERROR:
       default:
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
