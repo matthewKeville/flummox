@@ -1,10 +1,10 @@
 import React from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { Grid,Container,Button,Group } from '@mantine/core';
 
-import PlayerList from "/src/main/js/components/game/preGame/PlayerList.jsx";
+import PlayerList from "/src/main/js/components/game/preGame/playerList/PlayerList.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
-import LobbyChat from "/src/main/js/components/game/preGame/LobbyChat.jsx";
 
 import { GetInviteLink, StartLobby, LeaveLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
@@ -83,44 +83,52 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
   return (
     <>
 
-    <div className="lobby-grid pre-game-grid-template">
+      <Container>
+        <h3 style={{ textAlign: "center" }}>Welcome to {lobby.name}</h3>
+      </Container>
 
-      <div className="pre-game-grid-banner">
-        <h3 className="lobby-welcome-header">Welcome to <span id="lobby-name-span">{lobby.name}</span></h3>
-      </div>
+      <Grid justify="center">
 
-      <div className="pre-game-grid-player-list ">
-        <PlayerList lobby={lobby}/>
-      </div>
+        <Grid.Col span={2}>
+          <Group justify="center">
+            <PlayerList lobby={lobby}/>
+          </Group>
+        </Grid.Col>
 
-      <div className="pre-game-grid-lobby-chat-and-user-actions-grid">
-        <div className="pre-game-grid-chat">
-          <LobbyChat lobby={lobby}/>
-        </div>
-        <div className="pre-game-grid-user-actions">
-          { isOwner &&
-            <button className="basic-button" onClick={() => startLobby(lobby.id)}>Start</button> 
-          }
-          {
-            playedPrev &&
-              <button className="tertiary-button" onClick={onReturnToPostGame}>Last</button>
-          }
-          { <button className="basic-button" onClick={() => copyInviteLink()}>Invite</button> }
-          { isOwner ? 
-            <button className="danger-button" onClick={() => deleteLobby(lobby.id)} >Delete</button>
-            :
-            <button className="alternate-button" onClick={() => leaveLobby(lobby.id)} >Leave</button>
-          }
-        </div>
-      </div>
+        <Grid.Col span={8}>
 
-      <div className="pre-game-grid-game-settings ">
-        <GameSettings lobby={lobby}/>
-      </div>
+          <Group justify="center">
 
-    </div>
+            <Button.Group>
+            { isOwner &&
+              <Button color="green" onClick={() => startLobby(lobby.id)}>Start</Button> 
+            }
 
+            { playedPrev &&
+                <Button color="grape" onClick={onReturnToPostGame}>Last</Button>
+            }
+
+            { <Button color="orange" onClick={() => copyInviteLink()}>Invite</Button> }
+
+            { isOwner ? 
+              <Button color="red" onClick={() => deleteLobby(lobby.id)} >Delete</Button>
+              :
+              <Button color="red" onClick={() => leaveLobby(lobby.id)} >Leave</Button>
+            }
+            </Button.Group>
+        
+          </Group>
+
+        </Grid.Col>
+
+        <Grid.Col span={2}>
+          <Group justify="center">
+            <GameSettings lobby={lobby}/>
+          </Group>
+        </Grid.Col>
+
+      </Grid>
     </>
-  );
+  )
 
 }

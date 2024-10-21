@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { Stack, Group, Text, Button, NumberInput, TextInput, Switch, NativeSelect, Grid, ActionIcon } from "@mantine/core";
+import { IconAdjustments } from "@tabler/icons-react";
 
 import { UpdateLobby } from "/src/main/js/services/LobbyService.ts";
 
@@ -24,7 +26,6 @@ export default function GameSettings({lobby}) {
   }
 
   function onDiscardSettingsChanges() {
-    console.log("discarding settings changes")
     setEdit(!edit)
   }
 
@@ -34,57 +35,48 @@ export default function GameSettings({lobby}) {
 
     let lobbyUpdate = {}
 
-    let newName = editNameRef.current.value 
-    if ( newName != lobby.name ) {
-      lobbyUpdate.name = newName
+    if ( editNameRef.current.value  != lobby.name ) {
+      lobbyUpdate.name = editNameRef.current.value 
     }
 
-    let newCapacity = editCapacityRef.current.value 
-    if ( newCapacity != lobby.capacity ) {
-      lobbyUpdate.capacity = newCapacity
+    if ( editCapacityRef.current.value  != lobby.capacity ) {
+      lobbyUpdate.capacity = editCapacityRef.current.value 
     }
 
-    let newIsPrivate = editIsPrivateRef.current.checked
-    if ( newIsPrivate != lobby.isPrivate ) {
-      lobbyUpdate.isPrivate = newIsPrivate
+    if ( editIsPrivateRef.current.checked != lobby.isPrivate ) {
+      lobbyUpdate.isPrivate = editIsPrivateRef.current.checked
     }
 
     let newGameSettings = {}
 
     //Board Settings
 
-    let newBoardSize = editBoardSizeRef.current.value;
-    if ( newBoardSize != lobby.gameSettings.boardSize ) {
-      newGameSettings.boardSize = newBoardSize
+    if ( editBoardSizeRef.current.value != lobby.gameSettings.boardSize ) {
+      newGameSettings.boardSize = editBoardSizeRef.current.value;
     }
 
-    let newBoardTopology = editBoardTopologyRef.current.value;
-    if ( newBoardTopology != lobby.gameSettings.boardTopology ) {
-      newGameSettings.boardTopology = newBoardTopology
+    if ( editBoardTopologyRef.current.value != lobby.gameSettings.boardTopology ) {
+      newGameSettings.boardTopology = editBoardTopologyRef.current.value;
     }
 
-    let newTileRotation = editTileRotationRef.current.checked
-    if ( newTileRotation != lobby.gameSettings.tileRotation ) {
-      newGameSettings.tileRotation = newTileRotation
+    if ( editTileRotationRef.current.checked != lobby.gameSettings.tileRotation ) {
+      newGameSettings.tileRotation = editTileRotationRef.current.checked
     }
 
     //Game Settings
 
-    let newFindRule = editFindRuleRef.current.value;
-    if ( newFindRule != lobby.gameSettings.findRule ) {
-      newGameSettings.findRule = newFindRule
+    if ( editFindRuleRef.current.value != lobby.gameSettings.findRule ) {
+      newGameSettings.findRule = editFindRuleRef.current.value;
     }
 
-    let newDuration = editDurationRef.current.value;
-    if ( newDuration != lobby.gameSettings.duration ) {
-      newGameSettings.duration = newDuration
+    if ( editDurationRef.current.value != lobby.gameSettings.duration ) {
+      newGameSettings.duration = editDurationRef.current.value;
     }
 
     if (newGameSettings != {}) {
       lobbyUpdate.gameSettings = newGameSettings
     }
 
-    //here
     let serviceResponse = await UpdateLobby(lobby.id,lobbyUpdate);
 
     if ( !serviceResponse.success ) {
@@ -106,72 +98,131 @@ export default function GameSettings({lobby}) {
     <>
       { edit ? 
         ( 
-          <div className="game-settings-grid thick-blue-border">
+          <Stack>
 
-            <div className="settings-grid-label">Name</div>
-            <input ref={editNameRef} type="text" defaultValue={lobby.name}/>
+            <Text >Name</Text>
+            <TextInput ref={editNameRef} type="text" defaultValue={lobby.name}/>
 
-            <div className="settings-grid-label">Capacity</div>
-            <input ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
+            <Text >Capacity</Text>
+            <NumberInput ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
 
-            <div className="settings-grid-label">Private</div>
-            <input ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
+            <Text >Private</Text>
+            <Switch ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
           
-            <div className="settings-grid-label">Size</div>
-            <select ref={editBoardSizeRef} name="size" defaultValue={lobby.gameSettings.boardSize}>
-              <option value="FOUR">4 x 4</option>
-              <option value="FIVE">5 x 5</option>
-              <option value="SIX">6 x 6</option>
-            </select>
+            <Text >Size</Text>
 
-            <div className="settings-grid-label">Topology</div>
-            <select ref={editBoardTopologyRef} name="topology" checked={lobby.gameSettings.boardTopology}>
-              <option value="PLANE">Plane</option>
-              <option value="CYLINDER">Cylinder (H)</option>
-              <option value="CYLINDER_ALT">Cylinder (V)</option>
-              <option value="TORUS">Torus</option>
-            </select>
+            <NativeSelect ref={editBoardSizeRef} checked={lobby.gameSettings.boardSize}
+              data={[
+                { label: "4x4", value: "FOUR" },
+                { label: "5x5", value: "FIVE" },
+                { label: "6x6", value: "SIX"  }
+              ]}
+            />
 
-            <div className="settings-grid-label">Tile Rotation</div>
-            <input ref={editTileRotationRef} type="checkbox" defaultChecked={lobby.gameSettings.tileRotation} />
+            <Text >Topology</Text>
+            <NativeSelect ref={editBoardTopologyRef} checked={lobby.gameSettings.boardTopology}
+              data={[
+                { label: "Plane", value: "PLANE" },
+                { label: "Cylinder Horizontal", value: "CYLINDER" },
+                { label: "Cylinder Vertical", value: "CYLINDER_ALT"  },
+                { label: "Torus", value: "TORUS"  }
+              ]}
+            />
+
+            <Text >Tile Rotation</Text>
+            <Switch ref={editTileRotationRef} defaultChecked={lobby.gameSettings.tileRotation}/>
+            
              
-            <div className="settings-grid-label">Find Rule</div>
-            <select ref={editFindRuleRef} name="find" defaultValue={lobby.gameSettings.findRule}>
-              <option value="ANY">Any</option>
-              <option value="UNIQUE">Unique</option>
-              <option value="FIRST">First</option>
-            </select>
+            <Text >Find Rule</Text>
+            <NativeSelect ref={editFindRuleRef} checked={lobby.gameSettings.findRule}
+              data={[
+                { label: "Any", value: "ANY" },
+                { label: "Unique", value: "UNIQUE" },
+                { label: "First", value: "FIRST"  },
+              ]}
+            />
 
-            <div className="settings-grid-label">Time Limit</div>
-            <input ref={editDurationRef} type="number" name="time" min="30" max="300" step="30" defaultValue={lobby.gameSettings.duration}/>
+            <Text >Time Limit</Text>
+            <NumberInput ref={editDurationRef} min={30} max={300} step={30} defaultValue={lobby.gameSettings.duration}
+            />
 
-            <button id="save-settings-button" className="basic-button" onClick={onApplySettingsChanges}>Save</button>
-            <button id="discard-settings-button" className="alternate-button" onClick={onDiscardSettingsChanges}>Discard</button>
+            <Button onClick={onApplySettingsChanges}>Save</Button>
+            <Button onClick={onDiscardSettingsChanges}>Discard</Button>
 
-          </div>
+          </Stack>
 
         ) 
         : 
         (
-          <div className="game-settings-grid thick-blue-border">
-            <div className="settings-grid-lobby-name">{lobby.name}</div>
-            <div className="settings-grid-label">Capacity</div><div className="settings-grid-value">{lobby.capacity}</div>
-            <div className="settings-grid-label">Visibility</div><div className="settings-grid-value">{lobby.isPrivate ? "private" : "public"}</div>
-            <div className="settings-grid-label">Size</div><div className="settings-grid-value">{lobby.gameSettings.boardSize}</div>
-            <div className="settings-grid-label">Topology</div><div className="settings-grid-value">{lobby.gameSettings.boardTopology}</div>
-            <div className="settings-grid-label">Tile Rotation</div><div className="settings-grid-value">{lobby.gameSettings.tileRotation ? "enabled" : "disabled"}</div>
-            <div className="settings-grid-label">Find Rule</div><div className="settings-grid-value">{lobby.gameSettings.findRule}</div>
-            <div className="settings-grid-label">Time Limit</div><div className="settings-grid-value">{lobby.gameSettings.duration}</div>
-            { isOwner ?
-              (
-                <>
-                <button id="edit-settings-button" className="basic-button" onClick={onChangeSettings}>Edit</button>
-                </>
-              ) 
-              :
-              (<></>)
-            }
-          </div>
+          <>
+
+            <Stack align="center">
+
+              <Grid justify="center">
+
+                <Grid.Col span={8}>
+                  <Text>Capacity</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                   <Text c="orange.6">{lobby.capacity}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Visibility</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.isPrivate ? "private" : "public"}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Size</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.gameSettings.boardSize.toLowerCase()}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Topology</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.gameSettings.boardTopology}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Tile Rotation</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.gameSettings.tileRotation ? "enabled" : "disabled"}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Find Rule</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.gameSettings.findRule.toLowerCase()}</Text>
+                </Grid.Col>
+
+                <Grid.Col span={8}>
+                  <Text>Time Limit</Text>
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Text c="orange.6">{lobby.gameSettings.duration}</Text>
+                </Grid.Col>
+
+                { isOwner &&
+                  <Grid.Col span={4} offset={8}>
+                    <ActionIcon onClick={onChangeSettings} variant="filled" color="grape" aria-label="Settings">
+                      <IconAdjustments style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                    </ActionIcon>
+                  </Grid.Col>
+                }
+
+              </Grid>
+
+
+            </Stack>
+
+          </>
         )
       }
     </>

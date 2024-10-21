@@ -26,6 +26,8 @@ export default function Root() {
   return ( 
     <AppShell
       header={{ height: 60}}
+      pl = "20%"
+      pr = "20%"
       navbar={{
         width: 200,
         breakpoint: 'sm',
@@ -34,7 +36,7 @@ export default function Root() {
       }}
     >
 
-     <AppShell.Header>
+      <AppShell.Header>
         <Header navbarIsOpen={!hideNavBar} navbarOnClick={toggle}/>
       </AppShell.Header>
 

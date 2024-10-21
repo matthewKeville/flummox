@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 
-import LobbyUserDisplay from "/src/main/js/components/game/preGame/LobbyUserDisplay.jsx";
+import LobbyUserDisplay from "/src/main/js/components/game/preGame/playerList/LobbyUserDisplay.jsx";
 
 export default function PlayerList({lobby}) {
 
@@ -24,7 +24,7 @@ export default function PlayerList({lobby}) {
 
   return (
 
-    <div className="players-flex thick-blue-border">
+    <>
       {
         lobby.users.map( (player) => {
           return (
@@ -39,7 +39,7 @@ export default function PlayerList({lobby}) {
           )
         })
       }
-    </div>
+    </>
   )
 
 }
