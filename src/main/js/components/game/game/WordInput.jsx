@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TextInput } from "@mantine/core";
 
 export default function WordInput({onWordInput}) {
 
@@ -13,8 +14,6 @@ export default function WordInput({onWordInput}) {
     }
   }
   return (
-    <div className="word-input-container">
-      <input className="word-input" type="text" value={text} onChange={e => setText(e.target.value)} onKeyDown={processKeyDown} />
-    </div>
+    <TextInput value={text} onChange={e => setText(e.target.value)} onKeyDown={processKeyDown}/>
   )
 }

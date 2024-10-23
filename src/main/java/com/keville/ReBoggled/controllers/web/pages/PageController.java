@@ -10,7 +10,7 @@ public class PageController {
 
   private static final Logger LOG = LoggerFactory.getLogger(PageController.class);
 
-  @GetMapping(value = { "/",  "/lobby",  "lobby/{lobbyId}", "/join"})
+  @GetMapping(value = { "/",  "/lobby",  "/lobby/{lobbyId}", "/join"})
   public String lobby() {
     return "main";
   }

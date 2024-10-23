@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
+import { Stack } from '@mantine/core';
 
 import Board from "/src/main/js/components/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
@@ -39,26 +40,12 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
 
   return (
 
-    <div className="lobby-grid post-game-grid-template">
-
-      <div className="post-game-grid-scoreboard">
-        <Scoreboard lobby={lobby} scoreboard={gameSummary.scoreboard}/>
-      </div>
-
-      <div className="game-grid-board">
-        <Board dice={gameSummary.gameViewDTO.tiles} />
-      </div>
-
-      <div className="post-game-grid-exit">
-  -     <button className="basic-button" onClick={onReturnToLobby}>Lobby</button>
-      </div>
-
-      <div className="game-grid-answer-display">
-        <AllAnswerDisplay words={gameSummary.words}/>
-      </div>
-
-    </div>
-
+    <Stack align="center" justify="center" mt="2%"> 
+     {/*<Scoreboard lobby={lobby} scoreboard={gameSummary.scoreboard}/>*/}
+      <Board dice={gameSummary.gameViewDTO.tiles} />
+-     <button className="basic-button" onClick={onReturnToLobby}>Lobby</button>
+      <AllAnswerDisplay words={gameSummary.words}/>
+    </Stack>
 
   );
 

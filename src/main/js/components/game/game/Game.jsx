@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { Stack } from "@mantine/core";
 
 import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
 import Board from "/src/main/js/components/game/Board.jsx";
@@ -7,7 +8,6 @@ import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDispl
 import WordInput from "/src/main/js/components/game/game/WordInput.jsx"
 
 import { GetGameUserSummary, PostGameAnswer } from "/src/main/js/services/GameService.ts"
-
 
 export async function loader({ params }) {
   const lobbyId = params.lobbyId
@@ -65,26 +65,12 @@ export default function Game({ lobby, onGameEnd }) {
   }
 
   return (
-
-    <div className="lobby-grid game-grid-template">
-
-      <div className="game-grid-timer">
+      <Stack align="center" justify="center" mt="2%"> 
         <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd} />
-      </div>
-
-      <div className="game-grid-board">
         <Board dice={game.gameViewDTO.tiles} />
-      </div>
-
-      <div className="game-grid-word-input">
         <WordInput onWordInput={onSubmitAnswer} />
-      </div>
-
-      <div className="game-grid-answer-display">
         <UserAnswerDisplay words={game.answers} />
-      </div>
-
-    </div>
+      </Stack>
 
   );
 

@@ -57,11 +57,12 @@ export default function Lobbies() {
 
   return (
     <Container className={styles.container}>
+
       <Text className={styles.caption}>
         Lobbies
       </Text>
 
-      <Table miw={700} className={styles.table}>
+      <Table className={styles.table}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Lobby</Table.Th>
@@ -83,6 +84,7 @@ export default function Lobbies() {
           }
         </Table.Tbody>
       </Table>
+
     </Container>
   );
 

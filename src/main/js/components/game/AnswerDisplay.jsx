@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text, Group, Stack } from "@mantine/core";
 
 /* this component expects a different  data structure depending on the 
   * value of postGame, as of right now postGame requires a word.found value */
@@ -27,33 +28,30 @@ export default function AnswerDisplay({words,onWordClick,postGame}) {
 
   function answerToDisplay(word,postGame) {
 
-    let classes = ""
+    let fg="black"
+    let decoration="none"
+
     if ( postGame ) {
-
       if ( word.found ) {
-
-        classes = "word"
-
-        if (!word.counted) {
-          classes = classes + " crossed-word"
+        if (word.counted) {
+          fg="black"
+        } else {
+          decoration="line-through"
+          fg="blue"
         }
-
       } else {
-
-        classes = "missed-word"
-
+        fg="grey"
       }
-
     } else {
-      classes = "word"
+      fg="black"
     }
 
-    return (<div key={word.word} className={classes}>{word.word}</div>)
+    return (<Text c={fg} td={decoration} key={word.word}>{word.word}</Text>)
 
   }
 
 
-  function createColumnGroups(words,sizeClass,postGame) {
+  function createColumnGroup(words,postGame) {
 
     let found = [];
     let missed = [];
@@ -73,51 +71,25 @@ export default function AnswerDisplay({words,onWordClick,postGame}) {
     /* potentially confusing reusing the parameter */
     words = found.concat(missed)
 
-    const maxWords = 16
-    let column = 0
-    
-    let columns = []
-    while ( column * maxWords < words.length ) {
-
-      let a = maxWords * column
-      let b = Math.min( a + maxWords , words.length )
-      let columnWords = words.slice(a,b)
-
-      columns.push(
-        <div className="word-column-flex">
-          {columnWords.map( w => answerToDisplay(w,postGame))}
-        </div>
-      )
-
-      column++
-
-    }
-
-    return columns
+    return (
+      <Stack justify="flex-start" align="flex-start">
+        {words.map( w => answerToDisplay(w,postGame))}
+      </Stack>
+    )
 
   }
 
   return (
-    <div className="word-column-group-flex-container">
-      <div className="word-column-group-flex word-group-three">
-        {createColumnGroups(wordsBySize.get(3),3,postGame)}
-      </div>
-      <div className="word-column-group-flex word-group-four">
-        {createColumnGroups(wordsBySize.get(4),4,postGame)}
-      </div>
-      <div className="word-column-group-flex word-group-five">
-        {createColumnGroups(wordsBySize.get(5),5,postGame)}
-      </div>
-      <div className="word-column-group-flex word-group-six">
-        {createColumnGroups(wordsBySize.get(6),6,postGame)}
-      </div>
-      <div className="word-column-group-flex word-group-seven">
-        {createColumnGroups(wordsBySize.get(7),7,postGame)}
-      </div>
-      <div className="word-column-group-flex word-group-eight">
-        {createColumnGroups(wordsBySize.get(8),8,postGame)}
-      </div>
-    </div>
+    <>
+      <Group justify="flex-start" align="flex-start">
+        {createColumnGroup(wordsBySize.get(3),3,postGame)}
+        {createColumnGroup(wordsBySize.get(4),4,postGame)}
+        {createColumnGroup(wordsBySize.get(5),5,postGame)}
+        {createColumnGroup(wordsBySize.get(6),6,postGame)}
+        {createColumnGroup(wordsBySize.get(7),7,postGame)}
+        {createColumnGroup(wordsBySize.get(8),8,postGame)}
+      </Group>
+    </>
   );
 
 

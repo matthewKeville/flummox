@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Text, Center } from '@mantine/core';
 
 export default function GameTimer({gameEnd,onGameEnd}) {
 
@@ -36,12 +37,26 @@ export default function GameTimer({gameEnd,onGameEnd}) {
     }
   }, []);
 
+  /* 
+    * todo pass total game time into this component to calculate percentage
+    * breakpoints for time color shifts
+    */
+
+  let minutes = Math.floor(time/60);
+  let seconds = time - (60*minutes)
+  let color = seconds < 10 ? "red" : "yellow"
 
   return ( 
+
+    /* i'm bothered by this not being exactly centered*/
+
     <>
-      <div className="game-timer-div">
-        <span className="game-timer-span">{time}</span>
-      </div>
+      <Center>
+        { ( minutes > 0 ) ?
+          <Text c="black" size="1.5rem">{`${minutes} : ${seconds.toString().padStart(2,0)}`}</Text> :
+          <Text c={color} size="1.5rem">{`${seconds.toString()}`}</Text>
+        }
+      </Center>
     </>
   )
 }

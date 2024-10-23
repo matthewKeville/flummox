@@ -1,7 +1,7 @@
 import React from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Grid,Container,Button,Group } from '@mantine/core';
+import { Grid,Container,Button,Group,Text } from '@mantine/core';
 
 import PlayerList from "/src/main/js/components/game/preGame/playerList/PlayerList.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
@@ -84,8 +84,8 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
     <>
 
       <Container>
-        <h3 style={{ textAlign: "center" }}>Welcome to {lobby.name}</h3>
-      </Container>
+
+      <Text style={{ textAlign: "center" }}>Welcome to {lobby.name}</Text>
 
       <Grid justify="center">
 
@@ -128,6 +128,8 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
         </Grid.Col>
 
       </Grid>
+
+      </Container>
     </>
   )
 
