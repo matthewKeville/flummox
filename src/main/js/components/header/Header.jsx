@@ -1,43 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Group } from '@mantine/core';
+import { Group, Stack, Grid } from '@mantine/core';
 import { Burger } from "@mantine/core";
 
 import AccountControls from '/src/main/js/components/header/AccountControls.jsx'
 import PlayNow from '/src/main/js/components/header/PlayNow.jsx'
-
-import styles from './Header.module.css'
 
 export default function Header(props) {
 
   const navigate = useNavigate();
 
   return (
-    <header className={styles.header}>
-      <Container className={styles.inner}>
+    <Stack h="100%" justify="center" mx="2%">
+      <Grid align="center">
 
-        <Group>
-          <Burger
-            opened={props.navbarIsOpen}
-            onClick={props.navbarOnClick}
-            size="sm"
-          />
-          <label style={{cursor: "pointer"}} onClick={() => navigate("/")}>ReBoggled</label>
-        </Group>
+        <Grid.Col span={3}>
+          <Group justify="center">
+            <Burger
+              opened={props.navbarIsOpen}
+              onClick={props.navbarOnClick}
+              size="sm"
+            />
+            <label style={{cursor: "pointer"}} onClick={() => navigate("/")}>ReBoggled</label>
+          </Group>
+        </Grid.Col>
 
-        <Group>
-          <PlayNow />
-        </Group>
+        <Grid.Col span={6}>
+          <Group justify="center">
+            <PlayNow />
+          </Group>
+        </Grid.Col>
 
-        <Group>
-          <AccountControls />
-        </Group>
+        <Grid.Col span={3}>
+          <Group justify="center">
+            <AccountControls />
+          </Group>
+        </Grid.Col>
 
-
-      </Container>
-    </header>
-
-
-
+      </Grid>
+    </Stack>
   )
 }
