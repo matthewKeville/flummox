@@ -6,7 +6,7 @@ import { IconAdjustments } from "@tabler/icons-react";
 
 import { UpdateLobby } from "/src/main/js/services/LobbyService.ts";
 
-export default function GameSettings({lobby}) {
+export default function GameSettings({lobby, onFinish}) {
 
   const { userInfo } = useRouteLoaderData("root");
   const [edit, setEdit]    = useState(false)
@@ -20,14 +20,6 @@ export default function GameSettings({lobby}) {
   const editDurationRef = useRef(null)
 
   const isOwner = (lobby.owner.id == userInfo.id);
-
-  function onChangeSettings() {
-    setEdit(!edit)
-  }
-
-  function onDiscardSettingsChanges() {
-    setEdit(!edit)
-  }
 
   async function onApplySettingsChanges() {
 
@@ -94,138 +86,65 @@ export default function GameSettings({lobby}) {
   }
 
   return (
+    <Stack>
 
-    <>
-      { edit ? 
-        ( 
-          <Stack>
+      <Text >Name</Text>
+      <TextInput disabled={!isOwner} ref={editNameRef} type="text" defaultValue={lobby.name}/>
 
-            <Text >Name</Text>
-            <TextInput ref={editNameRef} type="text" defaultValue={lobby.name}/>
+      <Text >Capacity</Text>
+      <NumberInput disabled={!isOwner} ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
 
-            <Text >Capacity</Text>
-            <NumberInput ref={editCapacityRef} type="number" name="capacity" min="1" max="12" defaultValue={lobby.capacity}/>
+      <Text >Private</Text>
+      <Switch disabled={!isOwner} ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
+    
+      <Text >Size</Text>
 
-            <Text >Private</Text>
-            <Switch ref={editIsPrivateRef} type="checkbox" defaultChecked={lobby.isPrivate}/>
-          
-            <Text >Size</Text>
+      <NativeSelect disabled={!isOwner} ref={editBoardSizeRef} checked={lobby.gameSettings.boardSize}
+        data={[
+          { label: "4x4", value: "FOUR" },
+          { label: "5x5", value: "FIVE" },
+          { label: "6x6", value: "SIX"  }
+        ]}
+      />
 
-            <NativeSelect ref={editBoardSizeRef} checked={lobby.gameSettings.boardSize}
-              data={[
-                { label: "4x4", value: "FOUR" },
-                { label: "5x5", value: "FIVE" },
-                { label: "6x6", value: "SIX"  }
-              ]}
-            />
+      <Text >Topology</Text>
+      <NativeSelect disabled={!isOwner} ref={editBoardTopologyRef} checked={lobby.gameSettings.boardTopology}
+        data={[
+          { label: "Plane", value: "PLANE" },
+          { label: "Cylinder Horizontal", value: "CYLINDER" },
+          { label: "Cylinder Vertical", value: "CYLINDER_ALT"  },
+          { label: "Torus", value: "TORUS"  }
+        ]}
+      />
 
-            <Text >Topology</Text>
-            <NativeSelect ref={editBoardTopologyRef} checked={lobby.gameSettings.boardTopology}
-              data={[
-                { label: "Plane", value: "PLANE" },
-                { label: "Cylinder Horizontal", value: "CYLINDER" },
-                { label: "Cylinder Vertical", value: "CYLINDER_ALT"  },
-                { label: "Torus", value: "TORUS"  }
-              ]}
-            />
+      <Text >Tile Rotation</Text>
+      <Switch disabled={!isOwner} ref={editTileRotationRef} defaultChecked={lobby.gameSettings.tileRotation}/>
+      
+       
+      <Text >Find Rule</Text>
+      <NativeSelect disabled={!isOwner} ref={editFindRuleRef} checked={lobby.gameSettings.findRule}
+        data={[
+          { label: "Any", value: "ANY" },
+          { label: "Unique", value: "UNIQUE" },
+          { label: "First", value: "FIRST"  },
+        ]}
+      />
 
-            <Text >Tile Rotation</Text>
-            <Switch ref={editTileRotationRef} defaultChecked={lobby.gameSettings.tileRotation}/>
-            
-             
-            <Text >Find Rule</Text>
-            <NativeSelect ref={editFindRuleRef} checked={lobby.gameSettings.findRule}
-              data={[
-                { label: "Any", value: "ANY" },
-                { label: "Unique", value: "UNIQUE" },
-                { label: "First", value: "FIRST"  },
-              ]}
-            />
+      <Text >Time Limit</Text>
+      <NumberInput disabled={!isOwner} ref={editDurationRef} min={30} max={300} step={30} defaultValue={lobby.gameSettings.duration}
+      />
 
-            <Text >Time Limit</Text>
-            <NumberInput ref={editDurationRef} min={30} max={300} step={30} defaultValue={lobby.gameSettings.duration}
-            />
-
-            <Button onClick={onApplySettingsChanges}>Save</Button>
-            <Button onClick={onDiscardSettingsChanges}>Discard</Button>
-
-          </Stack>
-
-        ) 
-        : 
-        (
-          <>
-
-            <Stack align="center">
-
-              <Grid justify="center">
-
-                <Grid.Col span={8}>
-                  <Text>Capacity</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                   <Text c="orange.6">{lobby.capacity}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Visibility</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.isPrivate ? "private" : "public"}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Size</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.gameSettings.boardSize.toLowerCase()}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Topology</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.gameSettings.boardTopology}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Tile Rotation</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.gameSettings.tileRotation ? "enabled" : "disabled"}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Find Rule</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.gameSettings.findRule.toLowerCase()}</Text>
-                </Grid.Col>
-
-                <Grid.Col span={8}>
-                  <Text>Time Limit</Text>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Text c="orange.6">{lobby.gameSettings.duration}</Text>
-                </Grid.Col>
-
-                { isOwner &&
-                  <Grid.Col span={4} offset={8}>
-                    <ActionIcon onClick={onChangeSettings} variant="filled" color="grape" aria-label="Settings">
-                      <IconAdjustments style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                    </ActionIcon>
-                  </Grid.Col>
-                }
-
-              </Grid>
-
-
-            </Stack>
-
-          </>
-        )
+      {isOwner
+        ?   <> 
+              <Button onClick={() => { onApplySettingsChanges(); onFinish(); }}>Save</Button>
+              <Button onClick={() => { onFinish() }}>Return</Button>
+            </>
+        :   <> 
+              <Button onClick={() => { onFinish() }}>Return</Button>
+            </>
       }
-    </>
+
+    </Stack>
   )
 
 }

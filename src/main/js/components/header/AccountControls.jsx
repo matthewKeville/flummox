@@ -1,15 +1,14 @@
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { Button, Avatar, Text, Menu } from '@mantine/core';
+import { Button, Avatar, Text, Menu, Group } from '@mantine/core';
+import { IconUserCircle } from "@tabler/icons-react";
 
 export default function AccountControls() {
   
   const { userInfo } = useLoaderData();
+  const accountIcon = <IconUserCircle/>
 
   let getActions = function() {
-  }
-
-  if (userInfo == null) {
     return userInfo.isGuest ?
       <>
         <Menu.Item leftSection="L" onClick={() => {window.location.href="/login"}}>
@@ -27,17 +26,18 @@ export default function AccountControls() {
       </>
   }
 
+  if (userInfo == null) {
+    return
+  }
+
+
   return (
     <Menu width="target" position='bottom-end'>
       <Menu.Target>
-        <Button>
-          <Text mr="4px" c="white" size="xs" fw={500}>
+        <Button w="150px" justify="space-between" rightSection={accountIcon}>
+          <Text ta="center" mr="2px" c="white" size="sm" fw={600}>
             {userInfo.username}
           </Text>
-          <Avatar
-            color="white"
-            radius="xs"
-          />
         </Button>
       </Menu.Target>
       <Menu.Dropdown>

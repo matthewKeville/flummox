@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Grid,Container,Button,Group,Text } from '@mantine/core';
+import { Stack ,Button,Group,Text,ActionIcon } from '@mantine/core';
+import { IconTrash, IconMessage, IconUserShare, IconDoorExit, IconPlayerPlay, IconAdjustments } from '@tabler/icons-react';
 
+import Chat from "/src/main/js/components/game/preGame/Chat.jsx";
 import PlayerList from "/src/main/js/components/game/preGame/playerList/PlayerList.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
 
@@ -14,8 +16,13 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const { userInfo } = useRouteLoaderData("root");
+  const [showSettings, setShowSettings]  = useState(false)
 
   const isOwner = (lobby.owner.id == userInfo.id);
+
+  let onFinishSettingsView = function() {
+    setShowSettings(false);
+  }
 
   let leaveLobby = async function(lobbyId) {
 
@@ -76,6 +83,41 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
     } 
   }
 
+  let getLobbyButtons = function() {
+
+    let buttons = []
+    buttons.push(
+      <Button color="yellow" onClick={() => copyInviteLink()}>
+        <IconUserShare/>
+      </Button>)
+    buttons.push(
+      <Button color="orange" onClick={() => {setShowSettings(true)}}>
+        <IconAdjustments/>
+      </Button>)
+
+    if (isOwner) {
+      buttons.push(
+        <Button color="green" onClick={() => startLobby(lobby.id)}>
+          <IconPlayerPlay/>
+        </Button>)
+      buttons.push(
+        <Button color="red" onClick={() => deleteLobby(lobby.id)} >
+          <IconTrash/>
+        </Button>)
+    } else {
+      buttons.push(
+        <Button color="red" onClick={() => leaveLobby(lobby.id)} >
+          <IconDoorExit/>
+        </Button>)
+    }
+
+    if (playedPrev) {
+      buttons.push(<Button color="grape" onClick={onReturnToPostGame}>Last</Button>)
+    }
+
+    return ( <Button.Group>{buttons}</Button.Group> )
+  }
+
   if ( !lobby ) {
     return (<></>)
   }
@@ -83,53 +125,21 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
   return (
     <>
 
-      <Container>
+      <Stack align="center" justify="flex-start">
 
-      <Text style={{ textAlign: "center" }}>Welcome to {lobby.name}</Text>
+        <Text style={{ textAlign: "center" }}>Welcome to {lobby.name}</Text>
 
-      <Grid justify="center">
+        {!showSettings
+          ? <Chat lobby={lobby}/> 
+          : <GameSettings lobby={lobby} onFinish={onFinishSettingsView}/>
+        }
 
-        <Grid.Col span={2}>
-          <Group justify="center">
-            <PlayerList lobby={lobby}/>
-          </Group>
-        </Grid.Col>
+        <Group justify="center">
+          {getLobbyButtons()}
+        </Group>
 
-        <Grid.Col span={8}>
+      </Stack>
 
-          <Group justify="center">
-
-            <Button.Group>
-            { isOwner &&
-              <Button color="green" onClick={() => startLobby(lobby.id)}>Start</Button> 
-            }
-
-            { playedPrev &&
-                <Button color="grape" onClick={onReturnToPostGame}>Last</Button>
-            }
-
-            { <Button color="orange" onClick={() => copyInviteLink()}>Invite</Button> }
-
-            { isOwner ? 
-              <Button color="red" onClick={() => deleteLobby(lobby.id)} >Delete</Button>
-              :
-              <Button color="red" onClick={() => leaveLobby(lobby.id)} >Leave</Button>
-            }
-            </Button.Group>
-        
-          </Group>
-
-        </Grid.Col>
-
-        <Grid.Col span={2}>
-          <Group justify="center">
-            <GameSettings lobby={lobby}/>
-          </Group>
-        </Grid.Col>
-
-      </Grid>
-
-      </Container>
     </>
   )
 

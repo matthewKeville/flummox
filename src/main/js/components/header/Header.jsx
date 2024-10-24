@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Group, Stack, Grid } from '@mantine/core';
-import { Burger } from "@mantine/core";
+import { Group, Stack, Grid, Text, Burger } from '@mantine/core';
+import { IconComet } from "@tabler/icons-react";
 
 import AccountControls from '/src/main/js/components/header/AccountControls.jsx'
 import PlayNow from '/src/main/js/components/header/PlayNow.jsx'
@@ -21,7 +21,8 @@ export default function Header(props) {
               onClick={props.navbarOnClick}
               size="sm"
             />
-            <label style={{cursor: "pointer"}} onClick={() => navigate("/")}>ReBoggled</label>
+            <Text size="xl" fw={700} style={{cursor: "pointer"}} onClick={() => navigate("/")}>flummox</Text>
+            <IconComet/>
           </Group>
         </Grid.Col>
 
