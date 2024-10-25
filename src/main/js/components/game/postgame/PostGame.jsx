@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouteLoaderData } from 'react-router-dom';
-import { Stack } from '@mantine/core';
+import { Stack, Button } from '@mantine/core';
+import { IconArrowBackUp } from "@tabler/icons-react";
 
 import Board from "/src/main/js/components/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
@@ -43,7 +44,9 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
     <Stack align="center" justify="center" mt="2%"> 
      {/*<Scoreboard lobby={lobby} scoreboard={gameSummary.scoreboard}/>*/}
       <Board dice={gameSummary.gameViewDTO.tiles} />
--     <button className="basic-button" onClick={onReturnToLobby}>Lobby</button>
+      <Button color="yellow" onClick={() => onReturnToLobby()}>
+        <IconArrowBackUp/>
+      </Button>
       <AllAnswerDisplay words={gameSummary.words}/>
     </Stack>
 

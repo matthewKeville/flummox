@@ -2,9 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useRouteLoaderData } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { Stack, Group, Text, Button, NumberInput, TextInput, Switch, NativeSelect, Grid, ActionIcon } from "@mantine/core";
-import { IconAdjustments } from "@tabler/icons-react";
 
-import { UpdateLobby } from "/src/main/js/services/LobbyService.ts";
+import { UpdateLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
 
 export default function GameSettings({lobby, onFinish}) {
 
@@ -20,6 +19,23 @@ export default function GameSettings({lobby, onFinish}) {
   const editDurationRef = useRef(null)
 
   const isOwner = (lobby.owner.id == userInfo.id);
+
+  let deleteLobby = async function(lobbyId) {
+
+    let serviceResponse = await DeleteLobby(lobbyId)
+
+    if ( !serviceResponse.success ) {
+
+      toast.error(serviceResponse.errorMessage);
+      return;
+
+    } else {
+
+      revalidator.revalidate()
+      navigate("/lobby")
+
+    }
+  }
 
   async function onApplySettingsChanges() {
 
@@ -136,8 +152,9 @@ export default function GameSettings({lobby, onFinish}) {
 
       {isOwner
         ?   <> 
-              <Button onClick={() => { onApplySettingsChanges(); onFinish(); }}>Save</Button>
-              <Button onClick={() => { onFinish() }}>Return</Button>
+              <Button color="green" onClick={() => { onApplySettingsChanges(); onFinish(); }}>Save</Button>
+              <Button color="green" variant="outline" onClick={() => { onFinish() }}>Return</Button>
+              <Button color="red" onClick={() => { deleteLobby() }}>Delete</Button>
             </>
         :   <> 
               <Button onClick={() => { onFinish() }}>Return</Button>

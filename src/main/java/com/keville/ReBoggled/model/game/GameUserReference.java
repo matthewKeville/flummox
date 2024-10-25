@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model.lobby;
+package com.keville.ReBoggled.model.game;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -6,21 +6,19 @@ import org.springframework.data.relational.core.mapping.Column;
 
 import com.keville.ReBoggled.model.user.User;
 
-public class LobbyUserReference {
+public class GameUserReference {
   
   @Id
   public Integer id;
 
-  //@Column("LOBBY_ID")
-  public AggregateReference<Lobby, Integer> lobby;
+  public AggregateReference<Game, Integer> game;
 
-  //@Column("USER_ID")
   public AggregateReference<User, Integer> user;
 
-  public LobbyUserReference(
-      AggregateReference<Lobby, Integer> lobby,
+  public GameUserReference(
+      AggregateReference<Game, Integer> game,
       AggregateReference<User, Integer> user){
-    this.lobby = lobby;
+    this.game = game;
     this.user = user;
   }
 
@@ -29,22 +27,22 @@ public class LobbyUserReference {
     if ( user.getId() == null ) {
       return 0;
     }
-    return 31 * (this.user.getId()+1) * (this.lobby.getId()+1);
+    return 31 * (this.user.getId() + 1) * (this.game.getId() + 1);
   }
 
   @Override
   public boolean equals(Object object) {
-    if ( object instanceof LobbyUserReference ) {
+    if ( object instanceof GameUserReference ) {
 
-      LobbyUserReference lobbyUserReference = (LobbyUserReference) object;
+      GameUserReference gameUserReference = (GameUserReference) object;
 
       if ( user == null ) {
-        return lobbyUserReference.user == null;
-      } else if (lobbyUserReference.user == null) {
+        return gameUserReference.user == null;
+      } else if (gameUserReference.user == null) {
         return false;
       }
 
-      return user.getId() == lobbyUserReference.user.getId();
+      return user.getId() == gameUserReference.user.getId();
     }
 
     return false;

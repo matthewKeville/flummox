@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Stack } from "@mantine/core";
+import { Stack, Group, Button } from "@mantine/core";
+import { IconArrowForwardUp } from "@tabler/icons-react";
 
 import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
 import Board from "/src/main/js/components/game/Board.jsx";
@@ -9,16 +10,13 @@ import WordInput from "/src/main/js/components/game/game/WordInput.jsx"
 
 import { GetGameUserSummary, PostGameAnswer } from "/src/main/js/services/GameService.ts"
 
-export async function loader({ params }) {
-  const lobbyId = params.lobbyId
-  return { lobbyId };
-}
+export async function loader({ params }) {}
 
-export default function Game({ lobby, onGameEnd }) {
+export default function Game({ gameId, onGameEnd }) {
 
   async function onSubmitAnswer(word) {
 
-    var serviceResponse = await PostGameAnswer(lobby.gameId,{ answerText : word })
+    var serviceResponse = await PostGameAnswer(gameId,{ answerText : word })
     var gameAnswerResult = serviceResponse.data
 
     if ( gameAnswerResult.success) {
@@ -36,7 +34,7 @@ export default function Game({ lobby, onGameEnd }) {
     // Data Fetch
 
     const fetchData = async () => {
-      var serviceResponse = await GetGameUserSummary(lobby.gameId)
+      var serviceResponse = await GetGameUserSummary(gameId)
       console.log(serviceResponse.data)
       setGame(serviceResponse.data)
     }
@@ -44,7 +42,7 @@ export default function Game({ lobby, onGameEnd }) {
 
     // SSE
 
-    const evtSource = new EventSource("/api/game/" + lobby.gameId + "/summary/sse")
+    const evtSource = new EventSource("/api/game/" + gameId + "/summary/sse")
 
     evtSource.addEventListener("game_change", (e) => {
       console.log("game change recieved");
@@ -60,15 +58,27 @@ export default function Game({ lobby, onGameEnd }) {
 
   }, []);
 
-  if (lobby == null || game == null) {
+  if (game == null) {
     return <></>
   }
 
   return (
       <Stack align="center" justify="center" mt="2%"> 
-        <GameTimer gameEnd={lobby.gameEnd} onGameEnd={onGameEnd} />
+        <GameTimer gameEnd={game.gameViewDTO.end} onGameEnd={onGameEnd} />
         <Board dice={game.gameViewDTO.tiles} />
-        <WordInput onWordInput={onSubmitAnswer} />
+        <Group> 
+          {/*
+          <Button onClick={() => {setTurn( (turn+90) % 360)}}>
+            <IconArrowForwardUp style={{transform: "rotate(-90deg)"}}/>
+          </Button>
+          */}
+          <WordInput onWordInput={onSubmitAnswer} />
+          {/*
+          <Button onClick={() => {setTurn( (turn-90) % 360)}}>
+            <IconArrowForwardUp style={{transform: "scaleX(-1) rotate(-90deg)"}}/>
+          </Button>
+          */}
+        </Group>
         <UserAnswerDisplay words={game.answers} />
       </Stack>
 

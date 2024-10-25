@@ -5,9 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
+import com.keville.ReBoggled.events.GameEndEvent;
+import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -23,7 +26,9 @@ import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
 import com.keville.ReBoggled.util.Conversions;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +44,8 @@ public class DefaultLobbyService implements LobbyService {
     private UserRepository users;
     private GameService gameService;
     private LobbyTokenService tokenService;
+    private ApplicationEventPublisher applicationEventPublisher;
+    private TaskScheduler taskScheduler;
 
     public DefaultLobbyService(
         @Autowired LobbyRepository lobbies,
@@ -46,13 +53,16 @@ public class DefaultLobbyService implements LobbyService {
         @Autowired GameRepository games,
         @Autowired GameService gameService,
         @Autowired LobbyTokenService tokenService,
-        @Autowired ApplicationEventPublisher applicationEventPublisher) {
+        @Autowired ApplicationEventPublisher applicationEventPublisher,
+        @Autowired TaskScheduler taskScheduler) {
 
       this.lobbies = lobbies;
       this.users = users;
       this.games = games;
       this.gameService = gameService;
       this.tokenService = tokenService;
+      this.applicationEventPublisher = applicationEventPublisher;
+      this.taskScheduler = taskScheduler;
     }
 
     public Iterable<Lobby> getLobbies() {
@@ -145,7 +155,7 @@ public class DefaultLobbyService implements LobbyService {
 
       // add user to new lobby
 
-      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(userId));
+      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(userId));
       lobby.users.add(userRef);
       lobby = lobbies.save(lobby);
 
@@ -280,7 +290,7 @@ public class DefaultLobbyService implements LobbyService {
       }
 
       Lobby lobby = lobbies.save(new Lobby(user.username+"\'s lobby",6,false,AggregateReference.to(userId)));
-      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(userId));
+      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(userId));
       lobby.users.add(userRef);
 
       //Set Lobby's Owner
@@ -310,6 +320,12 @@ public class DefaultLobbyService implements LobbyService {
         Game game = gameService.createGame(lobby);
         lobby.game = AggregateReference.to(game.id);
         lobbies.save(lobby);
+
+        applicationEventPublisher.publishEvent(new StartLobbyEvent(lobby.id));
+        taskScheduler.schedule(()->{
+          applicationEventPublisher.publishEvent(new GameEndEvent(lobby.id));},
+          Instant.now().plusSeconds(lobby.gameSettings.duration)
+        );
 
         return lobby;
 
@@ -342,18 +358,20 @@ public class DefaultLobbyService implements LobbyService {
       return createLobbySummaryDTO(optLobby.get());
     }
 
-    /* FIXME : To be replaced by a dedicated query method in LobbyRepository */
     private LobbySummaryDTO createLobbySummaryDTO(Lobby lobby) throws LobbyServiceException {
 
       LobbySummaryDTO lobbyDto = new LobbySummaryDTO(lobby);
-
-      // join users
 
       Optional<User> ownerOpt = users.findById(lobby.owner.getId());
       if ( ownerOpt.isEmpty() ) {
         throw new LobbyServiceException(LobbyServiceError.USER_NOT_FOUND);
       }
+
       User owner = ownerOpt.get();
+
+      lobbyDto.owner = new LobbyUserDTO(owner);
+
+      // lobby users
 
       List<Integer> userIds = lobby.users.stream()
         .map( x -> x.user.getId() )
@@ -366,10 +384,7 @@ public class DefaultLobbyService implements LobbyService {
         map( x -> new LobbyUserDTO(x))
         .collect(Collectors.toList());
 
-      lobbyDto.owner = new LobbyUserDTO(owner);
       lobbyDto.users = userDtos;
-
-      // join game
 
       if ( lobby.game != null ) {
 
@@ -378,16 +393,33 @@ public class DefaultLobbyService implements LobbyService {
         if ( gameOpt.isEmpty() ) {
           throw new LobbyServiceException(LobbyServiceError.GAME_NOT_FOUND);
         }
-
         Game game = gameOpt.get();
 
-        lobbyDto.gameStart = game.start;
-        lobbyDto.gameEnd = game.end;
+        lobbyDto.gameActive = LocalDateTime.now().isBefore(game.end);
         lobbyDto.gameId = game.id;
 
-        LOG.info("assigned game attribs ");
+        // lobby game users
+      
+        List<Integer> gameUserIds = game.users.stream()
+          .map( x -> x.user.getId() )
+          .collect(Collectors.toList());
+
+        Iterable<User> gameUsers =  users.findAllById(gameUserIds);
+        List<User> gameUserList = Conversions.iterableToList(gameUsers);
+
+        List<LobbyUserDTO> gameUserDtos = gameUserList.stream().
+          map( x -> new LobbyUserDTO(x))
+          .collect(Collectors.toList());
+
+        lobbyDto.gameUsers = gameUserDtos;
+
+      } else {
+
+        lobbyDto.gameActive = false;
+        lobbyDto.gameUsers = new ArrayList<LobbyUserDTO>();
 
       }
+
 
       return lobbyDto;
 
@@ -434,7 +466,7 @@ public class DefaultLobbyService implements LobbyService {
 
     private Optional<Lobby> removeUserFromLobby(User user,Lobby lobby) throws LobbyServiceException {
 
-      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(user.id));
+      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(user.id));
         
       if (!lobby.users.contains(userRef)) {
         LOG.warn(String.format("Can't remove user %d from lobby %d because they don't belong to it",user.id,lobby.id));

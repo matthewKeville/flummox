@@ -1,7 +1,5 @@
 package com.keville.ReBoggled.DTO;
 
-import java.util.List;
-
 import com.keville.ReBoggled.model.user.User;
 
 public class LobbyUserDTO {
@@ -12,6 +10,11 @@ public class LobbyUserDTO {
     public LobbyUserDTO(User user) {
       this.id = user.id;
       this.username = user.username;
+    }
+
+    public LobbyUserDTO(Integer id,String username) {
+      this.id = id;
+      this.username = username;
     }
 
 }

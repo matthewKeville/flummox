@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS game_answer;
 DROP TABLE IF EXISTS tile;
 DROP TABLE IF EXISTS lobby_user_reference;
+DROP TABLE IF EXISTS game_user_reference;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS lobby;
 DROP TABLE IF EXISTS game;
@@ -79,4 +80,12 @@ CREATE TABLE IF NOT EXISTS lobby_user_reference(
   UNIQUE (USER),
   CONSTRAINT fk_lobby_user_lobby_reference FOREIGN KEY(LOBBY) REFERENCES lobby(ID) on DELETE CASCADE,
   CONSTRAINT fk_lobby_user_user_reference FOREIGN KEY(USER) REFERENCES user(ID) on DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS game_user_reference(
+  ID INT AUTO_INCREMENT PRIMARY KEY,
+  USER INT,
+  GAME INT,
+  CONSTRAINT fk_game_user_game_reference FOREIGN KEY(GAME) REFERENCES game(ID) on DELETE CASCADE,
+  CONSTRAINT fk_game_user_user_reference FOREIGN KEY(USER) REFERENCES user(ID) on DELETE CASCADE
 );

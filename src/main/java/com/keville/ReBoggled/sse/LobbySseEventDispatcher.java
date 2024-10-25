@@ -1,6 +1,5 @@
 package com.keville.ReBoggled.sse;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
+import com.keville.ReBoggled.events.GameEndEvent;
+import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
@@ -117,6 +118,66 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
       LOG.error(e.getMessage());
     }
 
+  }
+
+  @EventListener
+  public void handleLobbyStart(StartLobbyEvent event) {
+
+    LOG.info(String.format("caught lobby start event lobby id %d",event.lobbyId));
+
+    if ( !lobbyEmitters.containsKey( event.lobbyId ) ) {
+      LOG.info("lobby emitters doesn't have key : " + event.lobbyId);
+      return;
+    }
+    Set<SseEmitter> emitters = lobbyEmitters.get(event.lobbyId);
+    LOG.info("found " + emitters.size() + " emitters for lobby " + event.lobbyId);
+
+    try {
+
+      LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(event.lobbyId);
+
+      SseEventBuilder updateEventBuilder = SseEmitter.event()
+        .id(String.valueOf(event.lobbyId))
+        .name("lobby_change")
+        .data(lobbySummary);
+
+      String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;
+      tryEmitEvents(emitters, updateEventBuilder, failMessage);
+
+    } catch (LobbyServiceException e) {
+      LOG.error(String.format("unable to create SSEs for lobby %d 's update event",event.lobbyId));
+      LOG.error(e.getMessage());
+    }
+  }
+
+  @EventListener
+  public void handleGameEnd(GameEndEvent event) {
+
+    LOG.info(String.format("caught game end event for lobby id %d",event.lobbyId));
+
+    if ( !lobbyEmitters.containsKey( event.lobbyId ) ) {
+      LOG.info("lobby emitters doesn't have key : " + event.lobbyId);
+      return;
+    }
+    Set<SseEmitter> emitters = lobbyEmitters.get(event.lobbyId);
+    LOG.info("found " + emitters.size() + " emitters for lobby " + event.lobbyId);
+
+    try {
+
+      LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(event.lobbyId);
+
+      SseEventBuilder updateEventBuilder = SseEmitter.event()
+        .id(String.valueOf(event.lobbyId))
+        .name("lobby_change")
+        .data(lobbySummary);
+
+      String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;
+      tryEmitEvents(emitters, updateEventBuilder, failMessage);
+
+    } catch (LobbyServiceException e) {
+      LOG.error(String.format("unable to create SSEs for lobby %d 's update event",event.lobbyId));
+      LOG.error(e.getMessage());
+    }
   }
 
 }

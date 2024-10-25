@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Stack ,Button,Group,Text,ActionIcon } from '@mantine/core';
-import { IconTrash, IconMessage, IconUserShare, IconDoorExit, IconPlayerPlay, IconAdjustments } from '@tabler/icons-react';
+import { Stack , Button, Group, Text, Tooltip } from '@mantine/core';
+import { IconTrash, IconUserShare, IconDoorExit, IconPlayerPlay, 
+  IconAdjustments, IconChartHistogram  } from '@tabler/icons-react';
 
 import Chat from "/src/main/js/components/game/preGame/Chat.jsx";
-import PlayerList from "/src/main/js/components/game/preGame/playerList/PlayerList.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
 
 import { GetInviteLink, StartLobby, LeaveLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
 
-export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
+export default function PreGame({lobby,onReturnToPostGame}) {
 
   const navigate = useNavigate();
   const revalidator = useRevalidator();
@@ -19,6 +19,14 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
   const [showSettings, setShowSettings]  = useState(false)
 
   const isOwner = (lobby.owner.id == userInfo.id);
+
+  function playedPrevious() {
+    console.log("checking played previous ")
+    let x =  lobby.gameUsers
+      .some( (x) =>  x.id == userInfo.id ) 
+    console.log(x)
+    return x
+  }
 
   let onFinishSettingsView = function() {
     setShowSettings(false);
@@ -86,33 +94,50 @@ export default function PreGame({lobby,playedPrev,onReturnToPostGame}) {
   let getLobbyButtons = function() {
 
     let buttons = []
+
     buttons.push(
-      <Button color="yellow" onClick={() => copyInviteLink()}>
-        <IconUserShare/>
-      </Button>)
+      <Tooltip label="Copy Invite" openDelay={300}>
+        <Button color="pink" onClick={() => copyInviteLink()}>
+          <IconUserShare/>
+        </Button>
+      </Tooltip>)
+
     buttons.push(
-      <Button color="orange" onClick={() => {setShowSettings(true)}}>
-        <IconAdjustments/>
-      </Button>)
+      <Tooltip label="Settings" openDelay={300}>
+        <Button color="orange" onClick={() => {setShowSettings(true)}}>
+          <IconAdjustments/>
+        </Button>
+      </Tooltip>)
 
     if (isOwner) {
+
       buttons.push(
+      <Tooltip label="Start" openDelay={300}>
         <Button color="green" onClick={() => startLobby(lobby.id)}>
           <IconPlayerPlay/>
-        </Button>)
-      buttons.push(
-        <Button color="red" onClick={() => deleteLobby(lobby.id)} >
-          <IconTrash/>
-        </Button>)
+        </Button>
+      </Tooltip>)
+
     } else {
+
       buttons.push(
+      <Tooltip label="Leave Lobby" openDelay={300}>
         <Button color="red" onClick={() => leaveLobby(lobby.id)} >
           <IconDoorExit/>
-        </Button>)
+        </Button>
+      </Tooltip>)
+
     }
 
-    if (playedPrev) {
-      buttons.push(<Button color="grape" onClick={onReturnToPostGame}>Last</Button>)
+    if (playedPrevious()) {
+
+      buttons.push(
+      <Tooltip label="Game Review" openDelay={300}>
+        <Button color="grape" onClick={onReturnToPostGame}>
+          <IconChartHistogram/>
+        </Button>
+      </Tooltip>)
+
     }
 
     return ( <Button.Group>{buttons}</Button.Group> )

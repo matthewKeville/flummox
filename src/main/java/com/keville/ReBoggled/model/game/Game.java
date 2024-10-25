@@ -32,6 +32,9 @@ public class Game {
   public LocalDateTime end;
 
   @MappedCollection(idColumn = "GAME")
+  public Set<GameUserReference> users = new HashSet<GameUserReference>();
+
+  @MappedCollection(idColumn = "GAME")
   public Set<GameAnswer> answers = new HashSet<GameAnswer>();
 
   @LastModifiedDate

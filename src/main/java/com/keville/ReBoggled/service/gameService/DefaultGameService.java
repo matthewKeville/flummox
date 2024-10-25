@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
@@ -20,9 +21,11 @@ import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
 import com.keville.ReBoggled.model.game.GameSettings;
+import com.keville.ReBoggled.model.game.GameUserReference;
 import com.keville.ReBoggled.model.gameSummary.GameSummary;
 import com.keville.ReBoggled.model.gameSummary.WordFinder;
 import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
@@ -82,7 +85,14 @@ public class DefaultGameService implements GameService {
         game.start = LocalDateTime.now();
         game.end = game.start.plusSeconds(gameSettings.duration);
 
-        games.save(game);
+        game = games.save(game); //get assigned game id
+
+        for (LobbyUserReference userRef : lobby.users) {
+          game.users.add(new GameUserReference(AggregateReference.to(game.id),AggregateReference.to(userRef.user.getId()))); 
+        }
+
+        game = games.save(game);
+
 
       } catch ( BoardGenerationException bge ) {
         LOG.error(" Board generation failed for game " + game.id );
