@@ -11,7 +11,7 @@ import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx"
 import { GetInviteLink, StartLobby, LeaveLobby } from "/src/main/js/services/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
 
-export default function PreGame({lobby,onReturnToPostGame}) {
+export default function PreGame({lobby,onReturnToPostGame,playedPrevious}) {
 
   const navigate = useNavigate();
   const revalidator = useRevalidator();
@@ -19,14 +19,6 @@ export default function PreGame({lobby,onReturnToPostGame}) {
   const [showSettings, setShowSettings]  = useState(false)
 
   const isOwner = (lobby.owner.id == userInfo.id);
-
-  function playedPrevious() {
-    console.log("checking played previous ")
-    let x =  lobby.gameUsers
-      .some( (x) =>  x.id == userInfo.id ) 
-    console.log(x)
-    return x
-  }
 
   let onFinishSettingsView = function() {
     setShowSettings(false);
@@ -104,7 +96,9 @@ export default function PreGame({lobby,onReturnToPostGame}) {
 
     } 
 
-    if (playedPrevious()) {
+    console.log("playedPrevious is " + playedPrevious)
+
+    if (playedPrevious) {
 
       buttons.push(
       <Tooltip label="Game Review" openDelay={300}>

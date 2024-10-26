@@ -13,10 +13,9 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
-import com.keville.ReBoggled.DTO.GameUserSummaryDTO;
-import com.keville.ReBoggled.DTO.GameViewDTO;
+import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.DTO.GameWordDTO;
-import com.keville.ReBoggled.DTO.PostGameUserSummaryDTO;
+import com.keville.ReBoggled.DTO.PostGameDTO;
 import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
@@ -146,8 +145,7 @@ public class DefaultGameService implements GameService {
 
     }
 
-    //Return an (ongoing) game summary for a user
-    public GameUserSummaryDTO getGameUserSummary(Integer gameId,Integer userId) throws GameServiceException {
+    public GameDTO getGameDTO(Integer gameId,Integer userId) throws GameServiceException {
 
       Optional<Game> optGame = games.findById(gameId);
       Optional<User> optUser = users.findById(userId);
@@ -171,11 +169,10 @@ public class DefaultGameService implements GameService {
         .map( uga ->  new GameAnswerDTO(uga.answer,uga.answerSubmissionTime) )
         .collect(Collectors.toSet());
 
-      return new GameUserSummaryDTO(game,userAnswers);
+      return new GameDTO(game,userAnswers);
     }
 
-    //Return an (completed) game summary for a user
-    public PostGameUserSummaryDTO getPostGameUserSummary(Integer gameId,Integer userId) throws GameServiceException {
+    public PostGameDTO getPostGameDTO(Integer gameId,Integer userId) throws GameServiceException {
 
       Optional<Game> optGame = games.findById(gameId);
       Optional<User> optUser = users.findById(userId);
@@ -220,9 +217,7 @@ public class DefaultGameService implements GameService {
 
       });
 
-      PostGameUserSummaryDTO view = new PostGameUserSummaryDTO(new GameViewDTO(game),gameSummary.scoreboard(),gameWordDTOs);
-
-      return view;
+      return new PostGameDTO(game,gameWordDTOs,gameSummary.scoreboard());
 
     }
 

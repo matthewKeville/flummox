@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Center } from '@mantine/core';
 
-export default function GameTimer({gameEnd,onGameEnd}) {
+export default function GameTimer({gameEnd}) {
 
   const [time, setTime]    = useState(null)
 
@@ -24,8 +24,6 @@ export default function GameTimer({gameEnd,onGameEnd}) {
       const iid = setTimeout(update,1000,timeNow-1)
     } else {
       setTime(0)
-      console.log("going to postgame")
-      onGameEnd()
     }
   }
 

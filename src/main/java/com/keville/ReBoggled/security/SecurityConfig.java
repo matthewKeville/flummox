@@ -93,12 +93,9 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/messages/sse")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,  "/api/lobby/*/messages")).permitAll()
 
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary/sse")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/summary/post")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/post")).permitAll()
 
         .anyRequest().authenticated()
 

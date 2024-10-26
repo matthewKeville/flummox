@@ -1,4 +1,3 @@
-
 export async function UpdateLobby(lobbyId: number,lobbyUpdate: any) : Promise<ServiceResponse<undefined>> {
 
   const response = await fetch("/api/lobby/"+lobbyId+"/update", {
@@ -11,7 +10,7 @@ export async function UpdateLobby(lobbyId: number,lobbyUpdate: any) : Promise<Se
 
   const content = await response.json()
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("UpdateLobby success")
     return {
@@ -59,70 +58,15 @@ export async function SendLobbyChat(lobbyId: number,message: any) : Promise<Serv
     body: JSON.stringify(messageDTO)
   });
 
-  // const content = await response.json()
-  //
-  // if ( response.ok ) {
-  //
-  //   console.log("message success")
-  //   return {
-  //     data: undefined,
-  //     success: true,
-  //     errorMessage: undefined
-  //   }
-  //
-  // } else {
-  //
-  //   let errorMessage = "";
-  //
-  //   switch(content.message) {
-  //     case "INTERNAL_ERROR":
-  //     default:
-  //       errorMessage = "Unable to send message because server error"
-  //   }
-  //
-  //   return {
-  //     data: undefined,
-  //     success: false,
-  //     errorMessage: errorMessage
-  //   }
-  //
-  // }
-
 }
 
-export async function GetLobbySummary(lobbyId: number) : Promise<ServiceResponse<any>> {
-  const response = await fetch("/api/lobby/"+lobbyId+"/summary");
-  let content = await response.json()
-
-  if ( response.status == 200 ) {
-
-    console.log("GetLobbySummary success")
-    console.log(content)
-    return {
-      data: content,
-      success: true,
-      errorMessage: undefined
-    }
-
-  } else {
-
-    console.log("GetLobbySummary failed")
-    let errorMessage = "Unable to get lobby summary because server error"
-
-    return {
-      data: undefined,
-      success: false,
-      errorMessage: errorMessage
-    }
-  }
-}
-
+//TODO rename this entity to LobbyHeader
 export async function GetLobbySummaries() : Promise<ServiceResponse<Array<any>>> {
 
   const response = await fetch("/api/lobby/summary")
   const content = await response.json()
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("GetLobbySummaries success")
     return {
@@ -135,7 +79,6 @@ export async function GetLobbySummaries() : Promise<ServiceResponse<Array<any>>>
 
     console.log("GetLobbySummaries failed")
     let errorMessage = "Unable to get lobby summaries because server error";
-
     return {
       data: undefined,
       success: false,
@@ -155,7 +98,7 @@ export async function CreateLobby() : Promise<ServiceResponse<number>> {
 
   const content  = await response.json();
 
-  if ( response.status == 201 ) {
+  if ( response.ok ) {
 
     console.log("CreateLobby success")
     return {
@@ -165,9 +108,9 @@ export async function CreateLobby() : Promise<ServiceResponse<number>> {
     }
 
   } else {
+
     console.log("CreateLobby failed")
     let errorMessage = "Unable to create lobby because server error"
-
     return {
       data: undefined,
       success: false,
@@ -185,7 +128,7 @@ export async function DeleteLobby(lobbyId: number) : Promise<ServiceResponse<voi
     body: null
   });
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("DeleteLobby success")
     return {
@@ -195,9 +138,9 @@ export async function DeleteLobby(lobbyId: number) : Promise<ServiceResponse<voi
     }
 
   } else {
+    
     console.log("DeleteLobby failed")
     let errorMessage = "Unable to delete lobby because server error"
-
     return {
       data: undefined,
       success: false,
@@ -218,7 +161,7 @@ export async function KickPlayer(lobbyId: number,playerId: number) : Promise<Ser
 
   const content  = await response.json();
 
-  if ( response.status == 200 ) {
+  if ( response.ok  ) {
 
     console.log("KickPlayer success")
     return {
@@ -230,7 +173,6 @@ export async function KickPlayer(lobbyId: number,playerId: number) : Promise<Ser
   } else {
 
     console.log("KickPlayer failed")
-
     let errorMessage = ""
     switch (content.message) {
       case "NOT_IN_LOBBY":
@@ -263,7 +205,7 @@ export async function PromotePlayer(lobbyId: number,playerId: number) : Promise<
 
   const content  = await response.json();
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("PromotePlayer success")
     return {
@@ -275,7 +217,6 @@ export async function PromotePlayer(lobbyId: number,playerId: number) : Promise<
   } else {
 
     console.log("PromotePlayer failed")
-
     let errorMessage = ""
     switch (content.message) {
       case "NOT_IN_LOBBY":
@@ -313,7 +254,7 @@ export async function JoinLobby(lobbyId: number,token?: string) : Promise<Servic
 
   const content  = await response.json();
 
-  if ( response.status == 200 ) {
+  if ( response.ok) {
 
     console.log("JoinLobby success")
     return {
@@ -360,7 +301,7 @@ export async function LeaveLobby(lobbyId: number) : Promise<ServiceResponse<void
     body: null
   });
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("LeaveLobby success")
     return {
@@ -394,7 +335,7 @@ export async function GetInviteLink() : Promise<ServiceResponse<string>> {
 
   let content = await response.text()
 
-  if ( response.status == 200 ) {
+  if ( response.ok) {
 
     console.log("GetInviteLink success")
     return {
@@ -427,7 +368,7 @@ export async function StartLobby(lobbyId: number) : Promise<ServiceResponse<void
     body: null
   });
 
-  if ( response.status == 200 ) {
+  if ( response.ok ) {
 
     console.log("StartLobby success")
     return {

@@ -26,8 +26,6 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbySseEventDispatcher.class);
     private Map<Integer,Set<SseEmitter>> lobbyEmitters = new HashMap<Integer,Set<SseEmitter>>();
-    private Map<Integer,Lobby> lobbyCache = new HashMap<Integer,Lobby>();
-
     private LobbyService lobbyService;
 
     public LobbySseEventDispatcher(@Autowired LobbyService lobbyService) {
@@ -44,12 +42,12 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
           .name("init")
           .data(lobbySummary);
 
-        String failMessage = "Couldn't send initial summary for lobby : " + lobbyId;
+        String failMessage = "Couldn't send initial data for lobby : " + lobbyId;
         tryEmitEvent(emitter, newMessageEventBuilder, failMessage);
 
       } catch (LobbyServiceException e) {
 
-        LOG.error("Couldn't send initial summary for lobby : " + lobbyId);
+        LOG.error("Couldn't send initial data for lobby : " + lobbyId);
         LOG.error(e.getMessage());
 
       }
@@ -132,11 +130,11 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
         .name("update")
         .data(lobbySummary);
 
-      String failMessage = "Couldn't send lobby_change for lobby : "  + lobby.id;
+      String failMessage = "Couldn't send update for lobby : "  + lobby.id;
       tryEmitEvents(emitters, updateEventBuilder, failMessage);
 
     } catch (LobbyServiceException e) {
-      LOG.error(String.format("unable to create SSEs for lobby %d 's update event",lobby.id));
+      LOG.error(String.format("unable to create SSEs for lobby %d 's update",lobby.id));
       LOG.error(e.getMessage());
     }
 
@@ -160,7 +158,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(event.lobbyId))
-        .name("update")
+        .name("game_start")
         .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;
@@ -190,7 +188,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(event.lobbyId))
-        .name("update")
+        .name("game_end")
         .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;

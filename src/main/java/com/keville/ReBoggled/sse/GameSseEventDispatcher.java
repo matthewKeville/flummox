@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
+import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.DTO.GameUserSummaryDTO;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
 
@@ -22,12 +22,32 @@ import com.keville.ReBoggled.service.gameService.GameServiceException;
 public class GameSseEventDispatcher extends SseEventDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(GameSseEventDispatcher.class);
-
     private Map<Integer,Map<Integer,SseEmitter>> gameEmitters = new HashMap<Integer,Map<Integer,SseEmitter>>();
     private GameService gameService;
 
     public GameSseEventDispatcher(@Autowired GameService gameService) {
       this.gameService = gameService;
+    }
+
+    private void sendInitPayload(int gameId,int userId,SseEmitter emitter) {
+      try {
+
+        GameDTO gameDTO = gameService.getGameDTO(gameId,userId);
+
+        SseEventBuilder newMessageEventBuilder = SseEmitter.event()
+          .id(String.valueOf(0))
+          .name("init")
+          .data(gameDTO);
+
+        String failMessage = "Couldn't send initial data for game : " + gameId;
+        tryEmitEvent(emitter, newMessageEventBuilder, failMessage);
+
+      } catch (GameServiceException e) {
+
+        LOG.error("Couldn't send initial initial data for : " + gameId);
+        LOG.error(e.getMessage());
+
+      }
     }
 
     public void register(Integer gameId,Integer userId,SseEmitter emitter) {
@@ -51,6 +71,8 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
       }
       
       gameUserEmitters.put(userId,emitter);
+      sendInitPayload(gameId, userId, emitter);
+
       LOG.info(String.format("registered new emitter for game %d for user %d",gameId,userId));
 
     }
@@ -99,17 +121,17 @@ public class GameSseEventDispatcher extends SseEventDispatcher {
       for ( Entry<Integer,SseEmitter> entry : emitters.entrySet() ) {
         try { 
 
-          GameUserSummaryDTO gameView = gameService.getGameUserSummary(game.id,entry.getKey());
+          GameDTO gameView = gameService.getGameDTO(game.id,entry.getKey());
           SseEventBuilder updateEventBuilder = SseEmitter.event()
             .id(String.valueOf(game.id))
-            .name("game_change")
+            .name("update")
             .data(gameView);
 
-          String failMessage = "Couldn't send game_change for game : " + game.id + " for user " + entry.getKey();
+          String failMessage = "Couldn't send update for game : " + game.id + " for user " + entry.getKey();
           tryEmitEvent(entry.getValue(),updateEventBuilder,failMessage);
 
         } catch (GameServiceException e) {
-          LOG.error(String.format("unable to create SSEs for game %d 's update event for user %d",game.id,entry.getKey()));
+          LOG.error(String.format("unable to create SSEs for game %d 's update for user %d",game.id,entry.getKey()));
           LOG.error(e.getMessage());
         }
 

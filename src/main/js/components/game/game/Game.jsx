@@ -7,11 +7,11 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/WordInput.jsx"
 
-import { GetGameUserSummary, PostGameAnswer } from "/src/main/js/services/GameService.ts"
+import {  PostGameAnswer } from "/src/main/js/services/GameService.ts"
 
-export async function loader({ params }) {}
+export async function loader() {}
 
-export default function Game({ gameId, onGameEnd }) {
+export default function Game({ gameId}) {
 
   async function onSubmitAnswer(word) {
 
@@ -30,24 +30,22 @@ export default function Game({ gameId, onGameEnd }) {
 
   useEffect(() => {
 
-    // Data Fetch
-
-    const fetchData = async () => {
-      var serviceResponse = await GetGameUserSummary(gameId)
-      console.log(serviceResponse.data)
-      setGame(serviceResponse.data)
-    }
-    fetchData()
-
     // SSE
 
-    const evtSource = new EventSource("/api/game/" + gameId + "/summary/sse")
+    const evtSource = new EventSource("/api/game/" + gameId + "/sse")
 
-    evtSource.addEventListener("game_change", (e) => {
+    evtSource.addEventListener("update", (e) => {
       console.log("game change recieved");
       let newGameData = JSON.parse(e.data)
       setGame(newGameData)
       console.log(newGameData)
+    });
+
+    evtSource.addEventListener("init", (e) => {
+      console.log("init game data recieved");
+      let data = JSON.parse(e.data)
+      setGame(data)
+      console.log(data)
     });
 
     return () => {
@@ -63,8 +61,8 @@ export default function Game({ gameId, onGameEnd }) {
 
   return (
       <Stack align="center" justify="center" mt="2%"> 
-        <GameTimer gameEnd={game.gameViewDTO.end} onGameEnd={onGameEnd} />
-        <Board dice={game.gameViewDTO.tiles} tileRotationEnabled={game.gameViewDTO.tileRotation} />
+        <GameTimer gameEnd={game.end}/>
+        <Board dice={game.tiles} tileRotationEnabled={game.tileRotation} />
         <Group> 
           <WordInput onWordInput={onSubmitAnswer} />
         </Group>

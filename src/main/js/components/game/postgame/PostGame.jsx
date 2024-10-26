@@ -5,48 +5,43 @@ import { IconArrowBackUp } from "@tabler/icons-react";
 
 import Board from "/src/main/js/components/game/Board.jsx";
 import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
-import Scoreboard from "/src/main/js/components/game/postgame/Scoreboard.jsx";
 
-import { GetPostGameUserSummary } from "/src/main/js/services/GameService.ts";
+import { GetPostGame } from "/src/main/js/services/GameService.ts";
 
-export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
+export default function PostGame({lobby,onReturnToLobby}) {
 
   const { userInfo } = useRouteLoaderData("root");
-  const [gameSummary,setGameSummary] = useState(null)
-
-  async function fetchGameSummary() {
-
-    let serviceResponse = await GetPostGameUserSummary(lobby.gameId);
-
-    if ( !serviceResponse.success ) {
-      toast.error(serviceResponse.errorMessage);
-      return;
-    }
-
-    setGameSummary(serviceResponse.data);
-  }
+  const [postGame,setPostGame] = useState(null)
 
   useEffect(() => {
 
-    const fetchInitialGame = async () => {
-      fetchGameSummary()
+    const fetchGameSummary = async function() {
+
+      let serviceResponse = await GetPostGame(lobby.gameId);
+
+      if ( !serviceResponse.success ) {
+        toast.error(serviceResponse.errorMessage);
+        return;
+      }
+      setPostGame(serviceResponse.data);
+
     }
-    fetchInitialGame()
+    fetchGameSummary()
 
   }, []);
 
-  if (gameSummary == null) {
+  if (postGame == null) {
     return
   }
 
   return (
 
     <Stack align="center" justify="center" mt="2%"> 
-      <Board dice={gameSummary.gameViewDTO.tiles} />
+      <Board dice={postGame.tiles} />
       <Button color="yellow" onClick={() => onReturnToLobby()}>
         <IconArrowBackUp/>
       </Button>
-      <AllAnswerDisplay words={gameSummary.words}/>
+      <AllAnswerDisplay words={postGame.words}/>
     </Stack>
 
   );

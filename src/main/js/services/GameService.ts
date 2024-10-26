@@ -8,9 +8,9 @@ interface GameAnswerResult {
   failMessage?: string
 }
 
-export async function GetPostGameUserSummary(gameId: number) : Promise<ServiceResponse<any>> {
+export async function GetPostGame(gameId: number) : Promise<ServiceResponse<any>> {
 
-  const response = await fetch("/api/game/" + gameId + "/summary/post");
+  const response = await fetch("/api/game/" + gameId + "/post");
   let content = await response.json()
 
   if (response.status == 200 || response != null) {
@@ -28,31 +28,6 @@ export async function GetPostGameUserSummary(gameId: number) : Promise<ServiceRe
       data: undefined,
       success:  false,
       errorMessage: "unable to get Post Game Summary"
-    }
-  }
-
-}
-
-export async function GetGameUserSummary(gameId: number) : Promise<ServiceResponse<any>> {
-
-  const response = await fetch("/api/game/" + gameId + "/summary");
-  let content = await response.json()
-
-  if (response.status == 200 || response != null) {
-    console.log('GetGameUserSummary success')
-    return {
-      data: content,
-      success:  true,
-      errorMessage: undefined
-    }
-  }
-
-  else {
-    console.log('GetGameUserSummary failed')
-    return {
-      data: undefined,
-      success:  false,
-      errorMessage: "unable to get Game Summary"
     }
   }
 
