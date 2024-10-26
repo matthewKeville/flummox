@@ -46,6 +46,50 @@ export async function UpdateLobby(lobbyId: number,lobbyUpdate: any) : Promise<Se
 
 }
 
+export async function SendLobbyChat(lobbyId: number,message: any) : Promise<ServiceResponse<undefined>> {
+
+  let messageDTO: any = {}
+  messageDTO.message = message
+
+  const response = await fetch("/api/lobby/"+lobbyId+"/messages", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(messageDTO)
+  });
+
+  // const content = await response.json()
+  //
+  // if ( response.ok ) {
+  //
+  //   console.log("message success")
+  //   return {
+  //     data: undefined,
+  //     success: true,
+  //     errorMessage: undefined
+  //   }
+  //
+  // } else {
+  //
+  //   let errorMessage = "";
+  //
+  //   switch(content.message) {
+  //     case "INTERNAL_ERROR":
+  //     default:
+  //       errorMessage = "Unable to send message because server error"
+  //   }
+  //
+  //   return {
+  //     data: undefined,
+  //     success: false,
+  //     errorMessage: errorMessage
+  //   }
+  //
+  // }
+
+}
+
 export async function GetLobbySummary(lobbyId: number) : Promise<ServiceResponse<any>> {
   const response = await fetch("/api/lobby/"+lobbyId+"/summary");
   let content = await response.json()

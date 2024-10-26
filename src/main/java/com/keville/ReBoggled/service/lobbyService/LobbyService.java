@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.keville.ReBoggled.DTO.LobbyMessageDTO;
+import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
@@ -24,7 +26,7 @@ public interface LobbyService {
 
     public Lobby addUserToLobby(Integer userId,Integer lobbyId,Optional<String> Token) throws LobbyServiceException;
 
-    public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId) throws LobbyServiceException;
+    public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId,boolean kicked) throws LobbyServiceException;
 
     public Lobby transferLobbyOwnership(Integer lobbyId,Integer userId) throws LobbyServiceException;
 
@@ -40,12 +42,10 @@ public interface LobbyService {
 
     public boolean exists (Integer lobbyId);
 
-    /*
-    public List<LobbySummaryDTO> getLobbySummaryDTOs() throws LobbyViewServiceException;
-    public LobbySummaryDTO getLobbySummaryDTO(int id) throws LobbyViewServiceException;
-    private LobbySummaryDTO createLobbySummaryDTO(Lobby lobby) throws LobbyViewServiceException;
-    */
+    public Lobby addMessageToLobby(LobbyNewMessageDTO lobbyNewMessageDTO,Integer lobbyId,Integer userId) throws LobbyServiceException;
+
     public List<LobbySummaryDTO> getLobbySummaryDTOs() throws LobbyServiceException;
     public LobbySummaryDTO getLobbySummaryDTO(int id) throws LobbyServiceException;
+    public List<LobbyMessageDTO>  getLobbyMessageDTOs(int id) throws LobbyServiceException;
 
 }

@@ -34,6 +34,27 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
       this.lobbyService = lobbyService;
     }
 
+    private void sendInitPayload(int lobbyId,SseEmitter emitter) {
+      try {
+
+        LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(lobbyId);
+
+        SseEventBuilder newMessageEventBuilder = SseEmitter.event()
+          .id(String.valueOf(0))
+          .name("init")
+          .data(lobbySummary);
+
+        String failMessage = "Couldn't send initial summary for lobby : " + lobbyId;
+        tryEmitEvent(emitter, newMessageEventBuilder, failMessage);
+
+      } catch (LobbyServiceException e) {
+
+        LOG.error("Couldn't send initial summary for lobby : " + lobbyId);
+        LOG.error(e.getMessage());
+
+      }
+    }
+
     public void unregister(Integer lobbyId,SseEmitter emitter) {
 
       if ( !lobbyEmitters.containsKey(lobbyId) ) {
@@ -80,6 +101,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
       }
 
       emitters.add(emitter);
+      sendInitPayload(lobbyId, emitter);
 
       LOG.error(String.format("registered new emitter for lobby %d",lobbyId));
 
@@ -107,7 +129,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(lobby.id))
-        .name("lobby_change")
+        .name("update")
         .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + lobby.id;
@@ -138,7 +160,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(event.lobbyId))
-        .name("lobby_change")
+        .name("update")
         .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;
@@ -168,7 +190,7 @@ public class LobbySseEventDispatcher extends SseEventDispatcher {
 
       SseEventBuilder updateEventBuilder = SseEmitter.event()
         .id(String.valueOf(event.lobbyId))
-        .name("lobby_change")
+        .name("update")
         .data(lobbySummary);
 
       String failMessage = "Couldn't send lobby_change for lobby : "  + event.lobbyId;

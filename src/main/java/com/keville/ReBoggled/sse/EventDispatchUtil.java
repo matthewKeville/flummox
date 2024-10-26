@@ -23,7 +23,7 @@ public class EventDispatchUtil {
       try {
         emitter.send(event);
         return true;
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.info(failMessage);
         emitter.completeWithError(e);
       }

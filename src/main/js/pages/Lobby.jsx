@@ -31,26 +31,24 @@ export default function Lobby() {
 
   useEffect(() => {
 
-    let loadInitialLobby = async () => {
-      let serviceResponse = await GetLobbySummary(lobbyId)
-      let lobbyData = serviceResponse.data
-      computeLobbyState(lobbyData)
-      setLobby(lobbyData)
-    }
-    loadInitialLobby()
-    console.log("after load initial")
-
-    // SSE
-
     const evtSource = new EventSource("/api/lobby/"+lobbyId+"/summary/sse")
-    evtSource.addEventListener("lobby_change", (e) => {
+
+    evtSource.addEventListener("update", (e) => {
       let data = JSON.parse(e.data)
-      console.log("lobby change recieved");
+      console.log("new lobby data recieved");
       console.log(data)
       computeLobbyState(data)
       setLobby(data)
     });
-    console.log("after sse")
+
+    evtSource.addEventListener("init", (e) => {
+      let data = JSON.parse(e.data)
+      console.log("init lobby data recieved");
+      console.log(data)
+      computeLobbyState(data)
+      setLobby(data)
+    });
+
     return () => {
       console.log("closing the event source") 
       evtSource.close()

@@ -90,6 +90,8 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/messages/sse")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,  "/api/lobby/*/messages")).permitAll()
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*")).permitAll()

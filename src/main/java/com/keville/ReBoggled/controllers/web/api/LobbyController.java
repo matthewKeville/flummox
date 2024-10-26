@@ -2,8 +2,6 @@ package com.keville.ReBoggled.controllers.web.api;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
+import com.keville.ReBoggled.sse.LobbyMessageSseDispatcher;
 import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
@@ -46,14 +46,17 @@ public class LobbyController {
   private UserService userService;
 
   private LobbySseEventDispatcher lobbySseEventDispatcher;
+  private LobbyMessageSseDispatcher lobbyMessageSseDispatcher;
 
   public LobbyController(@Autowired LobbyService lobbyService,
       @Autowired UserService userService,
-      @Autowired LobbySseEventDispatcher lobbySseEventDispatcher) {
+      @Autowired LobbySseEventDispatcher lobbySseEventDispatcher,
+      @Autowired LobbyMessageSseDispatcher lobbyMessageSseDispatcher) {
 
     this.lobbyService = lobbyService;
     this.userService = userService;
     this.lobbySseEventDispatcher = lobbySseEventDispatcher;
+    this.lobbyMessageSseDispatcher = lobbyMessageSseDispatcher;
   }
 
   @GetMapping("")
@@ -82,6 +85,48 @@ public class LobbyController {
 
   }
 
+  //TODO : Check if the user participates in the lobby
+  @GetMapping("/{id}/messages/sse")
+  public SseEmitter getLobbyMessageSSE(
+      @PathVariable("id") Integer id,
+      @Autowired HttpSession session) {
+
+    logReq("get","/"+id+"/messages/sse");
+
+    //assemble emitter
+
+    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+
+    Runnable cleanup = () -> {
+      LOG.info("cleaning up sse emitter");
+      lobbySseEventDispatcher.unregister(id,emitter);
+    };
+
+    emitter.onError(      (ex)  -> {
+      LOG.info(id+"/messages/sse error ");
+      if ( ex instanceof IOException ) {
+        LOG.info("IOException caught, likely client destroyed event source ...");
+        LOG.info(ex.getMessage());
+      } else {
+        LOG.warn("Unexpected error ...");
+        LOG.error(ex.getMessage());
+      }
+      cleanup.run();
+    });
+    emitter.onCompletion( ()    -> {
+      LOG.info(id+"/messages/sse completed");
+      cleanup.run();
+    });
+
+    // wire to dispatcher
+
+    lobbyMessageSseDispatcher.register(id,emitter);
+
+    return emitter;
+
+  }
+
+  //TODO : Check if the user participates in the lobby
   @GetMapping("/{id}/summary/sse")
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
@@ -121,6 +166,33 @@ public class LobbyController {
     return emitter;
 
   }
+
+  @PostMapping("/{id}/messages")
+    public ResponseEntity<?> addLobbyMessage(
+        @PathVariable("id") Integer id,
+        @Valid @RequestBody LobbyNewMessageDTO lobbyNewMessageDTO,
+        @Autowired HttpSession session,
+        @Autowired BindingResult bindingResult) {
+
+      logReq("post",String.format("/%d/message",id));
+
+      if ( bindingResult.hasErrors() ) {
+          LOG.info(String.format("Invalid Request Body"));
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_BODY");
+      }
+
+      Integer userId = (Integer) session.getAttribute("userId");
+
+      try {
+
+        Lobby lobby = lobbyService.addMessageToLobby(lobbyNewMessageDTO,id,userId);
+        return new ResponseEntity<Lobby>(lobby,HttpStatus.OK);
+
+      } catch (LobbyServiceException e) {
+        return handleLobbyServiceException(e);
+      }
+
+    }
 
   @GetMapping("/summary")
   public ResponseEntity<?> getLobbyViews(HttpSession session,
@@ -215,7 +287,7 @@ public class LobbyController {
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
-      Optional<Lobby> lobbyOpt = lobbyService.removeUserFromLobby(userId, id);
+      Optional<Lobby> lobbyOpt = lobbyService.removeUserFromLobby(userId, id,true);
       if ( lobbyOpt.isPresent() ) {
         return new ResponseEntity<Lobby>(lobbyOpt.get(),HttpStatus.OK);
       }
@@ -255,7 +327,7 @@ public class LobbyController {
     Integer userId = (Integer) session.getAttribute("userId");
 
     try { 
-      Optional<Lobby> lobby = lobbyService.removeUserFromLobby(userId, id);
+      Optional<Lobby> lobby = lobbyService.removeUserFromLobby(userId,id,false);
       return new ResponseEntity<Lobby>(lobby.isPresent() ? lobby.get() : null,HttpStatus.OK);
     } catch (LobbyServiceException e) {
       return handleLobbyServiceException(e);

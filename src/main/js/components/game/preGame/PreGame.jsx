@@ -8,7 +8,7 @@ import { IconTrash, IconUserShare, IconDoorExit, IconPlayerPlay,
 import Chat from "/src/main/js/components/game/preGame/Chat.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
 
-import { GetInviteLink, StartLobby, LeaveLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
+import { GetInviteLink, StartLobby, LeaveLobby } from "/src/main/js/services/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
 
 export default function PreGame({lobby,onReturnToPostGame}) {
@@ -64,22 +64,6 @@ export default function PreGame({lobby,onReturnToPostGame}) {
     }
   }
 
-  let deleteLobby = async function(lobbyId) {
-
-    let serviceResponse = await DeleteLobby(lobbyId)
-
-    if ( !serviceResponse.success ) {
-
-      toast.error(serviceResponse.errorMessage);
-      return;
-
-    } else {
-
-      revalidator.revalidate()
-      navigate("/lobby")
-
-    }
-  }
 
   let startLobby = async function(lobbyId) {
 
@@ -118,16 +102,7 @@ export default function PreGame({lobby,onReturnToPostGame}) {
         </Button>
       </Tooltip>)
 
-    } else {
-
-      buttons.push(
-      <Tooltip label="Leave Lobby" openDelay={300}>
-        <Button color="red" onClick={() => leaveLobby(lobby.id)} >
-          <IconDoorExit/>
-        </Button>
-      </Tooltip>)
-
-    }
+    } 
 
     if (playedPrevious()) {
 
@@ -139,6 +114,13 @@ export default function PreGame({lobby,onReturnToPostGame}) {
       </Tooltip>)
 
     }
+
+    buttons.push(
+    <Tooltip label="Leave Lobby" openDelay={300}>
+      <Button color="red" onClick={() => leaveLobby(lobby.id)} >
+        <IconDoorExit/>
+      </Button>
+    </Tooltip>)
 
     return ( <Button.Group>{buttons}</Button.Group> )
   }
