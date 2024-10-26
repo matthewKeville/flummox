@@ -42,7 +42,6 @@ export default function PostGame({lobby,onGameEnd,onReturnToLobby}) {
   return (
 
     <Stack align="center" justify="center" mt="2%"> 
-     {/*<Scoreboard lobby={lobby} scoreboard={gameSummary.scoreboard}/>*/}
       <Board dice={gameSummary.gameViewDTO.tiles} />
       <Button color="yellow" onClick={() => onReturnToLobby()}>
         <IconArrowBackUp/>

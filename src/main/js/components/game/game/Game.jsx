@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Stack, Group, Button } from "@mantine/core";
+import { Stack, Group } from "@mantine/core";
 
 import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
 import Board from "/src/main/js/components/game/Board.jsx";
@@ -64,19 +64,9 @@ export default function Game({ gameId, onGameEnd }) {
   return (
       <Stack align="center" justify="center" mt="2%"> 
         <GameTimer gameEnd={game.gameViewDTO.end} onGameEnd={onGameEnd} />
-        <Board dice={game.gameViewDTO.tiles} />
+        <Board dice={game.gameViewDTO.tiles} tileRotationEnabled={game.gameViewDTO.tileRotation} />
         <Group> 
-          {/*
-          <Button onClick={() => {setTurn( (turn+90) % 360)}}>
-            <IconArrowForwardUp style={{transform: "rotate(-90deg)"}}/>
-          </Button>
-          */}
           <WordInput onWordInput={onSubmitAnswer} />
-          {/*
-          <Button onClick={() => {setTurn( (turn-90) % 360)}}>
-            <IconArrowForwardUp style={{transform: "scaleX(-1) rotate(-90deg)"}}/>
-          </Button>
-          */}
         </Group>
         <UserAnswerDisplay words={game.answers} />
       </Stack>

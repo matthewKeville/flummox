@@ -32,7 +32,7 @@ public class BoardGenerationService {
     LOG.warn(" defaulting to classic tile generation ");
     List<Tile> tiles = classicTilesGenerator.generate(size,tileRotation);
 
-    Board board = new Board(size,topology,tiles);
+    Board board = new Board(size,topology,tiles,tileRotation);
     return board;
     
   }
@@ -40,7 +40,7 @@ public class BoardGenerationService {
   public Board generateFromTileString(String tileString,BoardSize size,BoardTopology topology) throws BoardGenerationException {
 
     List<Tile> tiles = classicTilesGenerator.generateFromTileString(tileString);
-    Board board = new Board(size,topology,tiles);
+    Board board = new Board(size,topology,tiles,false);
 
     return board;
 

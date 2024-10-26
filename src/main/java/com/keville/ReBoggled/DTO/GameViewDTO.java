@@ -11,13 +11,14 @@ public class GameViewDTO {
 
   public Integer id;
   public List<Tile> tiles;
-  public GameSettings gameSettings;
+  public boolean tileRotation;
   public LocalDateTime start;
   public LocalDateTime end;
 
   public GameViewDTO(Game game) {
     this.id = game.id;
     this.tiles = game.board.tiles;
+    this.tileRotation = game.board.tileRotation;
     this.start = game.start;
     this.end = game.end;
   }

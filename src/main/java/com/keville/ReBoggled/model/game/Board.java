@@ -16,11 +16,13 @@ public class Board {
 
   public BoardSize boardSize;
   public BoardTopology boardTopology;
+  public boolean tileRotation;
 
-  public  Board(BoardSize boardSize, BoardTopology boardTopology, List<Tile> tiles) {
+  public  Board(BoardSize boardSize, BoardTopology boardTopology, List<Tile> tiles,boolean tileRotation) {
     this.boardSize = boardSize;
     this.boardTopology = boardTopology;
     this.tiles = tiles;
+    this.tileRotation = tileRotation;
   }
 
   public  Board(BoardSize boardSize, BoardTopology boardTopology) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Group, Stack } from "@mantine/core";
+import { Text, Group, Stack, ScrollArea } from "@mantine/core";
 
 /* this component expects a different  data structure depending on the 
   * value of postGame, as of right now postGame requires a word.found value */
@@ -81,14 +81,16 @@ export default function AnswerDisplay({words,onWordClick,postGame}) {
 
   return (
     <>
-      <Group justify="flex-start" align="flex-start">
-        {createColumnGroup(wordsBySize.get(3),3,postGame)}
-        {createColumnGroup(wordsBySize.get(4),4,postGame)}
-        {createColumnGroup(wordsBySize.get(5),5,postGame)}
-        {createColumnGroup(wordsBySize.get(6),6,postGame)}
-        {createColumnGroup(wordsBySize.get(7),7,postGame)}
-        {createColumnGroup(wordsBySize.get(8),8,postGame)}
-      </Group>
+      <ScrollArea w="480px" h="300px">
+        <Group justify="flex-start" align="flex-start">
+          {createColumnGroup(wordsBySize.get(3),3,postGame)}
+          {createColumnGroup(wordsBySize.get(4),4,postGame)}
+          {createColumnGroup(wordsBySize.get(5),5,postGame)}
+          {createColumnGroup(wordsBySize.get(6),6,postGame)}
+          {createColumnGroup(wordsBySize.get(7),7,postGame)}
+          {createColumnGroup(wordsBySize.get(8),8,postGame)}
+        </Group>
+      </ScrollArea>
     </>
   );
 
