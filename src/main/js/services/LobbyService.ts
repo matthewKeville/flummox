@@ -1,6 +1,9 @@
+//webpack alias resolves to config/local.json or  config/prod.json
+import config from "config" 
+
 export async function UpdateLobby(lobbyId: number,lobbyUpdate: any) : Promise<ServiceResponse<undefined>> {
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/update", {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/update", {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
@@ -50,7 +53,7 @@ export async function SendLobbyChat(lobbyId: number,message: any) : Promise<Serv
   let messageDTO: any = {}
   messageDTO.message = message
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/messages", {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/messages", {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
@@ -63,7 +66,9 @@ export async function SendLobbyChat(lobbyId: number,message: any) : Promise<Serv
 //TODO rename this entity to LobbyHeader
 export async function GetLobbySummaries() : Promise<ServiceResponse<Array<any>>> {
 
-  const response = await fetch("/api/lobby/summary")
+  console.log("config is " + JSON.stringify(config))
+
+  const response = await fetch(config.origin+"/api/lobby/summary")
   const content = await response.json()
 
   if ( response.ok ) {
@@ -90,7 +95,7 @@ export async function GetLobbySummaries() : Promise<ServiceResponse<Array<any>>>
 
 export async function CreateLobby() : Promise<ServiceResponse<number>> {
 
-  const response = await fetch("/api/lobby/create", {
+  const response = await fetch(config.origin+"/api/lobby/create", {
     method: "POST",
     headers: {},
     body: null
@@ -123,7 +128,7 @@ export async function CreateLobby() : Promise<ServiceResponse<number>> {
 export async function DeleteLobby(lobbyId: number) : Promise<ServiceResponse<void>> {
 
 
-  const response = await fetch("/api/lobby/"+lobbyId, {
+  const response = await fetch(config.orign+"/api/lobby/"+lobbyId, {
     method: "DELETE",
     body: null
   });
@@ -152,7 +157,7 @@ export async function DeleteLobby(lobbyId: number) : Promise<ServiceResponse<voi
 
 export async function KickPlayer(lobbyId: number,playerId: number) : Promise<ServiceResponse<void>> {
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/kick/"+playerId, {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/kick/"+playerId, {
       method: "POST",
       headers: {
       },
@@ -196,7 +201,7 @@ export async function KickPlayer(lobbyId: number,playerId: number) : Promise<Ser
 }
 export async function PromotePlayer(lobbyId: number,playerId: number) : Promise<ServiceResponse<void>> {
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/promote/"+playerId, {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/promote/"+playerId, {
       method: "POST",
       headers: {
       },
@@ -241,7 +246,7 @@ export async function PromotePlayer(lobbyId: number,playerId: number) : Promise<
 
 export async function JoinLobby(lobbyId: number,token?: string) : Promise<ServiceResponse<void>> {
 
-  let request = "/api/lobby/" + lobbyId + "/join"
+  let request = config.origin+"/api/lobby/" + lobbyId + "/join"
   if ( typeof token !== "undefined" ) {
     request += "?token="+token;
   }
@@ -294,7 +299,7 @@ export async function JoinLobby(lobbyId: number,token?: string) : Promise<Servic
 
 export async function LeaveLobby(lobbyId: number) : Promise<ServiceResponse<void>> {
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/leave", {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/leave", {
     method: "POST",
     headers: {
     },
@@ -327,7 +332,7 @@ export async function LeaveLobby(lobbyId: number) : Promise<ServiceResponse<void
 
 export async function GetInviteLink() : Promise<ServiceResponse<string>> {
 
-  const response = await fetch("/api/lobby/invite", {
+  const response = await fetch(config.origin+"/api/lobby/invite", {
     method: "GET",
     headers: {},
     body: null
@@ -361,7 +366,7 @@ export async function GetInviteLink() : Promise<ServiceResponse<string>> {
 
 export async function StartLobby(lobbyId: number) : Promise<ServiceResponse<void>> {
 
-  const response = await fetch("/api/lobby/"+lobbyId+"/start", {
+  const response = await fetch(config.origin+"/api/lobby/"+lobbyId+"/start", {
     method: "POST",
     headers: {
     },

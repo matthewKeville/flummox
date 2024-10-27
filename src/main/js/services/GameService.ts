@@ -1,3 +1,6 @@
+//webpack alias resolves to config/local.json or  config/prod.json
+import config from "config" 
+
 interface GameAnswer {
   answerText : string
 }
@@ -10,7 +13,7 @@ interface GameAnswerResult {
 
 export async function GetPostGame(gameId: number) : Promise<ServiceResponse<any>> {
 
-  const response = await fetch("/api/game/" + gameId + "/post");
+  const response = await fetch(config.origin+"/api/game/" + gameId + "/post");
   let content = await response.json()
 
   if (response.status == 200 || response != null) {
@@ -43,7 +46,7 @@ export async function PostGameAnswer(lobbyId: number, answer: GameAnswer) : Prom
     let answerBody : any = {}
     answerBody.answer = answer.answerText
 
-    const response = await fetch("/api/game/" + lobbyId + "/answer", {
+    const response = await fetch(config.origin+"/api/game/" + lobbyId + "/answer", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'

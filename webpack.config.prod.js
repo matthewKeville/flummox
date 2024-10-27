@@ -4,18 +4,18 @@ module.exports = {
 
   entry: './src/main/js/index.js',
 
-  cache: true,
+  cache: false,
 
-  mode: "development",
+  mode: "production",
 
   output: {
     path: __dirname,
-    filename: './src/main/resources/static/built/bundle.js'
+    filename: './src/main/resources/static/built/bundle-prod.js'
   },
 
   resolve: {
     alias: {
-      config: '/src/main/js/config/local.json'
+      config: '/src/main/js/config/prod.json'
     },
   },
 
@@ -65,4 +65,4 @@ module.exports = {
       },
     ]
   }
-};
+}

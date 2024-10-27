@@ -1,6 +1,9 @@
+//webpack alias resolves to config/local.json or  config/prod.json
+import config from "config" 
+
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { Button, Avatar, Text, Menu, Group } from '@mantine/core';
+import { Button, Text, Menu } from '@mantine/core';
 import { IconUserCircle } from "@tabler/icons-react";
 
 export default function AccountControls() {
@@ -11,16 +14,16 @@ export default function AccountControls() {
   let getActions = function() {
     return userInfo.isGuest ?
       <>
-        <Menu.Item leftSection="L" onClick={() => {window.location.href="/login"}}>
+        <Menu.Item leftSection="L" onClick={() => {window.location.href=config.origin+"/login"}}>
           Login
         </Menu.Item>
-        <Menu.Item leftSection="R" onClick={() => {window.location.href="/signup"}}>
+        <Menu.Item leftSection="R" onClick={() => {window.location.href=config.origin+"/signup"}}>
           Sign Up
         </Menu.Item>
       </>
       :
       <>
-        <Menu.Item leftSection="L" onClick={() => {window.location.href="/logout"}}>
+        <Menu.Item leftSection="L" onClick={() => {window.location.href=config.origin+"/logout"}}>
           Logout
         </Menu.Item>
       </>

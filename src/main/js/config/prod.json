@@ -1,0 +1,6 @@
+{
+  "protocol": "http",
+  "hostname": "reboggled.duckdns.org",
+  "port"  : "8085",
+  "origin": "http://reboggled.duckdns:8085"
+}
