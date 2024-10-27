@@ -13,6 +13,16 @@ export async function loader() {}
 
 export default function Game({ gameId}) {
 
+  const [muted,setMuted] = useState(true)
+  const goodWordSFXAudio = new Audio("/audio/word-good.wav")
+  const badWordSFXAudio = new Audio("/audio/word-bad.wav")
+  goodWordSFXAudio.volume = 0.3
+  badWordSFXAudio.volume = 0.2
+
+  function toggleMuted() {
+    setMuted(!muted)
+  }
+
   async function onSubmitAnswer(word) {
 
     var serviceResponse = await PostGameAnswer(gameId,{ answerText : word })
@@ -20,8 +30,10 @@ export default function Game({ gameId}) {
 
     if ( gameAnswerResult.success) {
       toast.success(gameAnswerResult.successMessage)
+      !muted && goodWordSFXAudio.play();
     } else {
       toast.error(gameAnswerResult.failMessage);
+      !muted && badWordSFXAudio.play();
     }
 
   }
@@ -62,7 +74,7 @@ export default function Game({ gameId}) {
   return (
       <Stack align="center" justify="center" mt="2%"> 
         <GameTimer gameEnd={game.end}/>
-        <Board dice={game.tiles} tileRotationEnabled={game.tileRotation} />
+        <Board dice={game.tiles} tileRotationEnabled={game.tileRotation} muted={muted} onToggleMuted={() => toggleMuted()}/>
         <Group> 
           <WordInput onWordInput={onSubmitAnswer} />
         </Group>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, SimpleGrid, Center, Flex, Group, Stack } from "@mantine/core";
-import { IconArrowForwardUp } from "@tabler/icons-react";
+import { IconArrowForwardUp, IconVolume, IconVolumeOff } from "@tabler/icons-react";
 
 function getTileString(tile) {
   switch(tile.code) {
@@ -44,13 +44,14 @@ function Die({tile, handleClick, tileRotation}) {
   );
 }
 
-export default function Board({dice,tileRotationEnabled}) {
-
-  console.log(" is tile rotationEnabled? " + tileRotationEnabled)
+export default function Board({dice,tileRotationEnabled,muted,onToggleMuted}) {
 
   const [rotation,setRotation] = useState(0)
+  const boardTurnSFXAudio = new Audio("/audio/board-turn.wav")
+  boardTurnSFXAudio.volume = 0.2
 
   function rotate(positive) {
+    !muted && boardTurnSFXAudio.play()
     if ( positive ) {
       setRotation((rotation+1)%4)
       return
@@ -86,6 +87,17 @@ export default function Board({dice,tileRotationEnabled}) {
             style={{transform: "rotate(-90deg)"}} 
             onClick={() => rotateLeft() } 
           />
+          { muted
+            ? <IconVolumeOff
+                size={24}
+                onClick={() => onToggleMuted()}
+              />
+            :  <IconVolume
+                size={24}
+                onClick={() => onToggleMuted()}
+              />
+          }
+
           <IconArrowForwardUp 
             size={24} 
             style={{transform: "scaleX(-1) rotate(-90deg)"}} 

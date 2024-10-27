@@ -10,8 +10,9 @@ module.exports = {
   },
   module: {
     rules: [
+
       {
-        test: path.join(__dirname, '.'),
+        test: /\.(css|ts|jsx|js)$/i,
         exclude: /(node_modules)/,
         use: [{
           loader: 'babel-loader',
@@ -20,6 +21,7 @@ module.exports = {
           }
         }]
       },
+
       {
         test: /\.css$/i,
         use: [
@@ -49,7 +51,12 @@ module.exports = {
             },
           }
         ],
-      }
+      },
+
+      {
+        test: /\.(wav)$/i,
+        type: 'asset/resource',
+      },
     ]
   }
 };
