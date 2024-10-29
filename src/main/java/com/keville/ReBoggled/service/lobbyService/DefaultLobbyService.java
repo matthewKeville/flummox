@@ -106,7 +106,7 @@ public class DefaultLobbyService implements LobbyService {
       int lobbyId = optUserLobby.get().id;
 
       String token = tokenService.getLobbyToken(lobbyId);
-      String url = "/join?id=" + lobbyId + "&token=" + token;
+      String url = "/#join?id=" + lobbyId + "&token=" + token;
 
       return url;
 

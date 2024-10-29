@@ -10,7 +10,7 @@ module.exports = {
 
   output: {
     path: __dirname,
-    filename: './src/main/resources/static/built/bundle-prod.js'
+    filename: './src/main/resources/static/built/bundle.js'
   },
 
   resolve: {

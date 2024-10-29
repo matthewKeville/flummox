@@ -7,6 +7,7 @@ import { IconTrash, IconUserShare, IconDoorExit, IconPlayerPlay,
 
 import Chat from "/src/main/js/components/game/preGame/Chat.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
+import config from "config"
 
 import { GetInviteLink, StartLobby, LeaveLobby } from "/src/main/js/services/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
@@ -50,7 +51,7 @@ export default function PreGame({lobby,onReturnToPostGame,playedPrevious}) {
     } else {
 
       var lobbyInviteLink = serviceResponse.data
-      CopyToClipboardInsecure(lobbyInviteLink)
+      CopyToClipboardInsecure(config.origin+lobbyInviteLink)
       toast.info("Invite Copied To Clipboard")
 
     }

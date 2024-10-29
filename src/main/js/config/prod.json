@@ -1,6 +1,6 @@
 {
-  "protocol": "http",
-  "hostname": "reboggled.duckdns.org",
-  "port"  : "8085",
-  "origin": "http://reboggled.duckdns:8085"
+  "protocol": "https",
+  "hostname": "flummox-app.duckdns.org",
+  "port"  : "443",
+  "origin": "https://flummox-app.duckdns.org:443"
 }
