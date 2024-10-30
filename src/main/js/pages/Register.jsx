@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [formErrors,setFormErrors] = useState(null);
 
   let handleSubmit = async function(e) {
+    e.preventDefault(); //don't act like a normal submit event
 
     let formDTO = {}
     formDTO.username = e.target[0].value
@@ -25,7 +26,7 @@ export default function RegisterPage() {
 
     if ( serviceResponse.success ) {
       revalidator.revalidate();
-      navigate("/")
+      navigate("/login")
     } else {
       console.log("couldn't register" + serviceResponse.data)
       setFormErrors(serviceResponse.data)
