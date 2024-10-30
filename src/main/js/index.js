@@ -12,6 +12,8 @@ import Home from "/src/main/js/pages/Home.jsx";
 import ErrorPage from "/src/main/js/pages/Error.jsx";
 import LobbyBrowser, {loader as lobbyBrowserLoader } from '/src/main/js/pages/LobbyBrowser.jsx'
 import Lobby, {loader as lobbyLoader } from "/src/main/js/pages/Lobby.jsx";
+import Login from "/src/main/js/pages/Login.jsx";
+import Register from "/src/main/js/pages/Register.jsx";
 import LobbyInvite from "/src/main/js/pages/redirects/LobbyInvite.jsx";
 
 const theme = createTheme({
@@ -45,6 +47,21 @@ const router = createHashRouter([
         loader: lobbyLoader,
         id:"lobby",
         children: []
+      },
+      {
+        path: "login",
+        element: <Login />,
+        id:"login"
+      },
+      {
+        path: "logout",
+        element: <Login />,
+        id:"logout"
+      },
+      {
+        path: "register",
+        element: <Register />,
+        id:"register"
       },
       {
         path: "join",

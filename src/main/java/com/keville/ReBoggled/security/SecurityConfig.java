@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,8 +28,10 @@ public class SecurityConfig {
   private AuthenticationSuccessHandlerImpl authenticationSuccessHandler;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(@Autowired HttpSecurity http,
-      @Autowired HandlerMappingIntrospector introspector) 
+  public SecurityFilterChain securityFilterChain(
+      @Autowired HttpSecurity http,
+      @Autowired HandlerMappingIntrospector introspector,
+      @Autowired Environment env) 
         throws Exception 
   {
     MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
@@ -43,11 +46,19 @@ public class SecurityConfig {
 
       .formLogin((form) -> form
           .permitAll()
-          .loginPage("/login")
+           //for the purposes of the user loggin in, this definition isn't strictly necessary
+           //as we can just post to the login endpoint through client side js.
+           //however, if authentication is needed, this property determines what page
+           //to redirect to. We want to redirect to the client side login page, not the built-in
+           //bootstrap template.
+           .loginPage(env.getProperty("flummox.origin")+"/#login")
+           .loginProcessingUrl("/login")
           .successHandler( authenticationSuccessHandler )
       )
 
-      .logout((logout) -> logout.permitAll())
+      .logout((logout) -> logout
+          .permitAll()
+      )
 
       .authorizeHttpRequests( request -> request
 
@@ -57,12 +68,9 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern("/audio/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/favicon.ico")).permitAll()
 
+        //special endpoints
+
         .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern("/lobby")).permitAll()
-         .requestMatchers(mvcMatcherBuilder.pattern("/lobby/*")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern("/error")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern("/login")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern("/signup")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/register")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/join")).permitAll() //follow invite link
 
@@ -81,7 +89,6 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/start")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/kick/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/promote/*")).permitAll()
-
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary/sse")).permitAll()

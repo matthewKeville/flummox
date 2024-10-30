@@ -2,28 +2,39 @@
 import config from "config" 
 
 import React from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useNavigate, useLoaderData, useRevalidator } from "react-router-dom";
 import { Button, Text, Menu } from '@mantine/core';
 import { IconUserCircle } from "@tabler/icons-react";
+
+import { Logout } from "/src/main/js/services/AuthenticationService.ts";
 
 export default function AccountControls() {
   
   const { userInfo } = useLoaderData();
+  const navigate = useNavigate();
+  const revalidator = useRevalidator();
+
   const accountIcon = <IconUserCircle/>
 
   let getActions = function() {
     return userInfo.isGuest ?
       <>
-        <Menu.Item leftSection="L" onClick={() => {window.location.href=config.origin+"/login"}}>
+        <Menu.Item leftSection="L" onClick={() => {navigate("login")}}>
           Login
         </Menu.Item>
-        <Menu.Item leftSection="R" onClick={() => {window.location.href=config.origin+"/signup"}}>
+        <Menu.Item leftSection="R" onClick={() => {navigate("register")}}>
           Sign Up
         </Menu.Item>
       </>
       :
       <>
-        <Menu.Item leftSection="L" onClick={() => {window.location.href=config.origin+"/logout"}}>
+        <Menu.Item leftSection="L" onClick={
+          () => {
+            Logout();
+            revalidator.revalidate()
+            navigate("logout")
+          }
+        }>
           Logout
         </Menu.Item>
       </>
