@@ -62,8 +62,6 @@ public class LobbyController {
   @GetMapping("")
   public ResponseEntity<?> getLobbies(HttpSession session) {
 
-    logReq("get","");
-
     Iterable<Lobby> lobbies = lobbyService.getLobbies();
     return new ResponseEntity<Iterable<Lobby>>(lobbies,HttpStatus.OK);
 
@@ -73,8 +71,6 @@ public class LobbyController {
   public ResponseEntity<?> getLobby(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
-
-    logReq("get","/"+id);
 
     try {  
       Lobby lobby = lobbyService.getLobby(id);
@@ -90,8 +86,6 @@ public class LobbyController {
   public SseEmitter getLobbyMessageSSE(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
-
-    logReq("get","/"+id+"/messages/sse");
 
     //assemble emitter
 
@@ -131,8 +125,6 @@ public class LobbyController {
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
-
-    logReq("get","/"+id+"/summary/sse");
 
     //assemble emitter
 
@@ -174,8 +166,6 @@ public class LobbyController {
         @Autowired HttpSession session,
         @Autowired BindingResult bindingResult) {
 
-      logReq("post",String.format("/%d/message",id));
-
       if ( bindingResult.hasErrors() ) {
           LOG.info(String.format("Invalid Request Body"));
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_BODY");
@@ -199,8 +189,6 @@ public class LobbyController {
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly
       ) {
 
-    logReq("get","/summary");
-
     try { 
     Iterable<LobbySummaryDTO> lobbies = lobbyService.getLobbySummaryDTOs();
     return new ResponseEntity<Iterable<LobbySummaryDTO>>(lobbies,HttpStatus.OK);
@@ -214,8 +202,6 @@ public class LobbyController {
   public ResponseEntity<?> getLobbyView(@PathVariable("id") Integer id,
       HttpSession session) {
 
-    logReq("get",id+"/summary");
-
     try { 
       LobbySummaryDTO lobby = lobbyService.getLobbySummaryDTO(id);
       return new ResponseEntity<LobbySummaryDTO>(lobby,HttpStatus.OK);
@@ -227,8 +213,6 @@ public class LobbyController {
 
   @GetMapping("/invite")
   public ResponseEntity<?> getInvite(HttpSession session) {
-
-    logReq("get","/invite");
 
     try { 
 
@@ -254,12 +238,6 @@ public class LobbyController {
       @RequestParam(required = false, name = "token") String token
       ) {
 
-    if ( token != null ) {
-      logReq("post",String.format("/%d/join?token=%s",id,token));
-    } else {
-      logReq("post",String.format("/%d/join",id));
-    }
-
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
       LOG.warn("unable to identify the userId of the current Session");
@@ -282,8 +260,6 @@ public class LobbyController {
       @PathVariable("userId") Integer userId, //To be kicked
       @Autowired HttpSession session) {
 
-    logReq("post",String.format("/%d/kick/%d",id,userId));
-
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
@@ -304,8 +280,6 @@ public class LobbyController {
       @PathVariable("userId") Integer userId, //To be kicked
       @Autowired HttpSession session) {
 
-    logReq("post",String.format("/%d/promote/%d",id,userId));
-
     try {
       Integer requesterId = (Integer) session.getAttribute("userId");
       verifyLobbyOwner(id,requesterId);
@@ -321,8 +295,6 @@ public class LobbyController {
   public ResponseEntity<?> leaveLobby(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
-
-    logReq("post",String.format("/%d/leave",id));
 
     Integer userId = (Integer) session.getAttribute("userId");
 
@@ -341,8 +313,6 @@ public class LobbyController {
         @Valid @RequestBody LobbyUpdateDTO lobbyUpdateDTO,
         @Autowired HttpSession session,
         @Autowired BindingResult bindingResult) {
-
-      logReq("post",String.format("/%d/update",id));
 
       if ( bindingResult.hasErrors() ) {
           LOG.info(String.format("Invalid Request Body"));
@@ -371,8 +341,6 @@ public class LobbyController {
         @PathVariable("id") Integer id,
         @Autowired HttpSession session ) {
 
-      logReq("post",String.format("/%d/start",id));
-
       try {
 
         Integer userId = (Integer) session.getAttribute("userId");
@@ -391,8 +359,6 @@ public class LobbyController {
     public ResponseEntity<?>  createLobby(
         @Autowired HttpSession session) {
 
-      logReq("post","/create");
-
       Integer userId = (Integer) session.getAttribute("userId");
       User user = userService.getUser(userId);
 
@@ -409,8 +375,6 @@ public class LobbyController {
     public ResponseEntity<?> deleteLobby(
         @PathVariable("id") Integer id,
         @Autowired HttpSession session) {
-
-      logReq("delete","/"+id);
 
       try {
         Integer userId = (Integer) session.getAttribute("userId");
@@ -495,11 +459,6 @@ public class LobbyController {
           throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NOT_AUTHORIZED");
       }
 
-  }
-
-  private void logReq(String type,String route) {
-    type = type.toUpperCase();
-    LOG.info(type + "\t" + baseRoute + route);
   }
 
 }

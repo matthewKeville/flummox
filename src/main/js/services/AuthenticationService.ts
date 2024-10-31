@@ -1,23 +1,16 @@
 import config from "config";
 
-export function Login(formData) {
-  console.log("formData is ")
-  console.log(formData)
-}
-
 export async function Logout() : Promise<ServiceResponse<undefined>> {
 
   const response = await fetch(config.origin+"/logout", {
     method: "POST",
   });
 
-  const content = await response.json()
-
   if ( response.ok ) {
 
     console.log("logout success")
     return {
-      data: content,
+      data: undefined,
       success: true,
       errorMessage: undefined
     }
@@ -37,8 +30,6 @@ export async function Logout() : Promise<ServiceResponse<undefined>> {
 }
 
 export async function Register(registerDTO: any) : Promise<ServiceResponse<undefined>> {
-
-  console.log('hit register')
 
   const response = await fetch(config.origin+"/register", {
     method: "POST",
@@ -64,10 +55,48 @@ export async function Register(registerDTO: any) : Promise<ServiceResponse<undef
 
     console.log("register failed")
 
-    let errorMessage = "failed to logout";
+    let errorMessage = "failed to register";
 
     return {
       data: content,
+      success: false,
+      errorMessage: errorMessage
+    }
+
+  }
+
+}
+
+export async function VerifyAccount(verifyAccountDTO:any) : Promise<ServiceResponse<string>> {
+
+  console.log(verifyAccountDTO)
+
+  const response = await fetch(config.origin+"/verify", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(verifyAccountDTO)
+  });
+
+  if ( response.ok ) {
+
+    console.log("verify success")
+
+    return {
+      data: null,
+      success: true,
+      errorMessage: undefined
+    }
+
+  } else {
+
+    console.log("verify failed")
+
+    let errorMessage = "failed to verify account";
+
+    return {
+      data: null,
       success: false,
       errorMessage: errorMessage
     }

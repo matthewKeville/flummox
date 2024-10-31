@@ -1,9 +1,14 @@
-HELP.md
+# secrets
+src/main/resources/secrets.local.properties
+src/main/resources/secrets.prod.properties
+**/*secrets*
+
 target/
 .mvn/
 node_modules/
 tmp/
 src/main/resources/static/built/
+
 
 ### STS ###
 .apt_generated

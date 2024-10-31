@@ -29,8 +29,6 @@ public class UserController {
     @GetMapping("/api/user/info")
     public UserInfo test(HttpSession session) {
 
-      LOG.info("hit /api/user/info");
-
       if ( session.getAttribute("userId") == null ) {
         LOG.warn(" client tried to request userInfo but the session doesn't have a userId assigned");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to identify current user");

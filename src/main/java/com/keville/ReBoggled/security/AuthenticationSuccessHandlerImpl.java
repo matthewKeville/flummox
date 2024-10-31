@@ -60,7 +60,7 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
         //Hmm what happens when to the AuthenticationContext when the User changes its information, during the session? 
         //Does the information become stale?
         session.setAttribute("userId",user.id);
-        LOG.info("Authenticated User Session started for \n" + user.getUsername());
+        LOG.info("Authenticated User Session started for "  + user.getUsername());
 
         // forward the user to the home page
         response.setHeader("Location", "/");

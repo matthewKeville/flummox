@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
 import com.keville.ReBoggled.DTO.PostGameDTO;
 import com.keville.ReBoggled.sse.GameSseEventDispatcher;
-import com.keville.ReBoggled.controllers.util.RequestLogger;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
@@ -33,7 +32,6 @@ public class GameController {
 
   public static final String baseRoute = "/api/game";
   private static final Logger LOG = LoggerFactory.getLogger(GameController.class);
-  private RequestLogger rlog = new RequestLogger(baseRoute,LOG);
 
   private GameService gameService;
   private GameSseEventDispatcher gameSseEventDispatcher;
@@ -47,8 +45,6 @@ public class GameController {
   @GetMapping("")
   public ResponseEntity<?> getGames(HttpSession session) {
 
-    rlog.log("get","");
-
     Iterable<Game> games = gameService.getGames();
     return new ResponseEntity<Iterable<Game>>(games,HttpStatus.OK);
 
@@ -59,8 +55,6 @@ public class GameController {
       @PathVariable("id") Integer id,
       @Valid @RequestBody GameAnswerSubmissionDTO gameAnswerSubmissionDTO,
       @Autowired HttpSession session) {
-
-    rlog.log("post",String.format("/%d/answer",id));
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -83,7 +77,7 @@ public class GameController {
   public ResponseEntity<?> getPostGameDTO(@PathVariable("id") Integer id,
       HttpSession session) {
 
-    logReq("get",id+"/post");
+    
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -107,7 +101,7 @@ public class GameController {
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    logReq("get","/"+id+"/view/user/sse");
+    
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -164,11 +158,6 @@ public class GameController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
-  }
-
-  private void logReq(String type,String route) {
-    type = type.toUpperCase();
-    LOG.info(type + "\t" + baseRoute + route);
   }
 
 }

@@ -72,6 +72,7 @@ public class SecurityConfig {
 
         .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/register")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/verify")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/join")).permitAll() //follow invite link
 
         //api

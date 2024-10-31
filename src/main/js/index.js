@@ -15,6 +15,7 @@ import Lobby, {loader as lobbyLoader } from "/src/main/js/pages/Lobby.jsx";
 import Login from "/src/main/js/pages/Login.jsx";
 import Register from "/src/main/js/pages/Register.jsx";
 import LobbyInvite from "/src/main/js/pages/redirects/LobbyInvite.jsx";
+import AccountVerify from "/src/main/js/pages/redirects/AccountVerify.jsx";
 
 const theme = createTheme({
   /** theme overrides */
@@ -46,7 +47,11 @@ const router = createHashRouter([
         element: <Lobby />,
         loader: lobbyLoader,
         id:"lobby",
-        children: []
+      },
+      {
+        path: "join",
+        element: <LobbyInvite />,
+        id:"lobby-invite",
       },
       {
         path: "login",
@@ -54,20 +59,14 @@ const router = createHashRouter([
         id:"login"
       },
       {
-        path: "logout",
-        element: <Login />,
-        id:"logout"
-      },
-      {
         path: "register",
         element: <Register />,
         id:"register"
       },
       {
-        path: "join",
-        element: <LobbyInvite />,
-        id:"lobby-invite",
-        children: []
+        path: "verify",
+        element: <AccountVerify />,
+        id:"verify"
       }
     ]
   },

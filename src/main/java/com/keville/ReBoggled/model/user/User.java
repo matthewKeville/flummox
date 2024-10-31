@@ -18,6 +18,7 @@ public class User implements UserDetails {
     public String username;
     public String email;
     public Boolean verified = false;
+    public String verificationToken = "";
     public Boolean guest = true;
 
     public User() {};
@@ -28,7 +29,6 @@ public class User implements UserDetails {
       this.password = password;
       this.verified = false;
       this.guest = false;
-
     }
 
     @Deprecated

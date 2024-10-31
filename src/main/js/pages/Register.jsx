@@ -35,8 +35,8 @@ export default function RegisterPage() {
 
   return (
     <>
-    <Stack my="50%" mx="30%">
-    <Center>
+    <Stack mt="md" mx="30%">
+    <Center py="5%">
     <form onSubmit={handleSubmit}>
         <TextInput label="Username" placeholder="flummoxer" error={formErrors?.errorUsername} size="md"/>
         <TextInput mt="md" label="Email" type="email" placeholder="person@email.com" error={formErrors?.errorEmail} size="md"/>

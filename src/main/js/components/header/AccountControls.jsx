@@ -32,7 +32,7 @@ export default function AccountControls() {
           () => {
             Logout();
             revalidator.revalidate()
-            navigate("logout")
+            navigate("/")
           }
         }>
           Logout
