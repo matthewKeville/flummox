@@ -1,10 +1,6 @@
 package com.keville.ReBoggled.sse;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,126 +15,73 @@ import com.keville.ReBoggled.DTO.LobbyMessageDTO;
 import com.keville.ReBoggled.model.lobby.LobbyMessage;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
+import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 
-//code duplication w/ LobbySseEventDispatcher
 
 @Component
-public class LobbyMessageSseDispatcher extends SseEventDispatcher {
+public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbyMessageSseDispatcher.class);
-    private Map<Integer,Set<SseEmitter>> lobbyMessageEmitters = new HashMap<Integer,Set<SseEmitter>>();
     private LobbyService lobbyService;
 
     public LobbyMessageSseDispatcher(@Autowired LobbyService lobbyService) {
       this.lobbyService = lobbyService;
     }
 
-    private void sendInitPayload(int lobbyId,SseEmitter emitter) {
+    @Override
+    protected void sendInitialPayload(SseEmitter emitter,LobbyMessageContext context) {
       try {
 
-        List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(lobbyId);
+        List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(context.lobbyId);
 
-        SseEventBuilder newMessageEventBuilder = SseEmitter.event()
+        SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(0))
           .name("init")
           .data(messages);
 
-        String failMessage = "Couldn't send initial messages for lobby : " + lobbyId;
-        tryEmitEvent(emitter, newMessageEventBuilder, failMessage);
+        tryEmitEvent(emitter, sseEvent);
 
       } catch (LobbyServiceException e) {
 
-        LOG.error("Couldn't send initial messages for lobby : " + lobbyId);
+        LOG.error(String.format("Caught error dispatching init payload for lobby message %d",context.lobbyId));
         LOG.error(e.getMessage());
 
       }
     }
+ 
+    @EventListener
+    public void handleLobbyMessageSave(AfterSaveEvent<Object> event) {
 
-    public void unregister(Integer lobbyId,SseEmitter emitter) {
-
-      if ( !lobbyMessageEmitters.containsKey(lobbyId) ) {
-        LOG.error(String.format("can't unregister emitter, not set for lobby message %d",lobbyId));
+      if ( !event.getType().equals(LobbyMessage.class) ) {
         return;
       }
 
-      Set<SseEmitter> emitters = lobbyMessageEmitters.get(lobbyId);
+      LobbyMessage message = (LobbyMessage) event.getEntity();
 
-      if ( emitters.contains(emitter) ) {
+      try {
 
-        emitters.remove(emitter);
+        List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(message.lobby.getId());
 
-        if ( emitters.isEmpty() ) {
-          lobbyMessageEmitters.remove(lobbyId);
-        }
+        SseEventBuilder sseEvent = SseEmitter.event()
+          .id(String.valueOf(message.id))
+          .name("update")
+          .data(messages);
 
-      } else {
+        sseMap
+          .entrySet()
+          .stream()
+          .filter( entry -> { return entry.getKey().lobbyId == message.lobby.getId(); })
+          .map( entry -> entry.getValue() )
+          .forEach( emitter -> tryEmitEvent(emitter, sseEvent) );
 
-        LOG.error("can't remove emitter because it's not in the set ");
 
-      }
+      } catch (LobbyServiceException e) {
 
-    }
-
-    public void register(Integer lobbyId,SseEmitter emitter) {
-
-      Set<SseEmitter> emitters;
-
-      if ( lobbyMessageEmitters.containsKey(lobbyId) ) {
-
-        emitters = lobbyMessageEmitters.get(lobbyId);
-
-      } else {
-
-        if (!lobbyService.exists(lobbyId)) {
-          LOG.error(String.format("unable to register emitter, lobby %d doesn't exist",lobbyId));
-          return;
-        }
-
-        emitters = new HashSet<SseEmitter>();
-        lobbyMessageEmitters.put(lobbyId,emitters);
+        LOG.error(String.format("unable to create SSEs for lobby %d 's message event",message.lobby.getId()));
+        LOG.error(e.getMessage());
 
       }
 
-      emitters.add(emitter);
-      sendInitPayload(lobbyId, emitter);
-
-      LOG.error(String.format("registered new emitter for lobby messages %d",lobbyId));
-
     }
- 
-  //Listen for new lobby messages
-  @EventListener
-  public void handleLobbyMessageSave(AfterSaveEvent<Object> event) {
-
-    if ( !event.getType().equals(LobbyMessage.class) ) {
-      return;
-    }
-
-    LobbyMessage message = (LobbyMessage) event.getEntity();
-
-    if ( !lobbyMessageEmitters.containsKey( message.lobby.getId() ) ) {
-      return;
-    }
-
-    Set<SseEmitter> emitters = lobbyMessageEmitters.get(message.lobby.getId());
-
-    try {
-
-      List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(message.lobby.getId());
-
-      SseEventBuilder newMessageEventBuilder = SseEmitter.event()
-        .id(String.valueOf(message.id))
-        .name("update")
-        .data(messages);
-
-      String failMessage = "Couldn't send update for lobby : "  + message.id;
-      tryEmitEvents(emitters, newMessageEventBuilder, failMessage);
-
-    } catch (LobbyServiceException e) {
-      LOG.error(String.format("unable to create SSEs for lobby %d 's message event",message.lobby.getId()));
-      LOG.error(e.getMessage());
-    }
-
-  }
 
 }

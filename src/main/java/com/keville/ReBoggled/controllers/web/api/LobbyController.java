@@ -1,6 +1,5 @@
 package com.keville.ReBoggled.controllers.web.api;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,7 +23,9 @@ import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
 import com.keville.ReBoggled.sse.LobbyMessageSseDispatcher;
-import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
+import com.keville.ReBoggled.sse.LobbySseDispatcher;
+import com.keville.ReBoggled.sse.context.LobbyContext;
+import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
@@ -45,17 +46,17 @@ public class LobbyController {
   private LobbyService lobbyService;
   private UserService userService;
 
-  private LobbySseEventDispatcher lobbySseEventDispatcher;
+  private LobbySseDispatcher lobbySseDispatcher;
   private LobbyMessageSseDispatcher lobbyMessageSseDispatcher;
 
   public LobbyController(@Autowired LobbyService lobbyService,
       @Autowired UserService userService,
-      @Autowired LobbySseEventDispatcher lobbySseEventDispatcher,
+      @Autowired LobbySseDispatcher lobbySseDispatcher,
       @Autowired LobbyMessageSseDispatcher lobbyMessageSseDispatcher) {
 
     this.lobbyService = lobbyService;
     this.userService = userService;
-    this.lobbySseEventDispatcher = lobbySseEventDispatcher;
+    this.lobbySseDispatcher = lobbySseDispatcher;
     this.lobbyMessageSseDispatcher = lobbyMessageSseDispatcher;
   }
 
@@ -82,80 +83,30 @@ public class LobbyController {
   }
 
   //TODO : Check if the user participates in the lobby
+
   @GetMapping("/{id}/messages/sse")
   public SseEmitter getLobbyMessageSSE(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    //assemble emitter
+    Integer userId = (Integer) session.getAttribute("userId");
 
-    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-
-    Runnable cleanup = () -> {
-      LOG.info("cleaning up sse emitter");
-      lobbySseEventDispatcher.unregister(id,emitter);
-    };
-
-    emitter.onError(      (ex)  -> {
-      LOG.info(id+"/messages/sse error ");
-      if ( ex instanceof IOException ) {
-        LOG.info("IOException caught, likely client destroyed event source ...");
-        LOG.info(ex.getMessage());
-      } else {
-        LOG.warn("Unexpected error ...");
-        LOG.error(ex.getMessage());
-      }
-      cleanup.run();
-    });
-    emitter.onCompletion( ()    -> {
-      LOG.info(id+"/messages/sse completed");
-      cleanup.run();
-    });
-
-    // wire to dispatcher
-
-    lobbyMessageSseDispatcher.register(id,emitter);
-
-    return emitter;
+    LobbyMessageContext context = new LobbyMessageContext(userId,id);
+    return lobbyMessageSseDispatcher.register(context);
 
   }
 
   //TODO : Check if the user participates in the lobby
+
   @GetMapping("/{id}/summary/sse")
   public SseEmitter getLobbySSE(
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 
-    //assemble emitter
+    Integer userId = (Integer) session.getAttribute("userId");
 
-    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-
-    Runnable cleanup = () -> {
-      LOG.info("cleaning up sse emitter");
-      lobbySseEventDispatcher.unregister(id,emitter);
-    };
-
-    emitter.onError(      (ex)  -> {
-      LOG.info(id+"/summary/sse error ");
-      if ( ex instanceof IOException ) {
-        LOG.info("IOException caught, likely client destroyed event source ...");
-        LOG.info(ex.getMessage());
-      } else {
-        LOG.warn("Unexpected error ...");
-        LOG.error(ex.getMessage());
-      }
-      cleanup.run();
-    });
-    emitter.onCompletion( ()    -> {
-      LOG.info(id+"/summary/sse completed");
-      cleanup.run();
-    });
-
-    // wire to dispatcher
-
-    lobbySseEventDispatcher.register(id,emitter);
-
-    return emitter;
+    LobbyContext context = new LobbyContext(userId,id);
+    return lobbySseDispatcher.register(context);
 
   }
 
@@ -440,12 +391,7 @@ public class LobbyController {
 
   }
 
-  /*
-   * Verify that the user is the owner of this lobby,
-   * if not throw an exception. 
-   * TODO  : Consider putting this into lobbyService 
-   *  ex. lobbyService.isOwner(Integer lobbyId,Integer userId)
-   */
+  //  TODO : (Authorization) does not belong in the controller ...
   private void verifyLobbyOwner(Integer lobbyId,Integer userId) throws LobbyServiceException {
 
       Integer ownerId = lobbyService.getLobbyOwnerId(lobbyId);

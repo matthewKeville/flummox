@@ -1,3 +1,4 @@
+
 package com.keville.ReBoggled.unit.controllers;
 
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
 import com.keville.ReBoggled.service.userService.UserService;
-import com.keville.ReBoggled.sse.LobbySseEventDispatcher;
+import com.keville.ReBoggled.sse.LobbySseDispatcher;
 
 // Note @WebMvcTest can be used to get smaller slices of the context, but it proved to be a headache.
 @SpringBootTest
@@ -55,7 +56,7 @@ public class LobbyControllerTest {
   @MockBean
   private UserRepository users;
   @MockBean
-  private LobbySseEventDispatcher LobbySseEventDispatcher;
+  private LobbySseDispatcher LobbySseEventDispatcher;
 
   @Autowired
   private MockMvc mockMvc;

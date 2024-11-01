@@ -1,7 +1,5 @@
 package com.keville.ReBoggled.controllers.web.api;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
 import com.keville.ReBoggled.DTO.PostGameDTO;
-import com.keville.ReBoggled.sse.GameSseEventDispatcher;
+import com.keville.ReBoggled.sse.GameSseDispatcher;
+import com.keville.ReBoggled.sse.context.GameContext;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.GameServiceException;
@@ -34,12 +33,12 @@ public class GameController {
   private static final Logger LOG = LoggerFactory.getLogger(GameController.class);
 
   private GameService gameService;
-  private GameSseEventDispatcher gameSseEventDispatcher;
+  private GameSseDispatcher gameSseDispatcher;
 
   public GameController(@Autowired GameService gameService,
-      @Autowired GameSseEventDispatcher gameSseEventDispatcher) {
+      @Autowired GameSseDispatcher gameSseDispatcher) {
     this.gameService = gameService;
-    this.gameSseEventDispatcher = gameSseEventDispatcher;
+    this.gameSseDispatcher = gameSseDispatcher;
   }
 
   @GetMapping("")
@@ -77,8 +76,6 @@ public class GameController {
   public ResponseEntity<?> getPostGameDTO(@PathVariable("id") Integer id,
       HttpSession session) {
 
-    
-
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
       LOG.warn("unable to identify the userId of the current Session");
@@ -94,14 +91,10 @@ public class GameController {
 
   }
 
-  /* Register a Server Side Event Emitter to communicate changes to the game model for
-   * the user registered. (In-Game) */
   @GetMapping("/{id}/sse")
   public SseEmitter getGameSSEForUser (
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
-
-    
 
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
@@ -109,36 +102,8 @@ public class GameController {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
     }
 
-    //assemble emitter
-
-    SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-
-    Runnable cleanup = () -> {
-      LOG.info("cleaning up game sse emitter");
-      gameSseEventDispatcher.unregister(id, userId, emitter);
-    };
-
-    emitter.onError(      (ex)  -> {
-      LOG.info(id+"/view/user/sse error ");
-      if ( ex instanceof IOException ) {
-        LOG.info("IOException caught, likely client destroyed event source ...");
-        LOG.info(ex.getMessage());
-      } else {
-        LOG.warn("Unexpected error ...");
-        LOG.error(ex.getMessage());
-      }
-      cleanup.run();
-    });
-
-    emitter.onCompletion( ()    -> {
-      LOG.info(id+"/view/user/sse completed");
-      cleanup.run();
-    });
-
-    // wire to dispatcher
-    gameSseEventDispatcher.register(id,userId,emitter);
-
-    return emitter;
+    GameContext context = new GameContext(userId, id);
+    return gameSseDispatcher.register(context);
 
   }
 
