@@ -1,6 +1,5 @@
 package com.keville.ReBoggled.service.lobbyService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +34,6 @@ public interface LobbyService {
     public Boolean delete(Integer lobbyId) throws LobbyServiceException;
 
     public Lobby createNew(Integer userId) throws LobbyServiceException;
-
-    public boolean isOutdated(Integer lobbyId,LocalDateTime lastTime) throws LobbyServiceException;
 
     public Lobby startGame(Integer lobbyId) throws LobbyServiceException;
 

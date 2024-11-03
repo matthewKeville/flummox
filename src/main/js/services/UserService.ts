@@ -12,9 +12,11 @@ export async function GetUserInfo() : Promise<ServiceResponse<UserInfo>> {
   const userInfoResponse = await fetch(config.origin+"/api/user/info");
 
   if (userInfoResponse.status == 200 || userInfoResponse != null) {
+    let userInfo:UserInfo = await userInfoResponse.json() as UserInfo
     console.log('UserInfo loaded')
+    console.log(userInfo)
     return {
-      data: await userInfoResponse.json() as UserInfo,
+      data: userInfo,
       success:  true,
       errorMessage: undefined
     }

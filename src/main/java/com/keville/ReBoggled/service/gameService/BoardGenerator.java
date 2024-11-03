@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.service.boardGenerationService;
+package com.keville.ReBoggled.service.gameService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,13 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class BoardGenerationService {
+public class BoardGenerator {
 
-  private static Logger LOG = LoggerFactory.getLogger(BoardGenerationService.class);
+  private static Logger LOG = LoggerFactory.getLogger(BoardGenerator.class);
 
   private ClassicTilesGenerator classicTilesGenerator;
 
-  public BoardGenerationService(@Autowired ClassicTilesGenerator classicTilesGenerator) {
+  public BoardGenerator(@Autowired ClassicTilesGenerator classicTilesGenerator) {
     this.classicTilesGenerator = classicTilesGenerator;
   }
 

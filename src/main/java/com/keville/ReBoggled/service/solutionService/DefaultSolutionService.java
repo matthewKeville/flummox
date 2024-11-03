@@ -19,7 +19,6 @@ import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.TileCodeStringMap;
 import com.keville.ReBoggled.service.solutionService.GraphBuilder.GraphBuilderException;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException.SolutionServiceError;
-import com.keville.ReBoggled.service.wordService.WordService;
 
 @Component
 public class DefaultSolutionService implements SolutionService {
@@ -28,8 +27,9 @@ public class DefaultSolutionService implements SolutionService {
 
   @Autowired
   private TileCodeStringMap tileCodeStringMap;
+
   @Autowired
-  private WordService wordService;
+  private WordValidator wordValidator;
   
   private Map<Board,Map<String,BoardWord>> solveCache = new HashMap<Board,Map<String,BoardWord>>();
 
@@ -102,7 +102,7 @@ public class DefaultSolutionService implements SolutionService {
       for ( List<Integer> subPath : frontier ) {
 
         //is this a word?
-        if ( wordService.isLegalBoggleWord(pathToWord(subPath,graph)) ) {
+        if ( wordValidator.isLegalBoggleWord(pathToWord(subPath,graph)) ) {
           solutions.add(subPath);
         }
 
@@ -121,7 +121,7 @@ public class DefaultSolutionService implements SolutionService {
 
           //LOG.trace("exploring branch : " + nPath);
           //path could be word?
-          if (wordService.isPartialLegalBoggleWord(pathToWord(nPath,graph))) {
+          if (wordValidator.isPartialLegalBoggleWord(pathToWord(nPath,graph))) {
             newFrontier.add(nPath);
           }
 

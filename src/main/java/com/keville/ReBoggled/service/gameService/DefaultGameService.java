@@ -29,9 +29,7 @@ import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.answerService.AnswerService;
-import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
 import com.keville.ReBoggled.service.gameService.GameServiceException.GameServiceError;
-import com.keville.ReBoggled.service.gameSummaryService.GameSummaryService;
 
 @Component
 public class DefaultGameService implements GameService {
@@ -41,19 +39,19 @@ public class DefaultGameService implements GameService {
     private UserRepository users;
 
     private AnswerService answerService;
-    private BoardGenerationService boardGenerationService;
-    private GameSummaryService gameSummaryService;
+    private GameSummarizer gameSummarizer;
+    private BoardGenerator boardGenerator;
 
     public DefaultGameService(@Autowired GameRepository games,
         @Autowired UserRepository users,
         @Autowired AnswerService answerService,
-        @Autowired BoardGenerationService boardGenerationService,
-        @Autowired GameSummaryService gameSummaryService) {
+        @Autowired BoardGenerator boardGenerator,
+        @Autowired GameSummarizer gameSummarizer) {
       this.games = games;
       this.users = users;
       this.answerService = answerService;
-      this.boardGenerationService = boardGenerationService; 
-      this.gameSummaryService = gameSummaryService; 
+      this.boardGenerator = boardGenerator; 
+      this.gameSummarizer = gameSummarizer; 
     }
 
     public Game getGame(int id) throws GameServiceException {
@@ -63,10 +61,6 @@ public class DefaultGameService implements GameService {
 
     public Iterable<Game> getGames() {
       return games.findAll();
-    }
-
-    public boolean exists (Integer gameId) {
-      return games.existsById(gameId);
     }
 
     public Game createGame(Lobby lobby) throws GameServiceException {
@@ -79,7 +73,7 @@ public class DefaultGameService implements GameService {
 
       try {
 
-        game.board = boardGenerationService.generate(gameSettings.boardSize,gameSettings.boardTopology,gameSettings.tileRotation);
+        game.board = boardGenerator.generate(gameSettings.boardSize,gameSettings.boardTopology,gameSettings.tileRotation);
 
         game.start = LocalDateTime.now();
         game.end = game.start.plusSeconds(gameSettings.duration);
@@ -135,16 +129,6 @@ public class DefaultGameService implements GameService {
 
     }
 
-
-    //FIXME : duplicate code for LobbyService.isOutated, candidate for refactor
-    public boolean isOutdated(Integer gameId,LocalDateTime lastTime) throws GameServiceException {
-
-      // do query
-      Game game = findGameById(gameId);
-      return game.lastModifiedDate.isAfter(lastTime);
-
-    }
-
     public GameDTO getGameDTO(Integer gameId,Integer userId) throws GameServiceException {
 
       Optional<Game> optGame = games.findById(gameId);
@@ -187,7 +171,7 @@ public class DefaultGameService implements GameService {
       Game game = optGame.get();
       User user = optUser.get();
 
-      GameSummary gameSummary = gameSummaryService.getSummary(game);
+      GameSummary gameSummary = gameSummarizer.summarize(game);
 
       //transform gameSummary into set of 'GameWordDTOs' (flavor GameWord for user)
       Set<GameWordDTO> gameWordDTOs = new HashSet<GameWordDTO>();

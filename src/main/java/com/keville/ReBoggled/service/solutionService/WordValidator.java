@@ -1,7 +1,6 @@
-package com.keville.ReBoggled.service.wordService;
+package com.keville.ReBoggled.service.solutionService;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,15 +18,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultWordService implements WordService {
+public class WordValidator {
 
-  private static Logger LOG = LoggerFactory.getLogger(WordService.class);
+  private static Logger LOG = LoggerFactory.getLogger(WordValidator.class);
   //private static Resource wordFile = new ClassPathResource("words_alpha.txt");
   private static Resource wordFile = new ClassPathResource("corncob_lowercase.txt");
   private List<String> words;
   private Set<String> wordSet;
 
-  public DefaultWordService() throws IOException {
+  public WordValidator() throws IOException {
     loadWordsFromFile();
     this.wordSet = new TreeSet<String>(words);
   }

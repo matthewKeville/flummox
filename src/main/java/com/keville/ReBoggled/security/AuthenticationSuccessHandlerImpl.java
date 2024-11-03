@@ -1,7 +1,6 @@
 package com.keville.ReBoggled.security;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +51,7 @@ public class AuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthentic
           return;
         }
         User user = (User) userDetails;
+
         //The current architecture requires the user.id in the session. (atleast for inauthenticated users)
         //As guest accounts map to User objects, but we since we don't have authenticatoin we can't access User
         //variables directly through the authentication context. Currently we always check this session attribute,

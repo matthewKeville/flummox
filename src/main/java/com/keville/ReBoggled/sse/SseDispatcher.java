@@ -42,6 +42,7 @@ public abstract class SseDispatcher<T extends SseContext> {
     sendInitialPayload(emitter,context);
 
     LOG.info("registered emitter : context " + context.toString());
+    LOG.info(sseMap.size() + " emitters registered");
 
     return emitter;
 
@@ -108,7 +109,9 @@ public abstract class SseDispatcher<T extends SseContext> {
       }
     }
 
-    LOG.info(String.format("Removed %d expired emitters. %d remain",expireCount,sseMap.size()));
+    if ( expireCount != 0 ) {
+      LOG.info(String.format("Removed %d expired emitters. %d remain",expireCount,sseMap.size()));
+    }
 
   }
 

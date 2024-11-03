@@ -22,14 +22,14 @@ import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.ClassicTilesGenerator;
 import com.keville.ReBoggled.model.game.TileCodeStringMap;
-import com.keville.ReBoggled.service.boardGenerationService.BoardGenerationService;
+import com.keville.ReBoggled.service.gameService.BoardGenerator;
 import com.keville.ReBoggled.service.solutionService.DefaultSolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionService;
 import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
-import com.keville.ReBoggled.service.wordService.DefaultWordService;
+import com.keville.ReBoggled.service.solutionService.WordValidator;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {DefaultSolutionService.class,TileCodeStringMap.class,DefaultWordService.class,BoardGenerationService.class,ClassicTilesGenerator.class})
+@ContextConfiguration(classes = {DefaultSolutionService.class,TileCodeStringMap.class,WordValidator.class,BoardGenerator.class,ClassicTilesGenerator.class})
 class SolutionServiceTest {
 
   public static Logger LOG = LoggerFactory.getLogger(SolutionServiceTest.class);
@@ -37,7 +37,7 @@ class SolutionServiceTest {
   @Autowired
   private SolutionService solutionService;
   @Autowired
-  private BoardGenerationService boardGenerationService;
+  private BoardGenerator boardGenerator;
 
   /*
     O   A   P   W
@@ -58,7 +58,7 @@ class SolutionServiceTest {
     List<String> wordsInBoard = Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" );
     BoardSize size = BoardSize.FOUR;
     BoardTopology topology = BoardTopology.PLANE;
-    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
+    Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
     Map<String,BoardWord> solution = solutionService.solve(board);
 
@@ -93,7 +93,7 @@ class SolutionServiceTest {
 
     BoardSize size = BoardSize.FOUR;
     BoardTopology topology = BoardTopology.CYLINDER;
-    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
+    Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
     Map<String,BoardWord> solution = solutionService.solve(board);
 
@@ -128,7 +128,7 @@ class SolutionServiceTest {
 
     BoardSize size = BoardSize.FOUR;
     BoardTopology topology = BoardTopology.CYLINDER_ALT;
-    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
+    Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
     Map<String,BoardWord> solution = solutionService.solve(board);
 
@@ -164,7 +164,7 @@ class SolutionServiceTest {
 
     BoardSize size = BoardSize.FOUR;
     BoardTopology topology = BoardTopology.TORUS;
-    Board board = boardGenerationService.generateFromTileString("oapwltnreebtsiqn",size,topology);
+    Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
     Map<String,BoardWord> solution = solutionService.solve(board);
 

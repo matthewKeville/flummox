@@ -1,9 +1,8 @@
-package com.keville.ReBoggled.service.gameSummaryService;
+package com.keville.ReBoggled.service.gameService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.DTO.GameAnswerSubmissionDTO;
 import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
@@ -17,7 +16,6 @@ import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,16 +29,16 @@ import org.slf4j.LoggerFactory;
 import com.keville.ReBoggled.service.answerService.AnswerService;
 
 @Component
-public class DefaultGameSummaryService implements GameSummaryService {
+public class GameSummarizer {
 
-  public static Logger LOG = LoggerFactory.getLogger(DefaultGameSummaryService.class);
+  public static Logger LOG = LoggerFactory.getLogger(GameSummarizer.class);
   public SolutionService solutionService;
   public AnswerService answerService;
   public UserRepository users;
 
   private Map<Integer,GameSummary> gameSummaryCache = new HashMap<Integer,GameSummary>();
 
-  public DefaultGameSummaryService(
+  public GameSummarizer(
       @Autowired SolutionService solutionService,
       @Autowired AnswerService answerService,
       @Autowired UserRepository users) {
@@ -49,7 +47,7 @@ public class DefaultGameSummaryService implements GameSummaryService {
     this.users = users;
   }
 
-  public GameSummary getSummary(Game game) {
+  public GameSummary summarize(Game game) {
 
     if (gameSummaryCache.containsKey( game.id )) {
       return gameSummaryCache.get(game.id);

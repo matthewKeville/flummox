@@ -41,14 +41,6 @@ public class GameController {
     this.gameSseDispatcher = gameSseDispatcher;
   }
 
-  @GetMapping("")
-  public ResponseEntity<?> getGames(HttpSession session) {
-
-    Iterable<Game> games = gameService.getGames();
-    return new ResponseEntity<Iterable<Game>>(games,HttpStatus.OK);
-
-  }
-
   @PostMapping("/{id}/answer")
   public ResponseEntity<?> answer (
       @PathVariable("id") Integer id,

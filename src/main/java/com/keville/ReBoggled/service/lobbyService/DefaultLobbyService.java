@@ -337,15 +337,6 @@ public class DefaultLobbyService implements LobbyService {
       
     }
 
-    // TODO : this could probably be stuffed further back into a db query to avoid pulling out unec. data
-    public boolean isOutdated(Integer lobbyId,LocalDateTime lastTime) throws LobbyServiceException {
-
-      // do query
-      Lobby lobby = findLobbyById(lobbyId);
-      return lobby.lastModifiedDate.isAfter(lastTime);
-
-    }
-
     public Lobby startGame(Integer lobbyId) throws LobbyServiceException {
 
       Lobby lobby = findLobbyById(lobbyId);
