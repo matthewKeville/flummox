@@ -11,8 +11,8 @@ import com.keville.ReBoggled.model.gameSummary.GameWord;
 import com.keville.ReBoggled.model.gameSummary.ScoreBoardEntry;
 import com.keville.ReBoggled.model.gameSummary.WordFinder;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.service.solutionService.SolutionService;
-import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,24 +26,20 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.keville.ReBoggled.service.answerService.AnswerService;
 
 @Component
 public class GameSummarizer {
 
   public static Logger LOG = LoggerFactory.getLogger(GameSummarizer.class);
-  public SolutionService solutionService;
-  public AnswerService answerService;
+  public BoardSolver boardSolver;
   public UserRepository users;
 
   private Map<Integer,GameSummary> gameSummaryCache = new HashMap<Integer,GameSummary>();
 
   public GameSummarizer(
-      @Autowired SolutionService solutionService,
-      @Autowired AnswerService answerService,
+      @Autowired BoardSolver boardSolver,
       @Autowired UserRepository users) {
-    this.solutionService = solutionService;
-    this.answerService = answerService;
+    this.boardSolver = boardSolver;
     this.users = users;
   }
 
@@ -63,7 +59,7 @@ public class GameSummarizer {
 
     try {
 
-      Map<String,BoardWord> solution = solutionService.solve(game.board);
+      Map<String,BoardWord> solution = boardSolver.solve(game.board);
       Set<GameWord> gameBoardWords = new HashSet<GameWord>();
 
       for ( BoardWord boardWord : solution.values() ) {
@@ -89,7 +85,7 @@ public class GameSummarizer {
 
       return summary;
 
-    } catch (SolutionServiceException e) {
+    } catch (BoardSolverException bse) {
 
       LOG.error("GameSummaryService execption");
       LOG.error("GameSummaryService execption");

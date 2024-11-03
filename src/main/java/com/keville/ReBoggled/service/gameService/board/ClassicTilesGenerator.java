@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model.game;
+package com.keville.ReBoggled.service.gameService.board;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +7,11 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.keville.ReBoggled.model.game.BoardSize;
+import com.keville.ReBoggled.model.game.Tile;
+import com.keville.ReBoggled.service.gameService.TileCodeStringMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

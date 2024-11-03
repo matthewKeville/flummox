@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.service.solutionService;
+package com.keville.ReBoggled.service.gameService.solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,16 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.BoardWord;
+import com.keville.ReBoggled.service.gameService.TileCodeStringMap;
+import com.keville.ReBoggled.service.gameService.solution.graphs.CylinderBoardGraphBuilder;
+import com.keville.ReBoggled.service.gameService.solution.graphs.GraphBuilder.GraphBuilderException;
+import com.keville.ReBoggled.service.gameService.solution.graphs.PlaneBoardGraphBuilder;
+import com.keville.ReBoggled.service.gameService.solution.graphs.TileGraph;
+import com.keville.ReBoggled.service.gameService.solution.graphs.TorusBoardGraphBuilder;
 import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardTopology;
-import com.keville.ReBoggled.model.game.TileCodeStringMap;
-import com.keville.ReBoggled.service.solutionService.GraphBuilder.GraphBuilderException;
-import com.keville.ReBoggled.service.solutionService.SolutionServiceException.SolutionServiceError;
 
 @Component
-public class DefaultSolutionService implements SolutionService {
+public class BoardSolver {
 
-  public static Logger LOG = LoggerFactory.getLogger(SolutionService.class);
+  public static Logger LOG = LoggerFactory.getLogger(BoardSolver.class);
 
   @Autowired
   private TileCodeStringMap tileCodeStringMap;
@@ -31,9 +34,24 @@ public class DefaultSolutionService implements SolutionService {
   @Autowired
   private WordValidator wordValidator;
   
+  // Board : (lowercase word string : BoardWord )
   private Map<Board,Map<String,BoardWord>> solveCache = new HashMap<Board,Map<String,BoardWord>>();
 
-  public Map<String,BoardWord> solve(Board board) throws SolutionServiceException {
+  public boolean isWordInSolution(String word,Board board) throws BoardSolverException {
+
+    if (!solveCache.containsKey(board) ) {
+       solve(board);
+    }
+
+    return solveCache.get(board)
+      .entrySet()
+      .stream()
+      .anyMatch( entry -> { return entry.getKey().equals(word); });
+
+  }
+
+  //return board solution
+  public Map<String,BoardWord> solve(Board board) throws BoardSolverException {
     if (solveCache.containsKey(board) ) {
       LOG.trace("solve cache hit!");
       return solveCache.get(board);
@@ -44,7 +62,8 @@ public class DefaultSolutionService implements SolutionService {
     return solution;
   }
 
-  private Map<String,BoardWord> solveBoard(Board board) throws SolutionServiceException {
+  //solve the board
+  private Map<String,BoardWord> solveBoard(Board board) throws BoardSolverException {
 
     LOG.trace("building graph");
     int boardSize = getBoardSize(board);    
@@ -77,11 +96,11 @@ public class DefaultSolutionService implements SolutionService {
         graph = torusBoardGraphBuilder.build();
         break;
       default :
-        throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
+        throw new BoardSolverException(BoardSolverException.Error.INVALID_BOARD_TOPOLOGY);
     }
 
     } catch (GraphBuilderException gbe) {
-      throw new SolutionServiceException(SolutionServiceError.INCONSISTENT_BOARD_PARAMETERS);
+      throw new BoardSolverException(BoardSolverException.Error.INCONSISTENT_BOARD_PARAMETERS);
     }
 
     LOG.trace("solving graph");
@@ -159,7 +178,7 @@ public class DefaultSolutionService implements SolutionService {
       .toLowerCase();
   }
 
-  private int getBoardSize(Board board) throws SolutionServiceException {
+  private int getBoardSize(Board board) throws BoardSolverException {
     switch ( board.boardSize ) {
       case FOUR:
         return 4;
@@ -169,8 +188,29 @@ public class DefaultSolutionService implements SolutionService {
         return 6;
       default :
         LOG.warn("unhandled board size " + board.boardSize );
-        throw new SolutionServiceException(SolutionServiceError.INVALID_BOARD_TOPOLOGY);
+        throw new BoardSolverException(BoardSolverException.Error.INVALID_BOARD_TOPOLOGY);
     }
+  }
+
+  public class BoardSolverException extends Exception {
+
+    public Error  error;
+
+    public BoardSolverException(Error error) {
+      this.error = error;
+    }
+
+    @Override
+    public String getMessage() {
+      return error.toString();
+    }
+
+    public enum Error {
+      INVALID_BOARD_SIZE,
+      INVALID_BOARD_TOPOLOGY,
+      INCONSISTENT_BOARD_PARAMETERS
+    }
+
   }
 
 }

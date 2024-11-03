@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.service.solutionService;
+package com.keville.ReBoggled.service.gameService.solution;
 
 import java.io.BufferedReader;
 import java.io.IOException;

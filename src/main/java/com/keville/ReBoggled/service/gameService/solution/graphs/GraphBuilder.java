@@ -1,10 +1,10 @@
-package com.keville.ReBoggled.service.solutionService;
+package com.keville.ReBoggled.service.gameService.solution.graphs;
 
 import java.util.List;
 
 import com.keville.ReBoggled.model.game.Tile;
 
-abstract class GraphBuilder {
+public abstract class GraphBuilder {
 
   List<Tile> tiles;
 

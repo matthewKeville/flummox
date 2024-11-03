@@ -16,26 +16,25 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.keville.ReBoggled.model.game.Board;
-import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
 import com.keville.ReBoggled.model.game.BoardWord;
-import com.keville.ReBoggled.model.game.ClassicTilesGenerator;
-import com.keville.ReBoggled.model.game.TileCodeStringMap;
-import com.keville.ReBoggled.service.gameService.BoardGenerator;
-import com.keville.ReBoggled.service.solutionService.DefaultSolutionService;
-import com.keville.ReBoggled.service.solutionService.SolutionService;
-import com.keville.ReBoggled.service.solutionService.SolutionServiceException;
-import com.keville.ReBoggled.service.solutionService.WordValidator;
+import com.keville.ReBoggled.service.gameService.TileCodeStringMap;
+import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
+import com.keville.ReBoggled.service.gameService.board.BoardGenerator;
+import com.keville.ReBoggled.service.gameService.board.ClassicTilesGenerator;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
+import com.keville.ReBoggled.service.gameService.solution.WordValidator;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {DefaultSolutionService.class,TileCodeStringMap.class,WordValidator.class,BoardGenerator.class,ClassicTilesGenerator.class})
+@ContextConfiguration(classes = {BoardSolver.class,TileCodeStringMap.class,WordValidator.class,BoardGenerator.class,ClassicTilesGenerator.class})
 class SolutionServiceTest {
 
   public static Logger LOG = LoggerFactory.getLogger(SolutionServiceTest.class);
 
   @Autowired
-  private SolutionService solutionService;
+  private BoardSolver boardSolver;
   @Autowired
   private BoardGenerator boardGenerator;
 
@@ -53,14 +52,14 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveFindsAllWords() throws SolutionServiceException , BoardGenerationException {
+  void solveFindsAllWords() throws BoardSolverException , BoardGenerationException {
 
     List<String> wordsInBoard = Arrays.asList( "belt","pant","apt","pan", "beet", "set", "elate" );
     BoardSize size = BoardSize.FOUR;
     BoardTopology topology = BoardTopology.PLANE;
     Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(board);
+    Map<String,BoardWord> solution = boardSolver.solve(board);
 
     LOG.info(solution.toString());
 
@@ -84,7 +83,7 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesHorizontalCylinder() throws SolutionServiceException , BoardGenerationException {
+  void solveCrossesHorizontalCylinder() throws BoardSolverException , BoardGenerationException {
 
     LOG.info("horizontal test");
 
@@ -95,7 +94,7 @@ class SolutionServiceTest {
     BoardTopology topology = BoardTopology.CYLINDER;
     Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(board);
+    Map<String,BoardWord> solution = boardSolver.solve(board);
 
     LOG.info(solution.toString());
 
@@ -119,7 +118,7 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesVerticalCylinder() throws SolutionServiceException , BoardGenerationException {
+  void solveCrossesVerticalCylinder() throws BoardSolverException , BoardGenerationException {
     
     LOG.info("vertical test");
 
@@ -130,7 +129,7 @@ class SolutionServiceTest {
     BoardTopology topology = BoardTopology.CYLINDER_ALT;
     Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(board);
+    Map<String,BoardWord> solution = boardSolver.solve(board);
 
     LOG.info(solution.toString());
 
@@ -154,7 +153,7 @@ class SolutionServiceTest {
   */
 
   @Test
-  void solveCrossesTorus() throws SolutionServiceException , BoardGenerationException {
+  void solveCrossesTorus() throws BoardSolverException , BoardGenerationException {
     
     LOG.info("torus test");
 
@@ -166,7 +165,7 @@ class SolutionServiceTest {
     BoardTopology topology = BoardTopology.TORUS;
     Board board = boardGenerator.generateFromTileString("oapwltnreebtsiqn",size,topology);
 
-    Map<String,BoardWord> solution = solutionService.solve(board);
+    Map<String,BoardWord> solution = boardSolver.solve(board);
 
     LOG.info(solution.toString());
 

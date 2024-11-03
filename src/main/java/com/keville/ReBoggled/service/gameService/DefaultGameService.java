@@ -16,7 +16,6 @@ import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.DTO.GameWordDTO;
 import com.keville.ReBoggled.DTO.PostGameDTO;
-import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -28,8 +27,11 @@ import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.service.answerService.AnswerService;
 import com.keville.ReBoggled.service.gameService.GameServiceException.GameServiceError;
+import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
+import com.keville.ReBoggled.service.gameService.board.BoardGenerator;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
+import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
 
 @Component
 public class DefaultGameService implements GameService {
@@ -38,29 +40,25 @@ public class DefaultGameService implements GameService {
     private GameRepository games;
     private UserRepository users;
 
-    private AnswerService answerService;
     private GameSummarizer gameSummarizer;
     private BoardGenerator boardGenerator;
+    private BoardSolver boardSolver;
 
     public DefaultGameService(@Autowired GameRepository games,
         @Autowired UserRepository users,
-        @Autowired AnswerService answerService,
         @Autowired BoardGenerator boardGenerator,
+        @Autowired BoardSolver boardSolver,
         @Autowired GameSummarizer gameSummarizer) {
       this.games = games;
       this.users = users;
-      this.answerService = answerService;
       this.boardGenerator = boardGenerator; 
+      this.boardSolver = boardSolver; 
       this.gameSummarizer = gameSummarizer; 
     }
 
     public Game getGame(int id) throws GameServiceException {
       Game game = findGameById(id);
       return game;
-    }
-
-    public Iterable<Game> getGames() {
-      return games.findAll();
     }
 
     public Game createGame(Lobby lobby) throws GameServiceException {
@@ -96,35 +94,49 @@ public class DefaultGameService implements GameService {
 
     }
 
-    public Game addGameAnswer(Integer gameId, Integer userId, String userAnswer) throws GameServiceException {
+    //some of these are not exceptions... answer response dto should encompass the rejection reasons
+    public Game addGameAnswer(Integer gameId, Integer userId, String rawUserAnswer) throws GameServiceException {
 
-      final String answer = userAnswer.toUpperCase();
+      final String userAnswer = rawUserAnswer.toLowerCase();
 
       Game game = findGameById(gameId);
       User user = findUserById(userId);
 
-      //TODO : does the user belong to this game? : requires associating users to Game table
+      //Does the user belong to this game?
+      if ( !game.users.stream().anyMatch( gur -> gur.user.getId().equals(userId)) ) {
+        throw new GameServiceException(GameServiceError.USER_NOT_IN_GAME);
+      }
       
       //Is the game ongoing?
       if ( LocalDateTime.now().isAfter(game.end) ) {
         LOG.warn(String.format("user %d trying to submit answer for finished game %d",userId,gameId));
         throw new GameServiceException(GameServiceError.GAME_OVER);
       }
-      
-      //Does this word exist in the solution space?
-      if ( !answerService.isValidWord(answer,game) ) {
-        LOG.trace(String.format(" answer %s is not correct for game %d",answer,game.id));
-        throw new GameServiceException(GameServiceError.INVALID_ANSWER);
+
+      //FIXME : Not an exception , make part of response model
+      //Does this word exist in the solution space? 
+      try {
+        if ( !boardSolver.isWordInSolution(userAnswer,game.board) ) {
+          LOG.trace(String.format(" answer %s is not correct for game %d",userAnswer,game.id));
+          throw new GameServiceException(GameServiceError.INVALID_ANSWER);
+        }
+      } catch ( BoardSolverException bse ) {
+        throw new GameServiceException(GameServiceError.ERROR);
       }
      
+      //FIXME : Not an exception , make part of response model
       //Did this player already find this word?
-      if ( game.answers.contains(new GameAnswer(userId,answer))) {
-        LOG.trace(String.format(" answer %s is already found for user %d",answer,user.id));
+      if ( game.answers.stream()
+          .filter( ga -> ga.user.getId().equals(userId) )
+          .anyMatch(ga -> ga.answer.equals(userAnswer) ) 
+      ) {
+        LOG.debug(String.format(" answer %s is already found for user %d",userAnswer,user.id));
         throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
       }
 
-      game.answers.add(new GameAnswer(userId,answer));
+      game.answers.add(new GameAnswer(userId,userAnswer));
       games.save(game);
+
       return game;
 
     }

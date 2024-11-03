@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.service.solutionService;
+package com.keville.ReBoggled.service.gameService.solution.graphs;
 
 import java.util.ArrayList;
 import java.util.HashSet;

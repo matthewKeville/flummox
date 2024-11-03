@@ -1,13 +1,11 @@
-package com.keville.ReBoggled.service.gameService;
+package com.keville.ReBoggled.service.gameService.board;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.model.game.Board;
-import com.keville.ReBoggled.model.game.BoardGenerationException;
 import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
-import com.keville.ReBoggled.model.game.ClassicTilesGenerator;
 import com.keville.ReBoggled.model.game.Tile;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.model.game;
+package com.keville.ReBoggled.service.gameService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 /* 
  * Map Tile code points to character sequences.
- * Used for testing purposes.
  */
 @Component
 public class TileCodeStringMap {

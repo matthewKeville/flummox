@@ -1,4 +1,4 @@
-package com.keville.ReBoggled.service.solutionService;
+package com.keville.ReBoggled.service.gameService.solution.graphs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,18 +20,18 @@ public class TileGraph {
     }
   }
 
-  void addEdge(int indexA,int indexB) {
+  public void addEdge(int indexA,int indexB) {
     addEdge(indexA,indexB,true);
   }
 
-  void addEdge(int indexA,int indexB,boolean undirected) {
+  public void addEdge(int indexA,int indexB,boolean undirected) {
     adj.get(indexA).add(indexB);
     if ( undirected ) {
       addEdge(indexB,indexA,false);
     }
   }
 
-  Set<Integer> getAdjacentIndicies(int tileIndex) {
+  public Set<Integer> getAdjacentIndicies(int tileIndex) {
     return adj.get(tileIndex);
   }
 
