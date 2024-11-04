@@ -11,8 +11,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.model.game.Game;
+import com.keville.ReBoggled.service.exceptions.EntityNotFound;
+import com.keville.ReBoggled.service.exceptions.NotAuthorized;
 import com.keville.ReBoggled.service.gameService.GameService;
-import com.keville.ReBoggled.service.gameService.GameServiceException;
 import com.keville.ReBoggled.sse.context.GameContext;
 
 @Component
@@ -38,7 +39,7 @@ public class GameSseDispatcher extends SseDispatcher<GameContext> {
 
         tryEmitEvent(emitter,sseEvent);
 
-      } catch (GameServiceException e) {
+      } catch (EntityNotFound|NotAuthorized e) {
 
         LOG.error(String.format("Caught error dispatching init payload for game %d for user %d",context.gameId,context.userId));
         LOG.error(e.getMessage());
@@ -71,7 +72,7 @@ public class GameSseDispatcher extends SseDispatcher<GameContext> {
 
             tryEmitEvent(entry.getValue(),sseEvent);
 
-          } catch (GameServiceException e) {
+          } catch (EntityNotFound|NotAuthorized e) {
 
             LOG.error(String.format("Caught error dispatching update for game %d for user %d",entry.getKey().gameId,entry.getKey().userId));
             LOG.error(e.getMessage());

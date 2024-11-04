@@ -18,14 +18,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
-
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
   @Autowired
   private AuthenticationSuccessHandlerImpl authenticationSuccessHandler;
+
+  @Autowired
+  private GuestUserAnonymousAuthenticationFilter guestUserAnonymousAuthenticationFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(
@@ -59,6 +60,10 @@ public class SecurityConfig {
       .logout((logout) -> logout
           .permitAll()
       )
+
+      .anonymous( (anonymous) -> anonymous
+          .authenticationFilter(guestUserAnonymousAuthenticationFilter)
+        )
 
       .authorizeHttpRequests( request -> request
 
@@ -96,7 +101,7 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/messages/sse")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,  "/api/lobby/*/messages")).permitAll()
 
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/sse")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/post")).permitAll()
 

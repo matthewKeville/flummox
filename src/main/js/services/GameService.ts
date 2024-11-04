@@ -41,63 +41,33 @@ export async function GetPostGame(gameId: number) : Promise<ServiceResponse<any>
   * to indicate a successful answer. It should indicate a successful request,
   * answer validity and the reason for rejection should be in the response data model.
   */
-export async function PostGameAnswer(lobbyId: number, answer: GameAnswer) : Promise<ServiceResponse<GameAnswerResult>> {
+export async function PostGameAnswer(gameId: number, userId: number,answer: GameAnswer) : Promise<ServiceResponse<GameAnswerResult>> {
 
     let answerBody : any = {}
     answerBody.answer = answer.answerText
 
-    const response = await fetch(config.origin+"/api/game/" + lobbyId + "/answer", {
+    const response = await fetch(config.origin+"/api/game/" + gameId + "/answer/" + userId, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(answerBody)
     });
+    
+    console.log(response.redirected)
+    console.log("kajdsfkajsdf")
 
-    if (response.status == 200) {
+    if (response.ok ) {
+      let data = await response.json()
       console.log('PostGameAnswer Success')
+      console.log(data);
       return {
-        data: {
-          success: true,
-          successMessage: "nice",
-          failMessage: undefined
-        },
+        data: data,
         success:  true,
         errorMessage: undefined
       }
-    } else {
-
-      //TBD when data model changes !200 -> ServiceRequest.success = fail
-
-      const content = await response.json();
-      let failMessage = ""
-
-      switch (content.message) {
-        case "INVALID_ANSWER":
-          failMessage = " nope ."
-          break;
-        case "ANSWER_ALREADY_FOUND":
-          failMessage = " word already found ..."
-          break;
-        case "GAME_OVER":
-          failMessage = " game is over ... "
-          break;
-        case "INTERNAL_ERROR":
-        default:
-          failMessage = content.status + " : Unknown error"
-      }
-
-      return {
-        data: {
-          success: false,
-          successMessage: undefined,
-          failMessage: failMessage
-        },
-        success:  true,
-        errorMessage: undefined
-      }
-
-
     }
+
+    return null;
 }
 

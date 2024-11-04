@@ -58,7 +58,7 @@ public abstract class SseDispatcher<T extends SseContext> {
 
     try {
 
-      LOG.info("dispatching event " + sseEvent.toString() + " to emitter " + sseEmitter.toString());
+      LOG.debug("dispatching event " + sseEvent.toString() + " to emitter " + sseEmitter.toString());
       sseEmitter.send(sseEvent);
 
     } catch (Exception e) {
@@ -73,7 +73,7 @@ public abstract class SseDispatcher<T extends SseContext> {
   private void unregister(T context) {
 
     if ( !sseMap.containsKey(context) ) {
-      LOG.info("failed to remove SseEntry, because no matching context");
+      LOG.warn("failed to remove SseEntry, because no matching context");
       return;
     }
 

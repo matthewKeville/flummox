@@ -13,9 +13,11 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
+import com.keville.ReBoggled.DTO.GameAnswerResponseDTO;
 import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.DTO.GameWordDTO;
 import com.keville.ReBoggled.DTO.PostGameDTO;
+import com.keville.ReBoggled.DTO.GameAnswerResponseDTO.Rejection;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -27,11 +29,14 @@ import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.service.gameService.GameServiceException.GameServiceError;
+import com.keville.ReBoggled.service.exceptions.BadRequest;
+import com.keville.ReBoggled.service.exceptions.EntityNotFound;
+import com.keville.ReBoggled.service.exceptions.NotAuthorized;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerator;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
+import com.keville.ReBoggled.service.utils.ServiceUtils;
 
 @Component
 public class DefaultGameService implements GameService {
@@ -56,12 +61,25 @@ public class DefaultGameService implements GameService {
       this.gameSummarizer = gameSummarizer; 
     }
 
-    public Game getGame(int id) throws GameServiceException {
-      Game game = findGameById(id);
+    public Game getGame(int id) throws EntityNotFound,NotAuthorized {
+
+      User principal = ServiceUtils.getPrincipal();
+      Game game = ServiceUtils.findGameById(games,id);
+
+      if ( !game.users.stream().anyMatch( gur -> gur.user.getId() == principal.id )) {
+        throw new NotAuthorized(String.format("user %d is not a game %d participant",principal.id,id));
+      }
+
       return game;
     }
 
-    public Game createGame(Lobby lobby) throws GameServiceException {
+    public Game createGame(Lobby lobby) throws BoardGenerationException,NotAuthorized {
+
+      User principal = ServiceUtils.getPrincipal();
+
+      if ( !principal.id.equals(lobby.owner.getId()) ) {
+        throw new NotAuthorized(String.format("user %d is not the lobby %d owner",principal.id,lobby.id));
+      }
 
       GameSettings gameSettings = lobby.gameSettings;
       Game game = new Game();
@@ -69,92 +87,79 @@ public class DefaultGameService implements GameService {
       game.findRule = gameSettings.findRule;
       game.duration = gameSettings.duration;
 
-      try {
+      game.board = boardGenerator.generate(gameSettings.boardSize,gameSettings.boardTopology,gameSettings.tileRotation);
 
-        game.board = boardGenerator.generate(gameSettings.boardSize,gameSettings.boardTopology,gameSettings.tileRotation);
+      game.start = LocalDateTime.now();
+      game.end = game.start.plusSeconds(gameSettings.duration);
 
-        game.start = LocalDateTime.now();
-        game.end = game.start.plusSeconds(gameSettings.duration);
+      game = games.save(game); //get assigned game id
 
-        game = games.save(game); //get assigned game id
-
-        for (LobbyUserReference userRef : lobby.users) {
-          game.users.add(new GameUserReference(AggregateReference.to(game.id),AggregateReference.to(userRef.user.getId()))); 
-        }
-
-        game = games.save(game);
-
-
-      } catch ( BoardGenerationException bge ) {
-        LOG.error(" Board generation failed for game " + game.id );
-        throw new GameServiceException(GameServiceError.BOARD_GENERATION_FAILURE);
+      for (LobbyUserReference userRef : lobby.users) {
+        game.users.add(new GameUserReference(AggregateReference.to(game.id),AggregateReference.to(userRef.user.getId()))); 
       }
+
+      game = games.save(game);
 
       return game;
 
     }
 
-    //some of these are not exceptions... answer response dto should encompass the rejection reasons
-    public Game addGameAnswer(Integer gameId, Integer userId, String rawUserAnswer) throws GameServiceException {
+    /* it feels redundant to include the userId in submit game answer, yet have the userId (of the principal) available in the security
+     * context. I think, the service method should still contain the userId, for the purpose of being able
+     * to unit test the service. This parameter dictates the type of service request ( add answer for user in game .. )
+     * whereas the principal will be used to ensure authorization. Which in unit test can be spoofed or disabled */
+    public GameAnswerResponseDTO submitGameAnswer(Integer gameId,Integer userId,String rawUserAnswer) throws EntityNotFound,InternalError,NotAuthorized {
 
       final String userAnswer = rawUserAnswer.toLowerCase();
 
-      Game game = findGameById(gameId);
-      User user = findUserById(userId);
+      User principal = ServiceUtils.getPrincipal();
+      Game game = ServiceUtils.findGameById(games,gameId);
+      User user = ServiceUtils.findUserById(users,userId);
+
+      if ( !principal.id.equals(userId)) {
+        throw new NotAuthorized(String.format("principal %d is not user %d",principal.id,user.id));
+      }
 
       //Does the user belong to this game?
-      if ( !game.users.stream().anyMatch( gur -> gur.user.getId().equals(userId)) ) {
-        throw new GameServiceException(GameServiceError.USER_NOT_IN_GAME);
+      if ( !game.users.stream().anyMatch( gur -> gur.user.getId().equals(user.id)) ) {
+        throw new NotAuthorized(String.format("user %d is not a game participant %d",user.id,game.id));
       }
       
       //Is the game ongoing?
       if ( LocalDateTime.now().isAfter(game.end) ) {
-        LOG.warn(String.format("user %d trying to submit answer for finished game %d",userId,gameId));
-        throw new GameServiceException(GameServiceError.GAME_OVER);
+        throw new BadRequest(String.format("can't submit answers for game %d because it's ended",game.id));
       }
 
-      //FIXME : Not an exception , make part of response model
       //Does this word exist in the solution space? 
       try {
         if ( !boardSolver.isWordInSolution(userAnswer,game.board) ) {
-          LOG.trace(String.format(" answer %s is not correct for game %d",userAnswer,game.id));
-          throw new GameServiceException(GameServiceError.INVALID_ANSWER);
+          return GameAnswerResponseDTO.Rejected(Rejection.NOT_FOUND);
         }
-      } catch ( BoardSolverException bse ) {
-        throw new GameServiceException(GameServiceError.ERROR);
+      } catch (BoardSolverException e) {
+        LOG.error("Exception",e);
+        throw new InternalError("Encountered Board Solver Exception");
       }
      
-      //FIXME : Not an exception , make part of response model
       //Did this player already find this word?
-      if ( game.answers.stream()
-          .filter( ga -> ga.user.getId().equals(userId) )
-          .anyMatch(ga -> ga.answer.equals(userAnswer) ) 
-      ) {
-        LOG.debug(String.format(" answer %s is already found for user %d",userAnswer,user.id));
-        throw new GameServiceException(GameServiceError.ANSWER_ALREADY_FOUND);
+      if ( game.answers.stream().filter( ga -> ga.user.getId().equals(user.id) ).anyMatch(ga -> ga.answer.equals(userAnswer) )) {
+        return GameAnswerResponseDTO.Rejected(Rejection.ALREADY_FOUND);
       }
 
       game.answers.add(new GameAnswer(userId,userAnswer));
       games.save(game);
-
-      return game;
+      return GameAnswerResponseDTO.Accepted();
 
     }
 
-    public GameDTO getGameDTO(Integer gameId,Integer userId) throws GameServiceException {
+    public GameDTO getGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized {
 
-      Optional<Game> optGame = games.findById(gameId);
-      Optional<User> optUser = users.findById(userId);
+      User principal = ServiceUtils.getPrincipal();
+      Game game = ServiceUtils.findGameById(games,gameId);
+      User user = ServiceUtils.findUserById(users,userId);
 
-      if ( optGame.isEmpty() ) {
-        throw new GameServiceException(GameServiceError.GAME_NOT_FOUND);
+      if ( !principal.id.equals(userId)) {
+        throw new NotAuthorized(String.format("principal %d is not user %d",principal.id,user.id));
       }
-      if ( optUser.isEmpty() ) {
-        throw new GameServiceException(GameServiceError.USER_NOT_FOUND);
-      }
-
-      Game game = optGame.get();
-      User user = optUser.get();
 
       //extract users answers 
       Set<GameAnswerDTO> userAnswers = 
@@ -168,20 +173,15 @@ public class DefaultGameService implements GameService {
       return new GameDTO(game,userAnswers);
     }
 
-    public PostGameDTO getPostGameDTO(Integer gameId,Integer userId) throws GameServiceException {
+    public PostGameDTO getPostGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized {
 
-      Optional<Game> optGame = games.findById(gameId);
-      Optional<User> optUser = users.findById(userId);
+      User principal = ServiceUtils.getPrincipal();
+      Game game = ServiceUtils.findGameById(games,gameId);
+      User user = ServiceUtils.findUserById(users,userId);
 
-      if ( optGame.isEmpty() ) {
-        throw new GameServiceException(GameServiceError.GAME_NOT_FOUND);
+      if ( !principal.id.equals(userId)) {
+        throw new NotAuthorized(String.format("principal %d is not user %d",principal.id,user.id));
       }
-      if ( optUser.isEmpty() ) {
-        throw new GameServiceException(GameServiceError.USER_NOT_FOUND);
-      }
-
-      Game game = optGame.get();
-      User user = optUser.get();
 
       GameSummary gameSummary = gameSummarizer.summarize(game);
 
@@ -216,25 +216,5 @@ public class DefaultGameService implements GameService {
       return new PostGameDTO(game,gameWordDTOs,gameSummary.scoreboard());
 
     }
-
-    private Game findGameById(Integer gameId) throws GameServiceException {
-
-      Optional<Game>  optGame = games.findById(gameId);
-      if ( optGame.isEmpty() ) {
-        LOG.warn(String.format("No such game %d",gameId));
-        throw new GameServiceException(GameServiceError.GAME_NOT_FOUND);
-      }
-      return optGame.get();
-    }
-
-    private User findUserById(Integer userId) throws GameServiceException {
-      Optional<User> optUser = users.findById(userId);
-      if ( !optUser.isPresent() ) {
-        LOG.error(String.format("No such user %d",userId));
-        throw new GameServiceException(GameServiceError.USER_NOT_FOUND);
-      }
-      return optUser.get();
-    }
-
 
 }

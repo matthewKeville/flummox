@@ -13,6 +13,7 @@ import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.events.GameEndEvent;
 import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.model.lobby.Lobby;
+import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.sse.context.LobbyContext;
@@ -40,7 +41,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
         tryEmitEvent(emitter, sseEvent);
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("Caught error dispatching init payload for lobby %d",context.lobbyId));
         LOG.error(e.getMessage());
@@ -73,7 +74,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
           .map( entry -> entry.getValue() )
           .forEach( emitter -> tryEmitEvent(emitter, sseEvent) );
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("Caught error dispatching events for lobby %d's update",lobby.id));
         LOG.error(e.getMessage());
@@ -101,7 +102,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
           .map( entry -> entry.getValue() )
           .forEach( emitter -> tryEmitEvent(emitter, sseEvent) );
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("Caught error dispatching events for lobby %d's game_start event",event.lobbyId));
         LOG.error(e.getMessage());
@@ -128,7 +129,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
           .map( entry -> entry.getValue() )
           .forEach( emitter -> tryEmitEvent(emitter, sseEvent) );
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("Caught error dispatching events for lobby %d's game_end event",event.lobbyId));
         LOG.error(e.getMessage());

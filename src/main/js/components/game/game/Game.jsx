@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Stack, Group } from "@mantine/core";
+import { useRouteLoaderData } from "react-router-dom";
 
 import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
 import Board from "/src/main/js/components/game/Board.jsx";
@@ -13,6 +14,7 @@ export async function loader() {}
 
 export default function Game({ gameId}) {
 
+  const { userInfo } = useRouteLoaderData("root");
   const [muted,setMuted] = useState(true)
   const goodWordSFXAudio = new Audio("/audio/word-good.wav")
   const badWordSFXAudio = new Audio("/audio/word-bad.wav")
@@ -25,7 +27,7 @@ export default function Game({ gameId}) {
 
   async function onSubmitAnswer(word) {
 
-    var serviceResponse = await PostGameAnswer(gameId,{ answerText : word })
+    var serviceResponse = await PostGameAnswer(gameId,userInfo.id,{ answerText : word })
     var gameAnswerResult = serviceResponse.data
 
     if ( gameAnswerResult.success) {

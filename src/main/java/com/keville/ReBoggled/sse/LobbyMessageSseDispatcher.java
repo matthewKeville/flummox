@@ -13,8 +13,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyMessageDTO;
 import com.keville.ReBoggled.model.lobby.LobbyMessage;
+import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
-import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 
 
@@ -41,7 +41,7 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
 
         tryEmitEvent(emitter, sseEvent);
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("Caught error dispatching init payload for lobby message %d",context.lobbyId));
         LOG.error(e.getMessage());
@@ -75,7 +75,7 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
           .forEach( emitter -> tryEmitEvent(emitter, sseEvent) );
 
 
-      } catch (LobbyServiceException e) {
+      } catch (EntityNotFound e) {
 
         LOG.error(String.format("unable to create SSEs for lobby %d 's message event",message.lobby.getId()));
         LOG.error(e.getMessage());

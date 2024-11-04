@@ -17,6 +17,8 @@ import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
+import com.keville.ReBoggled.service.exceptions.BadRequest;
+import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.userService.UserServiceException;
@@ -34,7 +36,7 @@ public class SampleDataRunner implements CommandLineRunner {
   LobbyRepository lobbies;
 
   @Override
-  public void run(String... args) throws UserServiceException, LobbyServiceException {
+  public void run(String... args) throws UserServiceException, BadRequest,EntityNotFound {
 
       boolean skipCreateDevData = true;
 
