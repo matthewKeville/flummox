@@ -2,10 +2,9 @@ import React from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Table, Container, Text, Button, Center, Flex } from '@mantine/core';
+import { Table, Container, Text, Button, } from '@mantine/core';
 
-import { CreateLobby, JoinLobby, GetLobbySummaries } from "/src/main/js/services/LobbyService.ts";
-
+import { CreateLobby, JoinLobby, GetLobbySummaries } from "/src/main/js/services/flummox/LobbyService.ts";
 import styles from './LobbyBrowser.module.css';
 
 export async function loader({ params }) {

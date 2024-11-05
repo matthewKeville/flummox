@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keville.ReBoggled.controllers.web.api.UserController.UserInfo;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.userService.UserService;
@@ -55,35 +53,5 @@ public class UserControllerTest {
 
   }
   */
-
-  @Test
-  @WithMockUser(username="bob@email.com", authorities = {"read"} )
-  void getInfoThrowsWhenSessionIsEmpty() throws Exception {
-
-    //act & assert
-    mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/user/info")
-        )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError());
-
-  }
-
-  @Test
-  @WithMockUser(username="bob@email.com", authorities = {"read"} )
-  void getInfoThrowsWhenUserNotFound() throws Exception {
-
-    //arrange
-    User user = User.createUser("bob@email.com","bob42");
-    when(userService.getUser(any(Integer.class))).thenReturn(null);
-
-    //act & assert
-    mockMvc.perform(
-        MockMvcRequestBuilders.get("/api/user/info")
-        .sessionAttr("userId", 1234)
-        )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError());
-
-  }
-
 
 }

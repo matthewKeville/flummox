@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.ReBoggled.DTO.GameAnswerRequestDTO;
@@ -46,27 +45,22 @@ public class GameController {
       @PathVariable("userId") Integer userId,
       @Valid @RequestBody GameAnswerRequestDTO gameAnswerSubmissionDTO) {
 
-      GameAnswerResponseDTO response = gameService.submitGameAnswer(id,userId,gameAnswerSubmissionDTO.answer);
+      GameAnswerResponseDTO response = gameService.submitGameAnswer(id,userId,gameAnswerSubmissionDTO);
       return response;
   }
 
-  @GetMapping("/{id}/post")
-  public ResponseEntity<?> getPostGameDTO(@PathVariable("id") Integer id,
-      HttpSession session) {
-
-    Integer userId = (Integer) session.getAttribute("userId");
-    if (userId == null) {
-      LOG.warn("unable to identify the userId of the current Session");
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");
-    }
+  @GetMapping("/{id}/post-game/{userId}")
+  public ResponseEntity<?> getPostGameDTO(
+      @PathVariable("id") Integer id,
+      @PathVariable("userId") Integer userId) {
 
     PostGameDTO postGameDTO = gameService.getPostGameDTO(id, userId);
     return new ResponseEntity<PostGameDTO>(postGameDTO,HttpStatus.OK);
 
   }
 
-  @GetMapping("/{id}/sse")
-  public SseEmitter getGameSSEForUser (
+  @GetMapping("/{id}/sse/{userId}")
+  public SseEmitter getSse (
       @PathVariable("id") Integer id,
       @Autowired HttpSession session) {
 

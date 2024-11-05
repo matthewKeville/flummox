@@ -5,7 +5,7 @@ import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
 import Header from "/src/main/js/components/header/Header.jsx"
-import { GetUserInfo } from "/src/main/js/services/UserService.ts"
+import { GetUserInfo } from "/src/main/js/services/flummox/UserService.ts"
 
 export async function loader({ params }) {
   var UserInfoResponse = await GetUserInfo()

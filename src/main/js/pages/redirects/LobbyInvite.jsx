@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { JoinLobby } from "/src/main/js/services/LobbyService.ts";
+import { JoinLobby } from "/src/main/js/services/flummox/LobbyService.ts";
 
 export default function LobbyInvite() {
 

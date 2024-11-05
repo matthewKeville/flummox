@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Stack, Text, Space, ScrollArea } from "@mantine/core";
 import WordInput from "/src/main/js/components/WordInput.jsx";
-import { SendLobbyChat } from "/src/main/js/services/LobbyService.ts";
+import { SendLobbyChat } from "/src/main/js/services/flummox/LobbyService.ts";
 
 export default function Chat({lobby}) {
 
@@ -12,7 +12,7 @@ export default function Chat({lobby}) {
   const viewport = useRef(null);
 
   async function onSubmitMessage(message) {
-    var serviceResponse = await SendLobbyChat(lobby.id,message)
+    var serviceResponse = await SendLobbyChat(lobby.id,{ message : message })
   }
   
   //const scrollToBottom = () => viewport.current.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });

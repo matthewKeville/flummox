@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { VerifyAccount } from "/src/main/js/services/AuthenticationService.ts";
+import { VerifyAccount } from "/src/main/js/services/flummox/AuthenticationService.ts";
 
 //this is clearly abuse of useEffect, perhaps this
 //behaviour should be called in the route loader for this "page"

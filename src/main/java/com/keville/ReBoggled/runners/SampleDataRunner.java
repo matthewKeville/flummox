@@ -93,25 +93,20 @@ public class SampleDataRunner implements CommandLineRunner {
 
       GameSettings gameSettings = new GameSettings(BoardSize.FOUR, BoardTopology.PLANE, FindRule.FIRST, 30);
       Lobby fountainOfDreams = lobbies.save(new Lobby("Fountain of Dreams", 16, false, ARof(ada), gameSettings));
-      lobbyService.addUserToLobby(ada.id, fountainOfDreams.id,Optional.empty());
 
       gameSettings = new GameSettings(BoardSize.FIVE, BoardTopology.PLANE, FindRule.ANY, 60);
       Lobby pokemonStadium = lobbies.save(new Lobby("Pokemon Stadium", 16, false, ARof(lily), gameSettings));
-      lobbyService.addUserToLobby(lily.id, pokemonStadium.id,Optional.empty());
 
       // dummy accs
 
       gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
       Lobby planetZebes = lobbies.save(new Lobby("Planet ZebeS", 4, false, ARof(alice), gameSettings));
-      lobbyService.addUserToLobby(alice.id, planetZebes.id,Optional.empty());
 
       gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
       Lobby bigBlue = lobbies.save(new Lobby("Big Blue", 16, false, ARof(bob), gameSettings));
-      lobbyService.addUserToLobby(bob.id, bigBlue.id,Optional.empty());
 
       gameSettings = new GameSettings(BoardSize.SIX, BoardTopology.CYLINDER, FindRule.ANY, 60);
       Lobby yoshisIsland = lobbies.save(new Lobby("Yoshi's Island", 16, false, ARof(charlie), gameSettings));
-      lobbyService.addUserToLobby(charlie.id, yoshisIsland.id,Optional.empty());
 
       
       System.exit(0);

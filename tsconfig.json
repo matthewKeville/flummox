@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+
+    /* Module Resolution Options */
+    "baseUrl": ".",
+    "paths": {
+      /* Support absolute /imports/* with a leading '/' */
+      "/*": ["*"]
+    },
+    "allowImportingTsExtensions": true
+  }
+}

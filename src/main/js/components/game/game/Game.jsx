@@ -8,7 +8,7 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/WordInput.jsx"
 
-import {  PostGameAnswer } from "/src/main/js/services/GameService.ts"
+import {  PostGameAnswer } from "/src/main/js/services/flummox/GameService.ts"
 
 export async function loader() {}
 
@@ -27,7 +27,11 @@ export default function Game({ gameId}) {
 
   async function onSubmitAnswer(word) {
 
-    var serviceResponse = await PostGameAnswer(gameId,userInfo.id,{ answerText : word })
+    var serviceResponse = await PostGameAnswer(gameId,userInfo.id,{answer : word})
+    if ( !serviceResponse.success ) {
+      return;
+    }
+
     var gameAnswerResult = serviceResponse.data
 
     if ( gameAnswerResult.success) {
@@ -46,7 +50,7 @@ export default function Game({ gameId}) {
 
     // SSE
 
-    const evtSource = new EventSource("/api/game/" + gameId + "/sse")
+    const evtSource = new EventSource("/api/game/" + gameId + "/sse/" + userInfo.id)
 
     evtSource.addEventListener("update", (e) => {
       console.log("game change recieved");

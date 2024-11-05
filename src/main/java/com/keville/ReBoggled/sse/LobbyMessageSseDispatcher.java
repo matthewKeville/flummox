@@ -1,5 +1,6 @@
 package com.keville.ReBoggled.sse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,8 +14,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 import com.keville.ReBoggled.DTO.LobbyMessageDTO;
 import com.keville.ReBoggled.model.lobby.LobbyMessage;
+import com.keville.ReBoggled.model.user.User;
+import com.keville.ReBoggled.repository.LobbyMessageRepository;
+import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.exceptions.EntityNotFound;
-import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 
 
@@ -22,17 +25,21 @@ import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbyMessageSseDispatcher.class);
-    private LobbyService lobbyService;
+    private LobbyMessageRepository lobbyMessages;
+    private UserRepository users;
 
-    public LobbyMessageSseDispatcher(@Autowired LobbyService lobbyService) {
-      this.lobbyService = lobbyService;
+    public LobbyMessageSseDispatcher(
+        @Autowired LobbyMessageRepository lobbyMessages,
+        @Autowired UserRepository users) {
+      this.lobbyMessages = lobbyMessages;
+      this.users = users;
     }
 
     @Override
     protected void sendInitialPayload(SseEmitter emitter,LobbyMessageContext context) {
       try {
 
-        List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(context.lobbyId);
+        List<LobbyMessageDTO> messages = getLobbyMessageDTOs(context.lobbyId);
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(0))
@@ -60,7 +67,7 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
 
       try {
 
-        List<LobbyMessageDTO> messages = lobbyService.getLobbyMessageDTOs(message.lobby.getId());
+        List<LobbyMessageDTO> messages = getLobbyMessageDTOs(message.lobby.getId());
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(message.id))
@@ -82,6 +89,20 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
 
       }
 
+    }
+
+    private List<LobbyMessageDTO> getLobbyMessageDTOs(int lobbyId) {
+      List<LobbyMessageDTO> messages = new ArrayList<LobbyMessageDTO>();
+      for ( LobbyMessage lm : lobbyMessages.findByLobby(lobbyId) ) {
+        if ( lm.user == null ) {
+          //system messages
+          messages.add(new LobbyMessageDTO(lm));
+        } else {
+          User user = users.findById(lm.user.getId()).get();
+          messages.add(new LobbyMessageDTO(lm, user.username));
+        }
+      }
+      return messages;
     }
 
 }

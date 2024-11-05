@@ -3,7 +3,7 @@ import { useRouteLoaderData, useRevalidator, useNavigate } from "react-router-do
 import { toast } from 'react-toastify';
 import { Stack, Group, Text, Button, NumberInput, TextInput, Switch, NativeSelect, Grid, ActionIcon } from "@mantine/core";
 
-import { UpdateLobby, DeleteLobby } from "/src/main/js/services/LobbyService.ts";
+import { UpdateLobby } from "/src/main/js/services/flummox/LobbyService.ts";
 
 export default function GameSettings({lobby, onFinish}) {
 

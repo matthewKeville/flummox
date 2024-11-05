@@ -1,5 +1,7 @@
 package com.keville.ReBoggled.DTO;
 
+import java.util.Optional;
+
 import com.keville.ReBoggled.model.game.GameSettings;
 
 /*
@@ -12,3 +14,12 @@ public class LobbyUpdateDTO {
     public Boolean isPrivate;
     public GameSettings gameSettings;
 }
+
+/*
+public class LobbyUpdateDTO {
+    public Optional<String> name;
+    public Optional<Integer> capacity;
+    public Optional<Boolean> isPrivate;
+    public Optional<GameSettings> gameSettings;
+}
+*/

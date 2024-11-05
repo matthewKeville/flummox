@@ -3,7 +3,7 @@ import { useRevalidator, useNavigate } from "react-router-dom";
 import { TextInput, Button, Stack, Text, Center } from "@mantine/core";
 
 import config from "config"
-import { Register } from "/src/main/js/services/AuthenticationService.ts";
+import { Register } from "/src/main/js/services/flummox/AuthenticationService.ts";
 
 
 export default function RegisterPage() {

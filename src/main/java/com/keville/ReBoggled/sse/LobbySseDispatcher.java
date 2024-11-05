@@ -136,5 +136,4 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       }
     }
-
 }

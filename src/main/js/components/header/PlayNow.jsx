@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLoaderData, useRevalidator } from 'react-router-dom';
-import { CreateLobby } from '/src/main/js/services/LobbyService.ts'
+import { CreateLobby } from '/src/main/js/services/flummox/LobbyService.ts'
 import { Button } from "@mantine/core";
 
 import { toast } from 'react-toastify';

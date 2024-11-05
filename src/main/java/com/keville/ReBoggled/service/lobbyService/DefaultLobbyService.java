@@ -79,7 +79,7 @@ public class DefaultLobbyService implements LobbyService {
       return lobbies.findAll();
     }
 
-    public Lobby getLobby(int id) throws EntityNotFound {
+    public Lobby getLobby(Integer id) throws EntityNotFound {
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,id);
       return lobby;
     }
@@ -94,13 +94,14 @@ public class DefaultLobbyService implements LobbyService {
       return optUserLobby.isPresent() ? optUserLobby.get().id : -1;
     }
 
-    public String getUserInviteLink(Integer userId) throws NotAuthorized {
+    public String getInviteLink(Integer lobbyId) throws NotAuthorized {
 
-      Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
-      if ( !optUserLobby.isPresent()) {
+      User principal = ServiceUtils.getPrincipal();
+      Lobby lobby = ServiceUtils.findLobbyById(lobbies, lobbyId);
+
+      if ( !lobby.users.stream().anyMatch( lur -> lur.user.getId().equals(principal.id)) ) {
         throw new NotAuthorized("User not in lobby, can't invite");
       }
-      int lobbyId = optUserLobby.get().id;
 
       String token = tokenService.getLobbyToken(lobbyId);
       String url = "/#join?id=" + lobbyId + "&token=" + token;
@@ -109,17 +110,15 @@ public class DefaultLobbyService implements LobbyService {
 
     }
 
-    public Lobby addUserToLobby(Integer userId,Integer lobbyId, Optional<String> token) throws EntityNotFound,BadRequest,NotAuthorized {
-
-      // find entities
+    public void join(Integer lobbyId,Optional<String> token) throws EntityNotFound,BadRequest,NotAuthorized {
 
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
-      User user = ServiceUtils.findUserById(users,userId);
+      User principal = ServiceUtils.getPrincipal();
 
-      // can user join?
+      //Authorize
 
       if( lobby.isPrivate ) {
-        if ( token.isEmpty() && !lobby.owner.getId().equals(userId) ) {
+        if ( token.isEmpty() && !lobby.owner.getId().equals(principal.id) ) {
           throw new NotAuthorized("Lobby is private");
         }
 
@@ -128,47 +127,46 @@ public class DefaultLobbyService implements LobbyService {
         }
       }
 
-      if( lobby.users.size() == lobby.capacity ) {
-        throw new BadRequest("Lobby is full");
-      }
-
-      // remove the user from there previous lobby (if any)
-
-      Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
-      if ( optUserLobby.isPresent()) {
-        if ( optUserLobby.get().id == lobbyId ) {
-          return lobby;
-        }
-        removeUserFromLobby(user,optUserLobby.get(),false);
-      }
-
-      // add user to new lobby
-
-      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(userId));
-      lobby.users.add(userRef);
-      lobby = lobbies.save(lobby);
-
-      // spawn chat message
-
-      lobbyMessages.save(LobbyMessage.joinLobbyMessage(AggregateReference.to(lobbyId), user.username));
-
-      LOG.info(String.format("added user : %d to lobby : %d",userId,lobbyId));
-
-      return lobby;
+      addUserToLobby(principal, lobby);
 
     }
 
-    public Lobby addMessageToLobby(LobbyNewMessageDTO lobbyNewMessage,Integer lobbyId,Integer userId) throws EntityNotFound,NotAuthorized {
+    public void kick(Integer lobbyId,Integer userId) throws EntityNotFound,BadRequest,NotAuthorized {
 
-      // find entities
+      Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
+      User user = ServiceUtils.findUserById(users,userId);
+      User principal = ServiceUtils.getPrincipal();
+
+      //Authorize
+
+      if ( !lobby.owner.getId().equals(principal.id) ) {
+        throw new NotAuthorized(String.format("user %d is not the lobby owner",principal.id));
+      }
+
+      removeUserFromLobby(user, lobby);
+      lobbyMessages.save(LobbyMessage.kickLobbyMessage(AggregateReference.to(lobby.id), user.username));
+
+    }
+
+    public void leave(Integer lobbyId) throws EntityNotFound,BadRequest,NotAuthorized {
+
+      Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
+      User principal = ServiceUtils.getPrincipal();
+
+      removeUserFromLobby(principal, lobby);
+      lobbyMessages.save(LobbyMessage.leaveLobbyMessage(AggregateReference.to(lobby.id), principal.username));
+
+    }
+
+    public Lobby addMessage(Integer lobbyId,LobbyNewMessageDTO lobbyNewMessage) throws EntityNotFound,NotAuthorized {
 
       User principal  = ServiceUtils.getPrincipal();
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
 
-      // authorized?
+      // Authorize
 
-      if (!lobby.users.stream().anyMatch( (lur) -> lur.user.getId().equals(userId))) {
-        throw new NotAuthorized(principal.id + " tried to leave " + userId);
+      if (!lobby.users.stream().anyMatch( (lur) -> lur.user.getId().equals(principal.id))) {
+        throw new NotAuthorized(principal.id + " is not in lobby " + lobbyId);
       }
 
       // save chat message
@@ -177,62 +175,35 @@ public class DefaultLobbyService implements LobbyService {
       message.lobby = AggregateReference.to(lobbyId);
       message.sent = LocalDateTime.now();
       message.message = lobbyNewMessage.message();
-      message.user = AggregateReference.to(userId);
+      message.user = AggregateReference.to(principal.id);
       lobbyMessages.save(message);
 
-      LOG.info(String.format("added new lobby message : %s to lobby : %d",message.message,lobbyId));
-
       return lobby;
 
     }
 
-    public Optional<Lobby> removeUserFromLobby(Integer userId,Integer lobbyId,boolean kicked) throws EntityNotFound,BadRequest,NotAuthorized{
+    public void promote(Integer lobbyId,Integer userId) throws EntityNotFound,NotAuthorized,BadRequest {
 
-      User principal  = ServiceUtils.getPrincipal();
-      if ( principal.id != userId ) {
-        throw new NotAuthorized(principal.id + " tried to leave " + userId);
-      }
-
-      // Find entities
-
-      User user = ServiceUtils.findUserById(users,userId);
-      Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
-
-      // Remove User
-      return removeUserFromLobby(user,lobby,kicked);
-
-    }
-
-
-    public Lobby transferLobbyOwnership(Integer lobbyId,Integer userId) throws EntityNotFound,NotAuthorized {
-
-      User principal  = ServiceUtils.getPrincipal();
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
       User user = ServiceUtils.findUserById(users,userId);
+      User principal  = ServiceUtils.getPrincipal();
 
       if ( principal.id != lobby.owner.getId() ) {
-        throw new NotAuthorized(principal.id + " can't change " + userId + " lobby's owner");
+        throw new NotAuthorized(String.format("user %d is not the lobby %d owner",principal.id,lobby.id));
       }
 
-
-      // Transfer Lobby
-
-      lobby.owner = AggregateReference.to(userId);
-      lobby = lobbies.save(lobby);
-
-      LOG.info(String.format("transfered lobby %d ownership to %d",lobbyId,userId));
-      lobbyMessages.save(LobbyMessage.promoteLobbyMessage(AggregateReference.to(lobby.id), user.username));
-
-      return lobby;
+      transferLobbyOwnership(lobby, user);
 
     }
+
 
     public Lobby update(LobbyUpdate lobbyUpdate) throws EntityNotFound,BadRequest {
 
-      // Find entities
-
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyUpdate.id);
       User principal = ServiceUtils.getPrincipal();
+
+      // Authorize
+
       if ( !lobby.owner.getId().equals(principal.id) ) {
         throw new NotAuthorized(String.format("principal %d is not the lobby owner %d",principal.id,lobby.owner.getId()));
       }
@@ -291,52 +262,31 @@ public class DefaultLobbyService implements LobbyService {
 
     public Boolean delete(Integer lobbyId) throws EntityNotFound {
 
-      // Find Entity
-
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
-      
-      // Delete lobby
-
       lobbies.delete(lobby);
-
       return true;
       
     }
 
-    public Lobby createNew(Integer userId) throws EntityNotFound,BadRequest {
+    public Lobby create() throws EntityNotFound,BadRequest {
 
-      // Find entities
-
-      User user = ServiceUtils.findUserById(users, userId);
-
-      Optional<Lobby> optOwnedLobby = lobbies.findOwnedLobby(userId);
+      User principal = ServiceUtils.getPrincipal();
+      Optional<Lobby> optOwnedLobby = lobbies.findOwnedLobby(principal.id);
       if ( optOwnedLobby.isPresent() ) {
-        LOG.warn(String.format("User %d is trying to create a new lobby, but they already have one  %d",userId,optOwnedLobby.get().id));
+        LOG.warn(String.format("User %d is trying to create a new lobby, but they already have one  %d",principal.id,optOwnedLobby.get().id));
         throw new BadRequest("User already owns a lobby");
       }
 
-      Optional<Lobby> optUserLobby = lobbies.findUserLobby(userId);
-
-      //Add User To Lobby
-
-      if ( optUserLobby.isPresent() ) {
-        removeUserFromLobby(userId,optUserLobby.get().id,false);
-      }
-
-      Lobby lobby = lobbies.save(new Lobby(user.username+"\'s lobby",6,false,AggregateReference.to(userId)));
-      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(userId));
-      lobby.users.add(userRef);
-
-      //Set Lobby's Owner
-      
-      lobby.owner = AggregateReference.to(user.id);
+      Lobby lobby = lobbies.save(new Lobby(principal.username+"\'s lobby",6,false,AggregateReference.to(principal.id)));
+      lobby.owner = AggregateReference.to(principal.id);
+      addUserToLobby(principal,lobby);
       lobbies.save(lobby);
 
       return lobby;
       
     }
 
-    public Lobby startGame(Integer lobbyId) throws EntityNotFound,NotAuthorized,BoardGenerationException {
+    public Lobby start(Integer lobbyId) throws EntityNotFound,NotAuthorized,BoardGenerationException {
 
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
 
@@ -350,25 +300,6 @@ public class DefaultLobbyService implements LobbyService {
       );
 
       return lobby;
-
-    }
-
-    public List<LobbyMessageDTO> getLobbyMessageDTOs(int id) throws EntityNotFound {
-
-      ServiceUtils.ensureExists(lobbies, id);
-
-      List<LobbyMessageDTO> messages = new ArrayList<LobbyMessageDTO>();
-      for ( LobbyMessage lm : lobbyMessages.findByLobby(id) ) {
-        if ( lm.user == null ) {
-          //system messages
-          messages.add(new LobbyMessageDTO(lm));
-        } else {
-          User user = users.findById(lm.user.getId()).get();
-          messages.add(new LobbyMessageDTO(lm, user.username));
-        }
-      }
-
-      return messages;
 
     }
 
@@ -440,51 +371,77 @@ public class DefaultLobbyService implements LobbyService {
 
       }
 
-
       return lobbyDto;
 
     }
 
-    /* this method is a little busy */
-    private Optional<Lobby> removeUserFromLobby(User user,Lobby lobby,boolean kicked) throws EntityNotFound,BadRequest {
+    private Lobby transferLobbyOwnership(Lobby lobby, User user) throws EntityNotFound,NotAuthorized,BadRequest {
+
+      if ( lobbies.findOwnedLobby(user.id).isPresent() ) {
+        throw new BadRequest(String.format("user %d can't be promoted to lobby owner because they already own a lobby",user.id));
+      }
+
+      lobby.owner = AggregateReference.to(user.id);
+      lobby = lobbies.save(lobby);
+      lobbyMessages.save(LobbyMessage.promoteLobbyMessage(AggregateReference.to(lobby.id), user.username));
+
+      return lobby;
+
+    }
+
+    private void removeUserFromLobby(User user,Lobby lobby) throws EntityNotFound,BadRequest {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(user.id));
         
       if (!lobby.users.contains(userRef)) {
-        LOG.warn(String.format("Can't remove user %d from lobby %d because they don't belong to it",user.id,lobby.id));
-        throw new BadRequest("User does not participate in lobby");
+        throw new BadRequest(String.format("User %d does not participate in lobby %d",user.id,lobby.id));
       }
 
       lobby.users.remove(userRef);
       lobby = lobbies.save(lobby);
 
-      LOG.info(String.format("removed user : %d from lobby : %d",user.id,lobby.id));
-
       if ( lobby.owner.getId() == user.id && lobby.users.size() != 0) {
-
-        //promote
-
+        //automatic promotion
         LobbyUserReference newOwnerRef = lobby.users.stream().findAny().get();
         User newOwner = ServiceUtils.findUserById(users,newOwnerRef.user.getId());
-        transferLobbyOwnership(lobby.id, newOwner.id);
-        lobbyMessages.save(LobbyMessage.promoteLobbyMessage(AggregateReference.to(lobby.id), newOwner.username));
-
+        transferLobbyOwnership(lobby,newOwner);
       } else if ( lobby.users.size() == 0 ) {
-
-        //delete
+        //automatic deletion
         lobbies.delete(lobby);
-        return Optional.empty();
+      }
+
+    }
+
+    /* add the user to the lobby, removing them from there previous lobby if any */
+    private Lobby addUserToLobby(User user,Lobby lobby) throws BadRequest,EntityNotFound {
+
+      if( lobby.users.size() == lobby.capacity ) {
+        throw new BadRequest(String.format("Lobby %d is full",lobby.id));
+      }
+
+      // remove the user from there previous lobby (if any)
+
+      Optional<Lobby> optUserLobby = lobbies.findUserLobby(user.id);
+      if ( optUserLobby.isPresent()) {
+
+        if ( optUserLobby.get().id == lobby.id ) {
+          throw new BadRequest(String.format("user %d is already in lobby %d",user.id,lobby.id));
+        } else {
+          removeUserFromLobby(user,optUserLobby.get());
+        }
 
       }
 
-      if ( kicked ) {
-        lobbyMessages.save(LobbyMessage.kickLobbyMessage(AggregateReference.to(lobby.id), user.username));
-      } else {
-        lobbyMessages.save(LobbyMessage.leaveLobbyMessage(AggregateReference.to(lobby.id), user.username));
-      }
+      // add user to new lobby
 
+      LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(user.id));
+      lobby.users.add(userRef);
+      lobby = lobbies.save(lobby);
 
-      return Optional.of(lobby);
+      // spawn chat message
+
+      lobbyMessages.save(LobbyMessage.joinLobbyMessage(AggregateReference.to(lobby.id), user.username));
+      return lobby;
 
     }
 

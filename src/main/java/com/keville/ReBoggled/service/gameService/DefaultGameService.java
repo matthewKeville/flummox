@@ -13,6 +13,7 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
 import com.keville.ReBoggled.DTO.GameAnswerDTO;
+import com.keville.ReBoggled.DTO.GameAnswerRequestDTO;
 import com.keville.ReBoggled.DTO.GameAnswerResponseDTO;
 import com.keville.ReBoggled.DTO.GameDTO;
 import com.keville.ReBoggled.DTO.GameWordDTO;
@@ -108,9 +109,9 @@ public class DefaultGameService implements GameService {
      * context. I think, the service method should still contain the userId, for the purpose of being able
      * to unit test the service. This parameter dictates the type of service request ( add answer for user in game .. )
      * whereas the principal will be used to ensure authorization. Which in unit test can be spoofed or disabled */
-    public GameAnswerResponseDTO submitGameAnswer(Integer gameId,Integer userId,String rawUserAnswer) throws EntityNotFound,InternalError,NotAuthorized {
+    public GameAnswerResponseDTO submitGameAnswer(Integer gameId,Integer userId,GameAnswerRequestDTO gameAnswerRequestDTO) throws EntityNotFound,InternalError,NotAuthorized {
 
-      final String userAnswer = rawUserAnswer.toLowerCase();
+      final String userAnswer = gameAnswerRequestDTO.answer.toLowerCase();
 
       User principal = ServiceUtils.getPrincipal();
       Game game = ServiceUtils.findGameById(games,gameId);

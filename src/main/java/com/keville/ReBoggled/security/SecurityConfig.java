@@ -86,24 +86,27 @@ public class SecurityConfig {
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/invite")).permitAll() //get invite link
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/invite")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/join")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/leave")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/create")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/update")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.DELETE, "/api/lobby/*")).permitAll()
+
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/start")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/kick/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/lobby/*/promote/*")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,  "/api/lobby/*/messages")).permitAll()
+
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/summary/sse")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*/messages/sse")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST,  "/api/lobby/*/messages")).permitAll()
+
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/game/*/answer/*")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/sse")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/post")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/sse/*")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/game/*/post-game/*")).permitAll()
 
         .anyRequest().authenticated()
 

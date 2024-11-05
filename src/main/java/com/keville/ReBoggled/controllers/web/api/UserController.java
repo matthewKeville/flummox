@@ -1,28 +1,29 @@
 package com.keville.ReBoggled.controllers.web.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.service.lobbyService.LobbyService;
+import com.keville.ReBoggled.repository.LobbyRepository;
 
 @RestController
 public class UserController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
-
     @Autowired
-    private LobbyService lobbyService;
+    private LobbyRepository lobbies;
 
     @GetMapping("/api/user/info")
     public UserInfo test() {
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      return new UserInfo(user.id,user.username,user.guest,lobbyService.getUserLobbyId(user.id));
+      User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      Optional<Lobby> lobby = lobbies.findUserLobby(principal.id);
+
+      return new UserInfo(principal.id,principal.username,principal.guest,lobby.isPresent() ? lobby.get().id : null);
 
     }
 

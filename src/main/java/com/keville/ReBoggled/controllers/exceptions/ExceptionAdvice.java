@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.keville.ReBoggled.service.exceptions.BadRequest;
 import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.exceptions.NotAuthorized;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
@@ -35,6 +36,12 @@ public class ExceptionAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler({EntityNotFound.class})
   public void handleNotFound(EntityNotFound e) {
+    LOG.warn("Exception",e);
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler({BadRequest.class})
+  public void handleNotFound(BadRequest e) {
     LOG.warn("Exception",e);
   }
 

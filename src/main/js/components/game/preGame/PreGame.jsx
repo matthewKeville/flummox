@@ -9,7 +9,7 @@ import Chat from "/src/main/js/components/game/preGame/Chat.jsx";
 import GameSettings from "/src/main/js/components/game/preGame/GameSettings.jsx";
 import config from "config"
 
-import { GetInviteLink, StartLobby, LeaveLobby } from "/src/main/js/services/LobbyService.ts";
+import { GetInviteLink, StartLobby, LeaveLobby } from "/src/main/js/services/flummox/LobbyService.ts";
 import { CopyToClipboardInsecure } from "/src/main/js/services/ClipboardService.ts";
 
 export default function PreGame({lobby,onReturnToPostGame,playedPrevious}) {
@@ -41,7 +41,7 @@ export default function PreGame({lobby,onReturnToPostGame,playedPrevious}) {
 
   let copyInviteLink = async function() {
 
-    let serviceResponse = await GetInviteLink()
+    let serviceResponse = await GetInviteLink(lobby.id)
 
     if ( !serviceResponse.success ) {
 

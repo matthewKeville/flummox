@@ -6,7 +6,7 @@ import { useNavigate, useLoaderData, useRevalidator } from "react-router-dom";
 import { Button, Text, Menu } from '@mantine/core';
 import { IconUserCircle } from "@tabler/icons-react";
 
-import { Logout } from "/src/main/js/services/AuthenticationService.ts";
+import { Logout } from "/src/main/js/services/flummox/AuthenticationService.ts";
 
 export default function AccountControls() {
   
