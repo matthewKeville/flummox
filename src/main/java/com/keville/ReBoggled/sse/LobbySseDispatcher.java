@@ -9,13 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.keville.ReBoggled.DTO.LobbySummaryDTO;
+import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.events.GameEndEvent;
 import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
-import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.sse.context.LobbyContext;
 
 @Component
@@ -32,7 +31,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
     protected void sendInitialPayload(SseEmitter emitter,LobbyContext context) {
       try {
 
-        LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(context.lobbyId);
+        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(context.lobbyId);
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(0))
@@ -60,7 +59,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(lobby.id);
+        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(lobby.id);
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(lobby.id))
@@ -88,7 +87,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(event.lobbyId);
+        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(event.lobbyId);
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(event.lobbyId))
@@ -115,7 +114,7 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbySummaryDTO lobbySummary = lobbyService.getLobbySummaryDTO(event.lobbyId);
+        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(event.lobbyId);
 
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(event.lobbyId))

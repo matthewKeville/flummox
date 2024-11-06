@@ -11,9 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.keville.ReBoggled.DTO.RegisterUserDTO;
+import com.keville.ReBoggled.DTO.RegisterUserRequestDTO;
 import com.keville.ReBoggled.DTO.RegisterUserResponseDTO;
-import com.keville.ReBoggled.DTO.VerifyUserDTO;
+import com.keville.ReBoggled.DTO.UserVerifyRequestDTO;
 import com.keville.ReBoggled.service.registrationService.RegistrationService;
 import com.keville.ReBoggled.service.registrationService.RegistrationServiceException;
 
@@ -29,14 +29,14 @@ public class RegistrationController {
 
   @PostMapping(value = { "/register" })
   public ResponseEntity<?> register(
-      @RequestBody RegisterUserDTO registerUserDTO
+      @RequestBody RegisterUserRequestDTO registerUserRequestDTO
     ) {
 
       RegisterUserResponseDTO response = new RegisterUserResponseDTO();
 
       try {
 
-        registrationService.registerUser(registerUserDTO);
+        registrationService.registerUser(registerUserRequestDTO);
         return new ResponseEntity<RegisterUserResponseDTO>(response.checkSuccess(),HttpStatus.OK);
 
       } catch (RegistrationServiceException ex) {
@@ -92,12 +92,12 @@ public class RegistrationController {
 
   @PostMapping(value = { "/verify" })
   public ResponseEntity<?> verify(
-      @RequestBody VerifyUserDTO verifyUserDTO
+      @RequestBody UserVerifyRequestDTO userVerifyRequestDTO
     ) {
 
       try {
 
-        registrationService.verifyEmail(verifyUserDTO.email(),verifyUserDTO.token());
+        registrationService.verifyEmail(userVerifyRequestDTO);
         return new ResponseEntity<>(HttpStatus.OK);
 
       } catch (RegistrationServiceException ex) {

@@ -44,7 +44,7 @@ export default function Lobbies() {
   const rows = lobbies.map((lobby) => (
     <Table.Tr key={lobby.id}>
       <Table.Td>{lobby.name}</Table.Td>
-      <Table.Td>{lobby.users.length} / {lobby.capacity}</Table.Td>
+      <Table.Td>{lobby.playerCount} / {lobby.capacity}</Table.Td>
       <Table.Td>{lobby.isPrivate ? "locked" : "open"}</Table.Td>
       <Table.Td>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-square-fill" viewBox="0 0 16 16" onClick={() => joinLobby(lobby.id)}>

@@ -1,6 +1,6 @@
 package com.keville.ReBoggled.DTO;
 
-public class RegisterUserDTO {
+public class RegisterUserRequestDTO {
 
     private String username;
     private String email;

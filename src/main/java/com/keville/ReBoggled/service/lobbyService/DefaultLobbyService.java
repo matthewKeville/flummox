@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.events.GameEndEvent;
 import com.keville.ReBoggled.events.StartLobbyEvent;
-import com.keville.ReBoggled.DTO.LobbyMessageDTO;
-import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
+import com.keville.ReBoggled.DTO.LobbyDTO;
+import com.keville.ReBoggled.DTO.LobbyMessageRequestDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
@@ -153,12 +153,14 @@ public class DefaultLobbyService implements LobbyService {
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
       User principal = ServiceUtils.getPrincipal();
 
-      removeUserFromLobby(principal, lobby);
-      lobbyMessages.save(LobbyMessage.leaveLobbyMessage(AggregateReference.to(lobby.id), principal.username));
+      boolean deleted = removeUserFromLobby(principal, lobby);
+      if ( deleted ) {
+        lobbyMessages.save(LobbyMessage.leaveLobbyMessage(AggregateReference.to(lobby.id), principal.username));
+      }
 
     }
 
-    public Lobby addMessage(Integer lobbyId,LobbyNewMessageDTO lobbyNewMessage) throws EntityNotFound,NotAuthorized {
+    public Lobby addMessage(Integer lobbyId,LobbyMessageRequestDTO lobbyMessageRequestDTO) throws EntityNotFound,NotAuthorized {
 
       User principal  = ServiceUtils.getPrincipal();
       Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
@@ -174,7 +176,7 @@ public class DefaultLobbyService implements LobbyService {
       LobbyMessage message = new LobbyMessage();
       message.lobby = AggregateReference.to(lobbyId);
       message.sent = LocalDateTime.now();
-      message.message = lobbyNewMessage.message();
+      message.message = lobbyMessageRequestDTO.message();
       message.user = AggregateReference.to(principal.id);
       lobbyMessages.save(message);
 
@@ -305,26 +307,21 @@ public class DefaultLobbyService implements LobbyService {
 
     public List<LobbySummaryDTO> getLobbySummaryDTOs() throws EntityNotFound {
 
-      Iterable<Lobby> allLobbies = lobbies.findAll();
-      List<LobbySummaryDTO> allLobbiesList = new LinkedList<LobbySummaryDTO>();
+      List<LobbySummaryDTO> summaries = new LinkedList<LobbySummaryDTO>();
+      lobbies.findAll().forEach( lobby -> {
+        summaries.add(new LobbySummaryDTO(lobby));
+      });
 
-      for ( Lobby lobby : allLobbies ) {
-        allLobbiesList.add(createLobbySummaryDTO(lobby));
-      }
-      return allLobbiesList;
+      return summaries;
     }
 
-    public LobbySummaryDTO getLobbySummaryDTO(int id) throws EntityNotFound {
-      Lobby lobby = ServiceUtils.findLobbyById(lobbies, id);
-      return createLobbySummaryDTO(lobby);
-    }
+    public LobbyDTO getLobbyDTO(int lobbyId) throws EntityNotFound {
 
-    //move to LobbySummarizer.java
-    private LobbySummaryDTO createLobbySummaryDTO(Lobby lobby) throws EntityNotFound {
+      Lobby lobby = ServiceUtils.findLobbyById(lobbies, lobbyId);
 
       User owner = ServiceUtils.findUserById(users, lobby.owner.getId());
 
-      LobbySummaryDTO lobbyDto = new LobbySummaryDTO(lobby);
+      LobbyDTO lobbyDto = new LobbyDTO(lobby);
       lobbyDto.owner = new LobbyUserDTO(owner);
 
       // lobby users
@@ -384,16 +381,18 @@ public class DefaultLobbyService implements LobbyService {
       lobby.owner = AggregateReference.to(user.id);
       lobby = lobbies.save(lobby);
       lobbyMessages.save(LobbyMessage.promoteLobbyMessage(AggregateReference.to(lobby.id), user.username));
+      LOG.info(String.format("lobby %d was transferred to %d",lobby.id,user.id));
 
       return lobby;
 
     }
 
-    private void removeUserFromLobby(User user,Lobby lobby) throws EntityNotFound,BadRequest {
+    // remove user and return whether the lobby still exists
+    private boolean removeUserFromLobby(User user,Lobby lobby) throws EntityNotFound,BadRequest {
 
       LobbyUserReference userRef = new LobbyUserReference(AggregateReference.to(lobby.id),AggregateReference.to(user.id));
         
-      if (!lobby.users.contains(userRef)) {
+      if ( !lobby.users.stream().anyMatch( lur -> lur.user.getId().equals(user.id)) ) {
         throw new BadRequest(String.format("User %d does not participate in lobby %d",user.id,lobby.id));
       }
 
@@ -401,14 +400,21 @@ public class DefaultLobbyService implements LobbyService {
       lobby = lobbies.save(lobby);
 
       if ( lobby.owner.getId() == user.id && lobby.users.size() != 0) {
+
         //automatic promotion
         LobbyUserReference newOwnerRef = lobby.users.stream().findAny().get();
         User newOwner = ServiceUtils.findUserById(users,newOwnerRef.user.getId());
         transferLobbyOwnership(lobby,newOwner);
+
       } else if ( lobby.users.size() == 0 ) {
         //automatic deletion
         lobbies.delete(lobby);
+        LOG.info(String.format("lobby %d was deleted",lobby.id));
+        return false;
       }
+
+      return true;
+
 
     }
 

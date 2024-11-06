@@ -3,7 +3,8 @@ package com.keville.ReBoggled.service.lobbyService;
 import java.util.List;
 import java.util.Optional;
 
-import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
+import com.keville.ReBoggled.DTO.LobbyDTO;
+import com.keville.ReBoggled.DTO.LobbyMessageRequestDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
@@ -14,8 +15,8 @@ import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
 
 public interface LobbyService {
 
+    public LobbyDTO getLobbyDTO(int id) throws EntityNotFound;
     public List<LobbySummaryDTO> getLobbySummaryDTOs() throws EntityNotFound;
-    public LobbySummaryDTO getLobbySummaryDTO(int id) throws EntityNotFound;
 
     public Lobby create() throws EntityNotFound,BadRequest;
     public Lobby update(LobbyUpdate lobbyUpdate) throws EntityNotFound,BadRequest,NotAuthorized;
@@ -27,7 +28,7 @@ public interface LobbyService {
     public void join(Integer lobbyId,Optional<String> Token) throws EntityNotFound,NotAuthorized,BadRequest;
     public void kick(Integer lobbyId,Integer userId) throws EntityNotFound,NotAuthorized,BadRequest;
     public void promote(Integer lobbyId,Integer userId) throws EntityNotFound,NotAuthorized,BadRequest;
-    public Lobby addMessage(Integer lobbyId,LobbyNewMessageDTO lobbyNewMessageDTO) throws EntityNotFound,NotAuthorized;
+    public Lobby addMessage(Integer lobbyId,LobbyMessageRequestDTO lobbyMessageRequestDTO) throws EntityNotFound,NotAuthorized;
 
 
 }

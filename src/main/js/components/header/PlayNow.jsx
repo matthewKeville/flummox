@@ -15,14 +15,15 @@ export default function PlayNow() {
 
     console.log("lobbyId " + userInfo.lobbyId)
 
-    if ( userInfo.lobbyId != -1 ) {
+    if ( userInfo.lobbyId != null ) {
+      console.log("navigating to current lobby")
       navigate("/lobby/" + userInfo.lobbyId);
       return;
     }
 
     let serviceResponse = await CreateLobby()
     if ( !serviceResponse.success ) {
-      toast.error("unable to create lobby");
+      console.log("error creating lobby")
       return
     }
     
@@ -33,7 +34,7 @@ export default function PlayNow() {
 
   return (
     <>
-    <Button onClick={createOrReturnToLobby}>{ userInfo.lobbyId == -1 ? "Play Now" : "Lobby"}</Button>
+    <Button onClick={createOrReturnToLobby}>{ userInfo.lobbyId == null ? "Play Now" : "Lobby"}</Button>
     </>
   )
 

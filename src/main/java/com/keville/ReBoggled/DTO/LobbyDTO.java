@@ -4,10 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.keville.ReBoggled.model.game.GameSettings;
-import com.keville.ReBoggled.model.game.GameUserReference;
 import com.keville.ReBoggled.model.lobby.Lobby;
-
-//TODO , no nested DTOs , user records or something
 
 public class LobbyDTO {
 

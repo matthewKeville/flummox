@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.keville.ReBoggled.DTO.LobbyNewMessageDTO;
+import com.keville.ReBoggled.DTO.LobbyMessageRequestDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
-import com.keville.ReBoggled.DTO.LobbyUpdateDTO;
+import com.keville.ReBoggled.DTO.LobbyUpdateRequestDTO;
 import com.keville.ReBoggled.sse.LobbyMessageSseDispatcher;
 import com.keville.ReBoggled.sse.LobbySseDispatcher;
 import com.keville.ReBoggled.sse.context.LobbyContext;
@@ -56,7 +54,7 @@ public class LobbyController {
   }
 
   @GetMapping("/summary")
-  public Iterable<LobbySummaryDTO> getLobbyViews(
+  public Iterable<LobbySummaryDTO> getLobbySummaries(
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly) {
     return lobbyService.getLobbySummaryDTOs();
   }
@@ -86,7 +84,7 @@ public class LobbyController {
   @PostMapping("/{id}/messages")
   public Lobby addLobbyMessage(
       @PathVariable("id") Integer id,
-      @Valid @RequestBody LobbyNewMessageDTO lobbyNewMessageDTO,
+      @Valid @RequestBody LobbyMessageRequestDTO lobbyMessageRequestDTO,
       @Autowired HttpSession session,
       @Autowired BindingResult bindingResult) {
 
@@ -95,7 +93,7 @@ public class LobbyController {
       throw new BadRequest("Invalid Message Body");
     }
 
-    return lobbyService.addMessage(id,lobbyNewMessageDTO);
+    return lobbyService.addMessage(id,lobbyMessageRequestDTO);
 
   }
 
@@ -141,18 +139,14 @@ public class LobbyController {
 
   @PostMapping("/{id}/leave")
   public void leaveLobby(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
-
-    Integer userId = getSessionUserId(session);
+      @PathVariable("id") Integer id) {
     lobbyService.leave(id);
-
   }
 
   @PostMapping("/{id}/update")
   public Lobby updateLobby(
       @PathVariable("id") Integer id,
-      @RequestBody LobbyUpdateDTO lobbyUpdateDTO
+      @RequestBody LobbyUpdateRequestDTO lobbyUpdateRequestDTO
       ) {
 
     LOG.info("hit update");
@@ -164,7 +158,7 @@ public class LobbyController {
     }
     */
 
-    LobbyUpdate lobbyUpdate = new LobbyUpdate(id, lobbyUpdateDTO);
+    LobbyUpdate lobbyUpdate = new LobbyUpdate(id, lobbyUpdateRequestDTO);
     return lobbyService.update(lobbyUpdate);
 
   }
@@ -178,8 +172,8 @@ public class LobbyController {
   }
 
   @PostMapping("/create")
-  public void createLobby() {
-    lobbyService.create();
+  public Integer createLobby() {
+    return lobbyService.create().id;
   }
 
   @DeleteMapping("/{id}")

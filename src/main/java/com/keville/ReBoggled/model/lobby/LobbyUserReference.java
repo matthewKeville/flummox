@@ -44,7 +44,7 @@ public class LobbyUserReference {
         return false;
       }
 
-      return user.getId() == lobbyUserReference.user.getId();
+      return user.getId().equals(lobbyUserReference.user.getId());
     }
 
     return false;

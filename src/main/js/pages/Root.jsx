@@ -10,6 +10,7 @@ import { GetUserInfo } from "/src/main/js/services/flummox/UserService.ts"
 export async function loader({ params }) {
   var UserInfoResponse = await GetUserInfo()
   var userInfo = UserInfoResponse.data
+  console.log(userInfo)
   return { userInfo }
 }
 

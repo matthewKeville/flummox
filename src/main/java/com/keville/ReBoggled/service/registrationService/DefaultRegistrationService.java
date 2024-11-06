@@ -15,7 +15,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.keville.ReBoggled.DTO.RegisterUserDTO;
+import com.keville.ReBoggled.DTO.RegisterUserRequestDTO;
+import com.keville.ReBoggled.DTO.UserVerifyRequestDTO;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.registrationService.RegistrationServiceException.RegistrationServiceError;
@@ -40,7 +41,7 @@ public class DefaultRegistrationService  implements RegistrationService {
     this.env = env;
   }
 
-  public void registerUser(RegisterUserDTO dto) throws RegistrationServiceException {
+  public void registerUser(RegisterUserRequestDTO dto) throws RegistrationServiceException {
 
     //prelim
 
@@ -101,15 +102,15 @@ public class DefaultRegistrationService  implements RegistrationService {
 
   }
 
-  public void verifyEmail(String email,String token) throws RegistrationServiceException {
+  public void verifyEmail(UserVerifyRequestDTO userVerifyRequestDTO) throws RegistrationServiceException {
 
-    Optional<User> optUser = users.findByEmail(email);
+    Optional<User> optUser = users.findByEmail(userVerifyRequestDTO.email());
     if ( optUser.isEmpty() ) {
       throw new RegistrationServiceException(RegistrationServiceError.EMAIL_NOT_FOUND);
     }
 
     User user = optUser.get();
-    if ( ! user.verificationToken.equals(token) ) {
+    if ( ! user.verificationToken.equals(userVerifyRequestDTO.token()) ) {
       throw new RegistrationServiceException(RegistrationServiceError.BAD_VERIFICATION_TOKEN);
     }
 
