@@ -1,39 +1,42 @@
 package com.keville.ReBoggled.DTO;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.keville.ReBoggled.model.game.GameSettings;
-import com.keville.ReBoggled.model.lobby.Lobby;
 
 public class LobbyDTO {
 
-    //Lobby Locals
+  public class LobbyUserDTO {
+
     public Integer id;
-    public String name;
-    public Integer capacity;
-    public Boolean isPrivate;
-    public LocalDateTime lastModifiedDate;
-    public GameSettings gameSettings;
+    public String username;
+    public boolean inGame;
 
-    //Game instance
-    public Integer gameId;
-    public Boolean gameActive = false;
+    public LobbyUserDTO(){};
 
-    //Associated Users
-    public LobbyUserDTO owner;
-    /* users in the lobby */
-    public List<LobbyUserDTO> users;
-    /* users in the active game */
-    public List<LobbyUserDTO> gameUsers; 
-
-    public LobbyDTO(Lobby lobby) {
-      this.id = lobby.id;
-      this.name = lobby.name;
-      this.capacity = lobby.capacity;
-      this.isPrivate = lobby.isPrivate;
-      this.gameSettings = lobby.gameSettings;
-      this.lastModifiedDate = lobby.lastModifiedDate;
+    public LobbyUserDTO(Integer id,String username,boolean inGame) {
+      this.id = id;
+      this.username = username;
+      this.inGame = inGame;
     }
+
+  }
+
+  public Integer id;
+  //Lobby Settings ...
+  public String name;
+  public Integer capacity;
+  public Boolean isPrivate;
+  public GameSettings gameSettings;
+
+  public Integer gameId;
+  public Boolean gameActive = false;
+
+  public LobbyUserDTO owner;
+  public List<LobbyUserDTO> users;
+
+  public LobbyDTO(){};
+
+
 
 }

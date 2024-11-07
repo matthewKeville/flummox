@@ -8,7 +8,6 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.DTO.LobbyUserDTO;
 import com.keville.ReBoggled.events.GameEndEvent;
 import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.DTO.LobbyDTO;
@@ -31,15 +30,12 @@ import com.keville.ReBoggled.service.exceptions.NotAuthorized;
 import com.keville.ReBoggled.service.gameService.GameService;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
 import com.keville.ReBoggled.service.utils.ServiceUtils;
-import com.keville.ReBoggled.util.Conversions;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class DefaultLobbyService implements LobbyService {
@@ -318,55 +314,42 @@ public class DefaultLobbyService implements LobbyService {
     public LobbyDTO getLobbyDTO(int lobbyId) throws EntityNotFound {
 
       Lobby lobby = ServiceUtils.findLobbyById(lobbies, lobbyId);
-
       User owner = ServiceUtils.findUserById(users, lobby.owner.getId());
+      Game gameGame = null; //hack around lambda closure
+      if ( lobby.game != null ) {
+        gameGame = ServiceUtils.findGameById(games,lobby.game.getId());
+      }
+      final Game game = gameGame;
 
-      LobbyDTO lobbyDto = new LobbyDTO(lobby);
-      lobbyDto.owner = new LobbyUserDTO(owner);
+      LobbyDTO lobbyDto = new LobbyDTO();
+      lobbyDto.id = lobby.id;
+      lobbyDto.name = lobby.name;
+      lobbyDto.capacity = lobby.capacity;
+      lobbyDto.isPrivate = lobby.isPrivate;
+      lobbyDto.gameSettings = lobby.gameSettings;
+      lobbyDto.gameId = game == null ? null : game.id;
+      lobbyDto.gameActive = game != null;
+
+      // lobby owner 
+
+      //truly a cursed syntax for inner class construction
+      lobbyDto.owner = lobbyDto.new LobbyUserDTO(owner.id,owner.username,true);
 
       // lobby users
-
-      List<Integer> userIds = lobby.users.stream()
-        .map( x -> x.user.getId() )
-        .collect(Collectors.toList());
-
-      Iterable<User> lobbyUsers =  users.findAllById(userIds);
-      List<User> lobbyUsersList = Conversions.iterableToList(lobbyUsers);
-
-      List<LobbyUserDTO> userDtos = lobbyUsersList.stream().
-        map( x -> new LobbyUserDTO(x))
-        .collect(Collectors.toList());
-
-      lobbyDto.users = userDtos;
-
-      if ( lobby.game != null ) {
-
-        Game game = ServiceUtils.findGameById(games, lobby.game.getId());
-
-        lobbyDto.gameActive = LocalDateTime.now().isBefore(game.end);
-        lobbyDto.gameId = game.id;
-
-        // lobby game users
       
-        List<Integer> gameUserIds = game.users.stream()
-          .map( x -> x.user.getId() )
-          .collect(Collectors.toList());
-
-        Iterable<User> gameUsers =  users.findAllById(gameUserIds);
-        List<User> gameUserList = Conversions.iterableToList(gameUsers);
-
-        List<LobbyUserDTO> gameUserDtos = gameUserList.stream().
-          map( x -> new LobbyUserDTO(x))
-          .collect(Collectors.toList());
-
-        lobbyDto.gameUsers = gameUserDtos;
-
-      } else {
-
-        lobbyDto.gameActive = false;
-        lobbyDto.gameUsers = new ArrayList<LobbyUserDTO>();
-
-      }
+      lobbyDto.users = lobby.users.stream()
+        .map( lur -> ServiceUtils.findUserById(users,lur.user.getId()) )
+        .map( user -> {
+          LobbyDTO.LobbyUserDTO dto = lobbyDto.new LobbyUserDTO();
+          dto.id = user.id;
+          dto.username = user.username;
+          if ( game != null ) {
+            dto.inGame = game.users.stream()
+              .map( gur -> gur.user.getId() )
+              .anyMatch( id -> id.equals(user.id));
+          }
+          return dto;
+      }).toList();
 
       return lobbyDto;
 

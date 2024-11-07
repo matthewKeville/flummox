@@ -27,10 +27,12 @@ export default function Lobby() {
     * on a function that checks the stored state.
     */
   function isUserInCurrentGame() {
-    return lobby?.gameUsers?.some( (x) =>  x.id == userInfo.id ) ?? false
+    //return lobby?.gameUsers?.some( (x) =>  x.id == userInfo.id ) ?? false
+    return (lobby?.users?.find( (u) => u.id == userInfo.id ))?.inGame ?? false;
   }
   function isUserInCurrentGameDTO(DTO) {
-    return DTO.gameUsers.some( (x) =>  x.id == userInfo.id )
+    //return DTO.gameUsers.some( (x) =>  x.id == userInfo.id )
+    return (DTO?.users?.find( (u) => u.id == userInfo.id ))?.inGame ?? false;
   }
 
   useEffect(() => {
