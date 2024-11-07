@@ -1,6 +1,5 @@
 package com.keville.ReBoggled.controllers.web.api;
 
-import java.security.Security;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ import com.keville.ReBoggled.sse.LobbyMessageSseDispatcher;
 import com.keville.ReBoggled.sse.LobbySseDispatcher;
 import com.keville.ReBoggled.sse.context.LobbyContext;
 import com.keville.ReBoggled.sse.context.LobbyMessageContext;
-import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.service.exceptions.BadRequest;
@@ -137,9 +135,7 @@ public class LobbyController {
       @PathVariable("id") Integer id,
       @RequestBody LobbyUpdateRequestDTO lobbyUpdateRequestDTO
       ) {
-
-    LobbyUpdate lobbyUpdate = new LobbyUpdate(id, lobbyUpdateRequestDTO);
-    return lobbyService.update(lobbyUpdate);
+    return lobbyService.update(id,lobbyUpdateRequestDTO);
 
   }
 

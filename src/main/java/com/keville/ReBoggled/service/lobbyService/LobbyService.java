@@ -6,8 +6,8 @@ import java.util.Optional;
 import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.DTO.LobbyMessageRequestDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
+import com.keville.ReBoggled.DTO.LobbyUpdateRequestDTO;
 import com.keville.ReBoggled.model.lobby.Lobby;
-import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.service.exceptions.BadRequest;
 import com.keville.ReBoggled.service.exceptions.EntityNotFound;
 import com.keville.ReBoggled.service.exceptions.NotAuthorized;
@@ -19,7 +19,7 @@ public interface LobbyService {
     public List<LobbySummaryDTO> getLobbySummaryDTOs() throws EntityNotFound;
 
     public Lobby create() throws EntityNotFound,BadRequest;
-    public Lobby update(LobbyUpdate lobbyUpdate) throws EntityNotFound,BadRequest,NotAuthorized;
+    public Lobby update(Integer id,LobbyUpdateRequestDTO lobbyUpdateDTO) throws EntityNotFound,BadRequest,NotAuthorized;
     public Boolean delete(Integer lobbyId) throws EntityNotFound;
     public Lobby start(Integer lobbyId) throws EntityNotFound,NotAuthorized,BoardGenerationException;
 

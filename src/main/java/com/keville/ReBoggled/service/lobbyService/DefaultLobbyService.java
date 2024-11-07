@@ -14,11 +14,11 @@ import com.keville.ReBoggled.events.StartLobbyEvent;
 import com.keville.ReBoggled.DTO.LobbyDTO;
 import com.keville.ReBoggled.DTO.LobbyMessageRequestDTO;
 import com.keville.ReBoggled.DTO.LobbySummaryDTO;
+import com.keville.ReBoggled.DTO.LobbyUpdateRequestDTO;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyMessage;
-import com.keville.ReBoggled.model.lobby.LobbyUpdate;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.GameRepository;
@@ -199,9 +199,9 @@ public class DefaultLobbyService implements LobbyService {
     }
 
 
-    public Lobby update(LobbyUpdate lobbyUpdate) throws EntityNotFound,BadRequest {
+    public Lobby update(Integer lobbyId,LobbyUpdateRequestDTO lobbyUpdate) throws EntityNotFound,BadRequest {
 
-      Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyUpdate.id);
+      Lobby lobby = ServiceUtils.findLobbyById(lobbies,lobbyId);
       User principal = ServiceUtils.getPrincipal();
 
       // Authorize
@@ -251,7 +251,7 @@ public class DefaultLobbyService implements LobbyService {
         if ( lobby.users.size() <= newCap ) {
           lobby.capacity = newCap;
         } else {
-          LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit",lobbyUpdate.id));
+          LOG.warn(String.format("ignoring request to diminish lobby : %d's capacity because it's current users wont' fit",lobbyId));
           throw new BadRequest("Capacity Shortening");
         }
       }
