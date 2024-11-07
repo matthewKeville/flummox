@@ -23,7 +23,11 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public class SecurityConfig {
 
   @Autowired
-  private GuestUserAnonymousAuthenticationFilter guestUserAnonymousAuthenticationFilter;
+  private GuestUserAnonymousAuthenticationFilter anonAuthenticationFilter;
+  @Autowired
+  private CustomAuthenticationFailureHandler failureHandler;
+  @Autowired
+  private CustomAuthenticationSuccessHandler successHandler;
 
   @Bean
   public SecurityFilterChain securityFilterChain(
@@ -46,7 +50,8 @@ public class SecurityConfig {
           .permitAll()
            .loginPage(env.getProperty("flummox.origin")+"/#login") // if redirected from auth required
            .loginProcessingUrl("/api/user/login")
-           .successForwardUrl("/")
+           .successHandler(successHandler)
+           .failureHandler(failureHandler)
       )
 
       .logout((logout) -> logout
@@ -55,7 +60,7 @@ public class SecurityConfig {
       )
 
       .anonymous( (anonymous) -> anonymous
-          .authenticationFilter(guestUserAnonymousAuthenticationFilter)
+          .authenticationFilter(anonAuthenticationFilter)
         )
 
       .authorizeHttpRequests( request -> request

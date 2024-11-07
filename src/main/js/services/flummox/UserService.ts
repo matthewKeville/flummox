@@ -14,6 +14,13 @@ export async function GetUserInfo() : Promise<ServiceResponse> {
     `${config.origin}/api/user/info`);
 }
 
+export async function Login(loginDTO: any) : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.POST,
+    `${config.origin}/api/user/login?username=${loginDTO.username}&password=${loginDTO.password}`,
+  );
+}
+
 export async function Logout() : Promise<ServiceResponse> {
   return await ServiceRequest(
     HttpMethod.POST,
