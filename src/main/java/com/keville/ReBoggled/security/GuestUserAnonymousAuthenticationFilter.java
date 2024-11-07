@@ -78,7 +78,6 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
 
         }
 
-        req.getSession().setAttribute("userId",guest.id);
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(KEY_INDENTITY, guest, AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
         return token;
 

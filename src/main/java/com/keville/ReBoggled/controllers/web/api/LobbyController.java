@@ -1,10 +1,12 @@
 package com.keville.ReBoggled.controllers.web.api;
 
+import java.security.Security;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +26,11 @@ import com.keville.ReBoggled.sse.LobbySseDispatcher;
 import com.keville.ReBoggled.sse.context.LobbyContext;
 import com.keville.ReBoggled.sse.context.LobbyMessageContext;
 import com.keville.ReBoggled.model.lobby.LobbyUpdate;
+import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.service.exceptions.BadRequest;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @RestController
@@ -60,22 +62,19 @@ public class LobbyController {
   }
 
   @GetMapping("/{id}/messages/sse")
-  public SseEmitter getLobbyMessageSSE(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
+  public SseEmitter getLobbyMessageSSE(@PathVariable("id") Integer id) {
 
-    Integer userId = getSessionUserId(session);
+    Integer userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).id;
+
     LobbyMessageContext context = new LobbyMessageContext(userId, id);
     return lobbyMessageSseDispatcher.register(context);
 
   }
 
   @GetMapping("/{id}/summary/sse")
-  public SseEmitter getLobbySSE(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
+  public SseEmitter getLobbySSE(@PathVariable("id") Integer id) {
 
-    Integer userId = getSessionUserId(session);
+    Integer userId = getUserId();
     LobbyContext context = new LobbyContext(userId, id);
     return lobbySseDispatcher.register(context);
 
@@ -85,7 +84,6 @@ public class LobbyController {
   public Lobby addLobbyMessage(
       @PathVariable("id") Integer id,
       @Valid @RequestBody LobbyMessageRequestDTO lobbyMessageRequestDTO,
-      @Autowired HttpSession session,
       @Autowired BindingResult bindingResult) {
 
     if (bindingResult.hasErrors()) {
@@ -101,18 +99,15 @@ public class LobbyController {
   @GetMapping("/{id}/invite")
   public String getInvite(
       @PathVariable("id") Integer id) {
-
     return lobbyService.getInviteLink(id);
-
   }
 
   @PostMapping("/{id}/join")
   public void joinLobby(
       @PathVariable("id") Integer id,
-      @Autowired HttpSession session,
       @RequestParam(required = false, name = "token") String token) {
 
-    Integer userId = getSessionUserId(session);
+    Integer userId = getUserId();
     lobbyService.join(id,token == null ? Optional.empty() : Optional.of(token));
 
   }
@@ -120,26 +115,20 @@ public class LobbyController {
   @PostMapping("/{id}/kick/{userId}")
   public void kickPlayer(
       @PathVariable("id") Integer id,
-      @PathVariable("userId") Integer userId, // To be kicked
-      @Autowired HttpSession session) {
-
+      @PathVariable("userId") Integer userId) {
     lobbyService.kick(id, userId);
-
   }
 
   @PostMapping("/{id}/promote/{userId}")
   public void promotePlayer(
       @PathVariable("id") Integer id,
-      @PathVariable("userId") Integer userId, // To be kicked
-      @Autowired HttpSession session) {
+      @PathVariable("userId") Integer userId) {
 
     lobbyService.promote(id, userId);
-
   }
 
   @PostMapping("/{id}/leave")
-  public void leaveLobby(
-      @PathVariable("id") Integer id) {
+  public void leaveLobby( @PathVariable("id") Integer id) {
     lobbyService.leave(id);
   }
 
@@ -149,26 +138,14 @@ public class LobbyController {
       @RequestBody LobbyUpdateRequestDTO lobbyUpdateRequestDTO
       ) {
 
-    LOG.info("hit update");
-
-    /*
-    if (bindingResult.hasErrors()) {
-      LOG.info(String.format("Invalid Request Body"));
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "WRONG_BODY");
-    }
-    */
-
     LobbyUpdate lobbyUpdate = new LobbyUpdate(id, lobbyUpdateRequestDTO);
     return lobbyService.update(lobbyUpdate);
 
   }
 
   @PostMapping("/{id}/start")
-  public void startGame(
-      @PathVariable("id") Integer id) {
-
+  public void startGame( @PathVariable("id") Integer id) {
     lobbyService.start(id);
-
   }
 
   @PostMapping("/create")
@@ -178,20 +155,18 @@ public class LobbyController {
 
   @DeleteMapping("/{id}")
   public boolean deleteLobby(
-      @PathVariable("id") Integer id,
-      @Autowired HttpSession session) {
+      @PathVariable("id") Integer id) {
 
     return lobbyService.delete(id);
   }
 
-  private int getSessionUserId(HttpSession session) throws InternalError {
-    LOG.info("before getSessionUserId");
-    Integer userId = (Integer) session.getAttribute("userId");
-    if (userId == null) {
-      LOG.warn("unable to identify the userId of the current Session");
-      throw new InternalError("no userId attribute in session");
-    }
-    return userId;
+  private int getUserId() {
+    return ( (User) 
+        SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal())
+        .id;
   }
+
 
 }

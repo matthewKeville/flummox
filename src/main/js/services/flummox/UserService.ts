@@ -14,3 +14,25 @@ export async function GetUserInfo() : Promise<ServiceResponse> {
     `${config.origin}/api/user/info`);
 }
 
+export async function Logout() : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.POST,
+    `${config.origin}/api/user/logout`
+  );
+}
+
+export async function Register(registerDTO: any) : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.POST,
+    `${config.origin}/api/user/register`,
+    registerDTO
+  );
+}
+
+export async function VerifyAccount(verifyAccountDTO:any) : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.POST,
+    `${config.origin}/api/user/verify`,
+    verifyAccountDTO
+  );
+}

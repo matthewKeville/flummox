@@ -14,16 +14,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.keville.ReBoggled.model.user.User;
-import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.userService.UserService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
-
-  //SecurityConfig Depends On One
-  @MockBean
-  AuthenticationSuccessHandlerImpl authSuccessHandler;
 
   @MockBean
   UserService userService;

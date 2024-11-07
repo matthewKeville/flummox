@@ -31,7 +31,6 @@ import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.LobbyRepository;
 import com.keville.ReBoggled.repository.UserRepository;
-import com.keville.ReBoggled.security.AuthenticationSuccessHandlerImpl;
 import com.keville.ReBoggled.service.lobbyService.LobbyService;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException;
 import com.keville.ReBoggled.service.lobbyService.LobbyServiceException.LobbyServiceError;
@@ -42,9 +41,6 @@ import com.keville.ReBoggled.sse.LobbySseDispatcher;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class LobbyControllerTest {
-
-  @MockBean
-  private AuthenticationSuccessHandlerImpl authSuccessImp;
 
   @MockBean
   private UserService userService;

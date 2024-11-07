@@ -3,7 +3,7 @@ import { useRevalidator, useNavigate } from "react-router-dom";
 import { TextInput, Button, Stack, Text, Center } from "@mantine/core";
 
 import config from "config"
-import { Register } from "/src/main/js/services/flummox/AuthenticationService.ts";
+import { Register } from "/src/main/js/services/flummox/UserService.ts";
 
 
 export default function RegisterPage() {
@@ -24,7 +24,7 @@ export default function RegisterPage() {
     let serviceResponse = await Register(formDTO)
     console.log(serviceResponse)
 
-    if ( serviceResponse.success ) {
+    if ( serviceResponse.success && serviceResponse.data.success) {
       revalidator.revalidate();
       navigate("/login")
     } else {

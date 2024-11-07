@@ -13,7 +13,7 @@ export default function LoginPage() {
 
     <Stack mt="md" mx="30%">
     <Center py="5%">
-      <form action={`${config.origin}/login`} method="POST">
+      <form action={`${config.origin}/api/user/login`} method="POST">
         <TextInput name="username" label="Username" placeholder="flummoxer" size="md"/>
         <TextInput mt="md" name="password" label="Password" placeholder="*****" type="password" size="md"/>
         <Button mt="xl" fullWidth type="submit" size="lg" > Login </Button>

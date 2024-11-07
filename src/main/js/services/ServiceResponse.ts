@@ -33,7 +33,7 @@ async function ServiceRequest(method: HttpMethod,uri: string,data?: any) : Promi
   if (!response.ok || response.redirected == true) {
     console.warn(`ServiceRequest for ${method} : ${uri} failed`)
     console.warn(`Reason ${response.status}  :  ${response.statusText}`) 
-    console.warn(`Redirected ${response.redirected}`)
+    console.warn(`Redirected ${response.redirected} ${response.url}`)
     return { data: undefined, success: false }
   }
 

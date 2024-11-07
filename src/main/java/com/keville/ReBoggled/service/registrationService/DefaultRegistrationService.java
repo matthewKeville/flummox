@@ -16,9 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.keville.ReBoggled.DTO.RegisterUserRequestDTO;
+import com.keville.ReBoggled.DTO.RegisterUserResponseDTO;
 import com.keville.ReBoggled.DTO.UserVerifyRequestDTO;
 import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
+import com.keville.ReBoggled.service.exceptions.BadRequest;
 import com.keville.ReBoggled.service.registrationService.RegistrationServiceException.RegistrationServiceError;
 
 @Service
@@ -41,83 +43,153 @@ public class DefaultRegistrationService  implements RegistrationService {
     this.env = env;
   }
 
-  public void registerUser(RegisterUserRequestDTO dto) throws RegistrationServiceException {
+  public RegisterUserResponseDTO registerUser(RegisterUserRequestDTO dto) {
 
-    //prelim
+    LOG.info("hit registerUser");
 
-    if ( StringUtils.isBlank(dto.getUsername()) ) {
-      fail(RegistrationServiceError.EMTPY_USERNAME);
-    }
-    if ( StringUtils.isBlank(dto.getEmail()) ) {
-      fail(RegistrationServiceError.EMPTY_EMAIL);
-    }
-    if ( StringUtils.isBlank(dto.getPassword()) ) {
-      fail(RegistrationServiceError.EMTPY_PASSWORD);
-    }
+    try {
 
-    //implicit constraints
+      //prelim
 
-    safeEmail(dto.getEmail());
-    safeUsername(dto.getUsername());
-    safePassword(dto.getPassword());
- 
-    //everything else
+      if ( StringUtils.isBlank(dto.getUsername()) ) {
+        fail(RegistrationServiceError.EMTPY_USERNAME);
+      }
+      if ( StringUtils.isBlank(dto.getEmail()) ) {
+        fail(RegistrationServiceError.EMPTY_EMAIL);
+      }
+      if ( StringUtils.isBlank(dto.getPassword()) ) {
+        fail(RegistrationServiceError.EMTPY_PASSWORD);
+      }
+
+      //implicit constraints
+
+      safeEmail(dto.getEmail());
+      safeUsername(dto.getUsername());
+      safePassword(dto.getPassword());
+   
+      //everything else
+      
+      if ( !dto.getPassword().equals(dto.getPasswordConfirmation()) ) {
+        throw new RegistrationServiceException(RegistrationServiceError.PASSWORD_UNEQUAL);
+      }
+
+      if ( users.existsByEmail(dto.getEmail()) ) {
+        throw new RegistrationServiceException(RegistrationServiceError.EMAIL_IN_USE);
+      }
+
+      if ( users.existsByUsername(dto.getUsername()) ) { 
+        throw new RegistrationServiceException(RegistrationServiceError.USERNAME_IN_USE);
+      }
+
+      // OKAY!
+
+      String encodedPassword = passwordEncoder.encode(dto.getPassword());
+
+      User user = new User(dto.getUsername(),dto.getEmail(),encodedPassword);
+      user = users.save(user);
+
+      // token
+
+      String verifyToken = RandomStringUtils.randomAlphanumeric(20);
+      user.verificationToken = verifyToken;
+      users.save(user);
+
+
+      // send verify link
+
+      String verifyLink = env.getProperty("flummox.origin") + "/#verify?email=" + user.email + "&token=" + verifyToken;
+      boolean verifyInConsole = Boolean.valueOf(env.getProperty("flummox.verifyLinkInConsole"));
+      if ( verifyInConsole ) {
+        LOG.info(verifyLink);
+      } else {
+        sendConfirmationEmail(dto.getUsername(),dto.getEmail(),verifyLink);
+      }
+
+      LOG.info("good registration");
+
+      LOG.info("sent email");
+
+      return RegisterUserResponseDTO.OK();
     
-    if ( !dto.getPassword().equals(dto.getPasswordConfirmation()) ) {
-      throw new RegistrationServiceException(RegistrationServiceError.PASSWORD_UNEQUAL);
+    } catch( RegistrationServiceException  ex) {
+
+      LOG.info("caught failure : " + ex.error.toString());
+
+      return buildFailResponse(ex.error);
+
     }
-
-    if ( users.existsByEmail(dto.getEmail()) ) {
-      throw new RegistrationServiceException(RegistrationServiceError.EMAIL_IN_USE);
-    }
-
-    if ( users.existsByUsername(dto.getUsername()) ) { 
-      throw new RegistrationServiceException(RegistrationServiceError.USERNAME_IN_USE);
-    }
-
-    // OKAY!
-
-    String encodedPassword = passwordEncoder.encode(dto.getPassword());
-
-    User user = new User(dto.getUsername(),dto.getEmail(),encodedPassword);
-    user = users.save(user);
-
-    // token
-
-    String verifyToken = RandomStringUtils.randomAlphanumeric(20);
-    user.verificationToken = verifyToken;
-    users.save(user);
-
-
-    // send verify link
-
-    String verifyLink = env.getProperty("flummox.origin") + "/#verify?email=" + user.email + "&token=" + verifyToken;
-    boolean verifyInConsole = Boolean.valueOf(env.getProperty("flummox.verifyLinkInConsole"));
-    if ( verifyInConsole ) {
-      LOG.info(verifyLink);
-      return;
-    }
-
-    sendConfirmationEmail(dto.getUsername(),dto.getEmail(),verifyLink);
 
   }
 
-  public void verifyEmail(UserVerifyRequestDTO userVerifyRequestDTO) throws RegistrationServiceException {
+  public void verifyEmail(UserVerifyRequestDTO userVerifyRequestDTO) throws BadRequest {
 
     Optional<User> optUser = users.findByEmail(userVerifyRequestDTO.email());
     if ( optUser.isEmpty() ) {
-      throw new RegistrationServiceException(RegistrationServiceError.EMAIL_NOT_FOUND);
+      throw new BadRequest("Email not found");
     }
 
     User user = optUser.get();
     if ( ! user.verificationToken.equals(userVerifyRequestDTO.token()) ) {
-      throw new RegistrationServiceException(RegistrationServiceError.BAD_VERIFICATION_TOKEN);
+      throw new BadRequest("Bad token");
     }
 
     user.verified = true;
     users.save(user);
     
   }
+
+  private RegisterUserResponseDTO buildFailResponse(RegistrationServiceException.RegistrationServiceError error) {
+
+    RegisterUserResponseDTO response = new RegisterUserResponseDTO();
+
+    switch ( error ) {
+      case EMPTY_EMAIL:
+        response.errorEmail = Optional.of("Email can not be empty");
+        break;
+      case EMAIL_TOO_LONG:
+        response.errorEmail = Optional.of("Max length " + RegistrationService.MAX_EMAIL_LENGTH + " characters");
+        break;
+      case EMAIL_IN_USE:
+        response.errorEmail = Optional.of("Email already in use");
+        break;
+
+      case EMTPY_USERNAME:
+        response.errorUsername = Optional.of("Username can not be empty");
+        break;
+      case USERNAME_TOO_LONG:
+        response.errorUsername = Optional.of("Max length : " + RegistrationService.MAX_USERNAME_LENGTH);
+        break;
+      case USERNAME_TOO_SHORT:
+        response.errorUsername = Optional.of("Min length : " + RegistrationService.MIN_USERNAME_LENGTH);
+        break;
+      case USERNAME_IN_USE:
+        response.errorUsername = Optional.of("Username already in use");
+        break;
+
+      case EMTPY_PASSWORD:
+        response.errorPassword = Optional.of("Password can not be empty");
+        break;
+      case PASSWORD_TOO_SHORT:
+        response.errorPassword = Optional.of("Min length " + RegistrationService.MIN_PASSWORD_LENGTH);
+        break;
+      case PASSWORD_TOO_LONG:
+        response.errorPassword = Optional.of("Max length " + RegistrationService.MAX_PASSWORD_LENGTH);
+        break;
+      case PASSWORD_UNEQUAL:
+        response.errorPassword = Optional.of("Passwords do not match");
+        break;
+
+      default:
+        response.errorGeneral = Optional.of("internal error");
+        break;
+    }
+
+    response.success = false;
+    LOG.info("returning fail response");
+    return response;
+
+  }
+
 
   private void fail(RegistrationServiceError error) throws RegistrationServiceException {
     throw new RegistrationServiceException(error);

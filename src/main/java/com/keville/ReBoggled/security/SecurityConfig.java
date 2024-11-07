@@ -23,9 +23,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public class SecurityConfig {
 
   @Autowired
-  private AuthenticationSuccessHandlerImpl authenticationSuccessHandler;
-
-  @Autowired
   private GuestUserAnonymousAuthenticationFilter guestUserAnonymousAuthenticationFilter;
 
   @Bean
@@ -47,18 +44,14 @@ public class SecurityConfig {
 
       .formLogin((form) -> form
           .permitAll()
-           //for the purposes of the user loggin in, this definition isn't strictly necessary
-           //as we can just post to the login endpoint through client side js.
-           //however, if authentication is needed, this property determines what page
-           //to redirect to. We want to redirect to the client side login page, not the built-in
-           //bootstrap template.
-           .loginPage(env.getProperty("flummox.origin")+"/#login")
-           .loginProcessingUrl("/login")
-          .successHandler( authenticationSuccessHandler )
+           .loginPage(env.getProperty("flummox.origin")+"/#login") // if redirected from auth required
+           .loginProcessingUrl("/api/user/login")
+           .successForwardUrl("/")
       )
 
       .logout((logout) -> logout
           .permitAll()
+          .logoutUrl("/api/user/logout")
       )
 
       .anonymous( (anonymous) -> anonymous
@@ -73,12 +66,10 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern("/audio/*")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern("/favicon.ico")).permitAll()
 
-        //special endpoints
 
         .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/register")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/verify")).permitAll()
-        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/join")).permitAll() //follow invite link
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/user/register")).permitAll()
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/user/verify")).permitAll()
 
         //api
 

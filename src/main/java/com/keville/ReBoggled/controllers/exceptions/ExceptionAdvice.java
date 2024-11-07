@@ -39,7 +39,8 @@ public class ExceptionAdvice {
     LOG.warn("Exception",e);
   }
 
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  //@ResponseStatus(HttpStatus.BAD_REQUEST)
+  //@ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({BadRequest.class})
   public void handleNotFound(BadRequest e) {
     LOG.warn("Exception",e);

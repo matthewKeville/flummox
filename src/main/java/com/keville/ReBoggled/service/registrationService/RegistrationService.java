@@ -1,7 +1,9 @@
 package com.keville.ReBoggled.service.registrationService;
 
 import com.keville.ReBoggled.DTO.RegisterUserRequestDTO;
+import com.keville.ReBoggled.DTO.RegisterUserResponseDTO;
 import com.keville.ReBoggled.DTO.UserVerifyRequestDTO;
+import com.keville.ReBoggled.service.exceptions.BadRequest;
 
 public interface RegistrationService {
 
@@ -11,7 +13,7 @@ public interface RegistrationService {
     public static final int MAX_PASSWORD_LENGTH     = 80;
     public static final int MIN_PASSWORD_LENGTH     = 8;
 
-    public void registerUser(RegisterUserRequestDTO dto) throws RegistrationServiceException;
-    public void verifyEmail(UserVerifyRequestDTO userVerifyRequestDTO) throws RegistrationServiceException;
+    public RegisterUserResponseDTO registerUser(RegisterUserRequestDTO dto);
+    public void verifyEmail(UserVerifyRequestDTO userVerifyRequestDTO) throws BadRequest;
 
 }
