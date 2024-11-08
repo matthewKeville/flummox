@@ -12,19 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.DTO.GameAnswerDTO;
 import com.keville.ReBoggled.DTO.GameAnswerRequestDTO;
 import com.keville.ReBoggled.DTO.GameAnswerResponseDTO;
 import com.keville.ReBoggled.DTO.GameDTO;
-import com.keville.ReBoggled.DTO.GameWordDTO;
 import com.keville.ReBoggled.DTO.PostGameDTO;
 import com.keville.ReBoggled.DTO.GameAnswerResponseDTO.Rejection;
 import com.keville.ReBoggled.model.game.Game;
 import com.keville.ReBoggled.model.game.GameAnswer;
 import com.keville.ReBoggled.model.game.GameSettings;
 import com.keville.ReBoggled.model.game.GameUserReference;
-import com.keville.ReBoggled.model.gameSummary.GameSummary;
-import com.keville.ReBoggled.model.gameSummary.WordFinder;
 import com.keville.ReBoggled.model.lobby.Lobby;
 import com.keville.ReBoggled.model.lobby.LobbyUserReference;
 import com.keville.ReBoggled.model.user.User;
@@ -37,6 +33,8 @@ import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerator;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
+import com.keville.ReBoggled.service.gameService.summary.GameSummarizer;
+import com.keville.ReBoggled.service.gameService.summary.GameSummary;
 import com.keville.ReBoggled.service.utils.ServiceUtils;
 
 @Component
@@ -163,12 +161,12 @@ public class DefaultGameService implements GameService {
       }
 
       //extract users answers 
-      Set<GameAnswerDTO> userAnswers = 
+      Set<String> userAnswers = 
         game.answers.stream()
         .filter( ans -> {
           return ans.user.getId().equals(userId);
         })
-        .map( uga ->  new GameAnswerDTO(uga.answer,uga.answerSubmissionTime) )
+        .map( uga ->  uga.answer )
         .collect(Collectors.toSet());
 
       return new GameDTO(game,userAnswers);
@@ -184,37 +182,12 @@ public class DefaultGameService implements GameService {
         throw new NotAuthorized(String.format("principal %d is not user %d",principal.id,user.id));
       }
 
-      GameSummary gameSummary = gameSummarizer.summarize(game);
-
-      //transform gameSummary into set of 'GameWordDTOs' (flavor GameWord for user)
-      Set<GameWordDTO> gameWordDTOs = new HashSet<GameWordDTO>();
-      gameSummary.gameBoardWords().forEach( gbw -> {
-
-        boolean found   = gbw.finders().stream().anyMatch( (finder) -> finder.id().equals(userId) );
-        //some duplicate logic here with the calculation of GameSummary
-        boolean counted = false;
-        if ( found ) {
-
-          switch ( game.findRule ) {
-            case UNIQUE:
-              counted = gbw.finders().size() == 1;
-              break;
-            case FIRST:
-              Optional<WordFinder> firstFinder = gbw.finders().stream().sorted( (a,b) -> a.time().compareTo(b.time()) ).findFirst();
-              counted = firstFinder.get().id().equals(userId);
-              break;
-            case ANY:
-            default:
-              counted = true;
-          }
-
-        }
-
-        gameWordDTOs.add(new GameWordDTO(gbw.word(),gbw.paths(),gbw.finders(),gbw.points(),found,counted));
-
-      });
-
-      return new PostGameDTO(game,gameWordDTOs,gameSummary.scoreboard());
+      try {
+        GameSummary gameSummary = gameSummarizer.summarize(game,userId);
+        return new PostGameDTO(game,gameSummary.wordSummaries());
+      } catch (BoardSolverException bse ) {
+        throw new InternalError("board solver failure");
+      }
 
     }
 

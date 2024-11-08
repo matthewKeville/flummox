@@ -18,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.keville.ReBoggled.model.game.Board;
 import com.keville.ReBoggled.model.game.BoardSize;
 import com.keville.ReBoggled.model.game.BoardTopology;
-import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.service.gameService.TileCodeStringMap;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerationException;
 import com.keville.ReBoggled.service.gameService.board.BoardGenerator;
@@ -26,6 +25,7 @@ import com.keville.ReBoggled.service.gameService.board.ClassicTilesGenerator;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
 import com.keville.ReBoggled.service.gameService.solution.WordValidator;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
+import com.keville.ReBoggled.service.gameService.solution.BoardWord;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {BoardSolver.class,TileCodeStringMap.class,WordValidator.class,BoardGenerator.class,ClassicTilesGenerator.class})

@@ -1,28 +1,18 @@
-package com.keville.ReBoggled.service.gameService;
+package com.keville.ReBoggled.service.gameService.summary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.model.game.Game;
-import com.keville.ReBoggled.model.game.GameAnswer;
-import com.keville.ReBoggled.model.gameSummary.GameSummary;
-import com.keville.ReBoggled.model.gameSummary.GameWord;
-import com.keville.ReBoggled.model.gameSummary.ScoreBoardEntry;
-import com.keville.ReBoggled.model.gameSummary.WordFinder;
-import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver;
 import com.keville.ReBoggled.service.gameService.solution.BoardSolver.BoardSolverException;
+import com.keville.ReBoggled.service.gameService.summary.wordSummary.UserWordSummary;
+import com.keville.ReBoggled.service.gameService.summary.wordSummary.WordSummarizer;
+import com.keville.ReBoggled.service.gameService.summary.wordSummary.WordSummary;
+import com.keville.ReBoggled.service.gameService.solution.BoardWord;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,31 +20,36 @@ import org.slf4j.LoggerFactory;
 @Component
 public class GameSummarizer {
 
-  public static Logger LOG = LoggerFactory.getLogger(GameSummarizer.class);
-  public BoardSolver boardSolver;
-  public UserRepository users;
-
-  private Map<Integer,GameSummary> gameSummaryCache = new HashMap<Integer,GameSummary>();
+  private static Logger LOG = LoggerFactory.getLogger(GameSummarizer.class);
+  private BoardSolver boardSolver;
+  private WordSummarizer wordSummarizer;
 
   public GameSummarizer(
       @Autowired BoardSolver boardSolver,
-      @Autowired UserRepository users) {
+      @Autowired WordSummarizer wordSummarizer
+  ) {
     this.boardSolver = boardSolver;
-    this.users = users;
+    this.wordSummarizer = wordSummarizer;
   }
 
-  public GameSummary summarize(Game game) {
+  public GameSummary summarize(Game game,Integer userId) throws BoardSolverException {
 
-    if (gameSummaryCache.containsKey( game.id )) {
-      return gameSummaryCache.get(game.id);
-    }
-
-    GameSummary summary = generateGameSummary(game);
-    gameSummaryCache.put(game.id,summary);
-    return summary;
-
+      Map<String,BoardWord> solution = boardSolver.solve(game.board);
+      LOG.info(" solution count " + solution.keySet().size());
+      List<WordSummary> wordSummaries = wordSummarizer.getWordSummaries(solution, game.answers);
+      LOG.info(" WordSummaries count " + wordSummaries.size());
+      List<UserWordSummary> userWordSummaries = 
+        wordSummarizer.getUserWordSummaries(
+            game.findRule,
+            wordSummaries,
+            userId);
+      LOG.info(" UserWordSummary count " + userWordSummaries.size());
+      return new GameSummary(userWordSummaries);
   }
 
+}
+
+  /*
   private GameSummary generateGameSummary(Game game) {
 
     try {
@@ -104,7 +99,7 @@ public class GameSummarizer {
   }
 
   private int nominalScore(BoardWord boardWord,Game game) {
-    /* This is classic boggle scoring, this should depend on Game Settings , perhaps WordScale enum*/
+    // This is classic boggle scoring, this should depend on Game Settings , perhaps WordScale enum
     switch ( boardWord.word.length() ) {
       case 1:
       case 2:
@@ -223,5 +218,4 @@ public class GameSummarizer {
     return scoreBoard;
 
   }
-
-}
+  */

@@ -4,7 +4,7 @@ import { Stack, Button } from '@mantine/core';
 import { IconArrowBackUp } from "@tabler/icons-react";
 
 import Board from "/src/main/js/components/game/Board.jsx";
-import AllAnswerDisplay from "/src/main/js/components/game/postgame/AllAnswerDisplay.jsx";
+import WordSummaryDisplay from "/src/main/js/components/game/postgame/WordSummaryDisplay.jsx";
 
 import { GetPostGame } from "/src/main/js/services/flummox/GameService.ts";
 
@@ -42,7 +42,7 @@ export default function PostGame({lobby,onReturnToLobby}) {
       <Button color="yellow" onClick={() => onReturnToLobby()}>
         <IconArrowBackUp/>
       </Button>
-      <AllAnswerDisplay words={postGame.words}/>
+      <WordSummaryDisplay summaries={postGame.wordSummaries}/>
     </Stack>
 
   );

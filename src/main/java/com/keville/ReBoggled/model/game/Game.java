@@ -2,12 +2,10 @@ package com.keville.ReBoggled.model.game;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -41,10 +39,8 @@ public class Game {
   @Column("LAST_MODIFIED")
   public LocalDateTime lastModifiedDate;
 
-  //TODO add column extracted from game settings
+  //FIXME these are game settings and should be a nested class
   public FindRule findRule;
-
-  //TODO add column extracted from game settings
   public Integer duration;
 
   @Embedded.Nullable

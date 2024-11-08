@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.keville.ReBoggled.model.game.BoardWord;
 import com.keville.ReBoggled.service.gameService.TileCodeStringMap;
 import com.keville.ReBoggled.service.gameService.solution.graphs.CylinderBoardGraphBuilder;
 import com.keville.ReBoggled.service.gameService.solution.graphs.GraphBuilder.GraphBuilderException;
@@ -160,7 +159,7 @@ public class BoardSolver {
       if ( !answers.containsKey(pathWord) ) {
         Set<List<Integer>> wordPaths = new HashSet<List<Integer>>();
         wordPaths.add(path);
-        answers.put(pathWord,new BoardWord(wordPaths,pathWord));
+        answers.put(pathWord,new BoardWord(wordPaths,pathWord,answers.keySet().size()));
       } else {
         answers.get(pathWord).paths.add(path);
       }

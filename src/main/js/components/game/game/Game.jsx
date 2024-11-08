@@ -5,7 +5,7 @@ import { useRouteLoaderData } from "react-router-dom";
 
 import GameTimer from "/src/main/js/components/game/game/GameTimer.jsx";
 import Board from "/src/main/js/components/game/Board.jsx";
-import UserAnswerDisplay from "/src/main/js/components/game/game/UserAnswerDisplay.jsx"
+import AnswerDisplay from "/src/main/js/components/game/game/AnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/WordInput.jsx"
 
 import {  PostGameAnswer } from "/src/main/js/services/flummox/GameService.ts"
@@ -84,7 +84,7 @@ export default function Game({ gameId}) {
         <Group> 
           <WordInput onWordInput={onSubmitAnswer} />
         </Group>
-        <UserAnswerDisplay words={game.answers} />
+        <AnswerDisplay answers={game.answers} />
       </Stack>
 
   );
