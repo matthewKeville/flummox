@@ -10,6 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -61,7 +62,12 @@ public class SecurityConfig {
 
       .anonymous( (anonymous) -> anonymous
           .authenticationFilter(anonAuthenticationFilter)
-        )
+      )
+
+      .sessionManagement(sessionManagementCustomizer -> 
+          // ATTENTION : Needed for assumptions in anonAuthenticationFilter
+          sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+      )
 
       .authorizeHttpRequests( request -> request
 

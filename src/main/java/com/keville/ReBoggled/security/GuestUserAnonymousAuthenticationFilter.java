@@ -18,6 +18,7 @@ import com.keville.ReBoggled.model.user.User;
 import com.keville.ReBoggled.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /* 
  * AnonymousAuthenticationFilter runs whenever a request is made failing to authenticate
@@ -39,7 +40,6 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
     private UserRepository users;
 
     //FIXME : This implementation doesn't remove expired session entries in the map
-    //this is wrong...
     private Map<String,Integer> sessionGuests = new HashMap<String,Integer>();
 
     //this is some security thing that i'm not well versed in.
@@ -52,11 +52,23 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
     @Override
     protected Authentication createAuthentication(HttpServletRequest req) {
 
-        String sessionId = req.getSession().getId();
+        // The procedure to create session guests, requires that every request is bound
+        // to a session. Thus, in the security config we assume the SessionManagementCustomizer
+        // has set the SessionCreationPolicy to ALWAYS, otherwise the anonymous filter
+        // won't have a session to bind the guest to, and it has been determined that
+        // we can't create sessions in this filter as req.getSession(true) throws
+        // an error on session creation because the response has already been submitted
+ 
+        HttpSession session = req.getSession(false);
         User guest;
+        AnonymousAuthenticationToken token;
+        
+        if ( session == null ) {
+          throw new RuntimeException("GuestUserAnonymousAuthenticationFilter assumes SessionCreationPolicy is ALWAYS");
+        } 
 
-        if ( sessionGuests.containsKey(sessionId) ) {
-          int guestId = sessionGuests.get(sessionId);
+        if ( sessionGuests.containsKey(session.getId()) ) {
+          int guestId = sessionGuests.get(session.getId());
           Optional<User> optUser = users.findById(guestId);
 
           if (optUser.isEmpty()) {
@@ -70,16 +82,16 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
 
           guest = guestCreator.createGuest();
           guest = users.save(guest);
-          sessionGuests.put(sessionId,guest.id);
+          sessionGuests.put(session.getId(),guest.id);
 
           LOG.info("new session guest");
-          LOG.info("session id " + sessionId);
+          LOG.info("session id " + session.getId());
           LOG.info("guest user id : " + guest.username);
 
         }
 
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(KEY_INDENTITY, guest, AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-        return token;
+        return new AnonymousAuthenticationToken(KEY_INDENTITY, guest, AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
     }
+
 }
