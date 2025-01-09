@@ -1,14 +1,9 @@
-
-ReBoggled is built in the spring boot ecosystem and uses MariaDB as a db back-end.
-The front-end is built using Functional React & gets trans-piled and bundled using webpack.
+Flummox is built on the spring boot ecosystem and uses MariaDB as a db back-end.
+The front-end is built using React & gets trans-piled and bundled using webpack.
 
 # Initializing the database
 
-## Local DB credentials
-
-database = reboggled_local_dev_db
-username = reboggled_local_dev
-password = elggob
+> application-local.properties assumes a db named `reboggled_local_dev_db`
 
 ## Accessing mariadb without account
 
@@ -43,11 +38,11 @@ If you must wipe the database clean and start from scratch you can re-execute th
 ## Create application user
 
 ```sql
-CREATE USER 'reboggled_local_dev'@localhost IDENTIFIED BY 'elggob';
+CREATE USER 'reboggled_local_dev'@localhost IDENTIFIED BY '<your password>';
 ```
 
 ```sql
-GRANT ALL PRIVILEGES ON reboggled_local_dev_db.* TO 'reboggled_local_dev'@localhost IDENTIFIED BY 'elggob';
+GRANT ALL PRIVILEGES ON reboggled_local_dev_db.* TO 'reboggled_local_dev'@localhost IDENTIFIED BY '<your password>';
 ```
 
 ### Sanity Check
@@ -59,6 +54,19 @@ select user from mysql.user;
 ```sql
 SHOW GRANTS FOR 'reboggled_local_dev'@localhost;
 ```
+
+## secrets
+
+Define the following in in `src/main/resources/secrets.local.properties`
+
+```properties
+# mariadb account
+spring.datasource.username=reboggled_local_dev
+# mariadb password
+spring.datasource.password=<your password>
+```
+
+
 ## Create application data
 
 ```sh

@@ -1,6 +1,7 @@
 # secrets
 src/main/resources/secrets.local.properties
 src/main/resources/secrets.prod.properties
+deploy/secrets.sh
 **/*secrets*
 
 target/
