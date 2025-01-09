@@ -1,3 +1,3 @@
 # flummox
 
-[flummox-app](flummox-app.duckdns.org)
+[flummox-app](https://flummox-app.duckdns.org)
