@@ -10,7 +10,7 @@
     "react-toastify": "^9.1.3",
     "toastify-js": "^1.12.0"
   },
-  "name": "reboggled",
+  "name": "flummox",
   "version": "0.0.1",
   "description": "Boggle Online",
   "main": "webpack.config.js",

@@ -11,9 +11,9 @@
   </parent>
 
   <groupId>com.keville</groupId>
-  <artifactId>ReBoggled</artifactId>
+  <artifactId>flummox</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>ReBoggled</name>
+  <name>flummox</name>
   <description>Play Boggle Online</description>
   <properties>
     <java.version>17</java.version>

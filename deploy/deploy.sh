@@ -8,8 +8,8 @@
 # Guard
 ################################################################################
 
-if test "$(basename "$(pwd)")" != "ReBoggled"; then
-  echo "Please run from ReBoggled root (currently: ""$(pwd)"" )"
+if test "$(basename "$(pwd)")" != "flummox"; then
+  echo "Please run from flummox root (currently: ""$(pwd)"" )"
   exit 1
 fi
 
@@ -52,7 +52,7 @@ if [ -z "$DEV_SERVER_DB" ]; then
 fi
 
 # See TODO
-ARTIFACT_PATH='./target/ReBoggled-0.0.1-SNAPSHOT.jar'
+ARTIFACT_PATH='./target/flummox-0.0.1-SNAPSHOT.jar'
 
 ################################################################################
 # Build Bundle
