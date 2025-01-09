@@ -28,7 +28,9 @@ public class UserWordSummary {
   ){};
   public record Finder (
     int userId,
-    LocalDateTime time
+    String username,
+    LocalDateTime time,
+    boolean counted
   ){};
 
 

@@ -1,19 +1,25 @@
 package com.keville.ReBoggled.service.gameService.summary.wordSummary;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.keville.ReBoggled.model.game.GameAnswer;
+import com.keville.ReBoggled.repository.UserRepository;
 import com.keville.ReBoggled.model.game.FindRule;
 import com.keville.ReBoggled.service.gameService.solution.BoardWord;
 import com.keville.ReBoggled.service.gameService.summary.wordSummary.WordSummary.Word;
 
 @Component
 public class WordSummarizer {
+
+  @Autowired
+  private UserRepository users;
 
   public List<WordSummary> getWordSummaries(Map<String,BoardWord> solution,Set<GameAnswer> answers) {
 
@@ -100,11 +106,31 @@ public class WordSummarizer {
         wordSummary.word.paths()
       );
 
+      Function<Integer,Boolean> finderCounted = (uid) -> {
+        switch ( findRule ) {
+          default:
+            return false;
+          case ANY:
+            return true;
+          case UNIQUE:
+            return wordSummary.finders.size() == 1;
+          case FIRST:
+            return wordSummary.finders
+              .stream()
+              .sorted( (fa,fb) -> fa.time()
+              .compareTo(fb.time()) )
+              .findFirst()
+              .get().userId() == uid;
+        }
+      };
+
       // Finders
       summary.finders = wordSummary.finders.stream().map( wsf -> {
         return new UserWordSummary.Finder(
           wsf.userId(),
-          wsf.time()
+          users.findById(wsf.userId()).get().username,
+          wsf.time(),
+          finderCounted.apply(wsf.userId())
         );
       }).toList();
 

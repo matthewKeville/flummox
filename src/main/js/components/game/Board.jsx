@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, SimpleGrid, Center, Flex, Group, Stack } from "@mantine/core";
 import { IconArrowForwardUp, IconVolume, IconVolumeOff } from "@tabler/icons-react";
 
@@ -29,14 +29,20 @@ function getTileString(tile) {
   * the best we can do for rn is a monospaced font. Down the line pulling in a custom square
   * font would yield a more aesthetic result
   */
-function Die({tile, handleClick, tileRotation}) {
+function Die({tile, tileRotation, highlight}) {
+
+  let dieBg = "white"
+  let dieC = "blue"
+  if ( highlight ) {
+    dieC = "red"
+  }
 
   let transform = "rotate("+tileRotation+"deg)"
 
   return (
     <Flex  justify="center" align="center" bg="gray.2">
-      <Center w="100%" h="100%" style={{borderRadius: "40%"}} bg="white">
-        <Text style={{transform: `rotate(${tileRotation}deg)`}} ff="monospace" fw="1000" ta="center" c="blue" size="2.5rem">
+      <Center w="100%" h="100%" style={{borderRadius: "40%"}} bg={dieBg}>
+        <Text style={{transform: `rotate(${tileRotation}deg)`}} ff="monospace" fw="1000" ta="center" c={dieC} size="2.5rem">
           {getTileString(tile)}
         </Text>
       </Center>
@@ -44,7 +50,7 @@ function Die({tile, handleClick, tileRotation}) {
   );
 }
 
-export default function Board({dice,tileRotationEnabled,muted,onToggleMuted}) {
+export default function Board({dice,tileRotationEnabled,muted,onToggleMuted,highlightPath}) {
 
   const [rotation,setRotation] = useState(0)
   const boardTurnSFXAudio = new Audio("/audio/board-turn.wav")
@@ -69,7 +75,10 @@ export default function Board({dice,tileRotationEnabled,muted,onToggleMuted}) {
   function turn() {
     return 90*rotation
   }
-  //
+
+  useEffect(() => {
+    console.log("highlight path has changed (Board)")
+  }, [highlightPath])
 
   return (
     <Stack>
@@ -77,9 +86,14 @@ export default function Board({dice,tileRotationEnabled,muted,onToggleMuted}) {
         <SimpleGrid style={{borderRadius: "5%",transform: `rotate(${turn()}deg)`}} spacing="4" p="4%" w="100%" h="100%" bg="blue" cols={Math.sqrt(dice.length)}>
           {dice.map( (die, i ) => {
             let tileRotation = tileRotationEnabled ? die.rotation : -turn()
-            return ( <Die key={i} tile={dice[i]} tileRotation={tileRotation}/> )
+            let highlight = highlightPath == null ? false : highlightPath.includes(i)
+            console.log("highlight is " + highlight)
+            console.log(i + " " + highlightPath)
+            return ( <Die key={i} tile={dice[i]} tileRotation={tileRotation} highlight={highlight}/> )
           })}
         </SimpleGrid>
+         <canvas w="100%" h="100%" style={{position: "absolute", zIndex: 2, pointsEvents: "none"}} >
+        </canvas>
       </Center>
         <Group justify="space-between">
           <IconArrowForwardUp 

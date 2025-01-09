@@ -27,7 +27,7 @@ public class BoardGenerator {
   public Board generate(BoardSize size,BoardTopology topology,boolean tileRotation) throws BoardGenerationException {
 
     //In the future we delegate (important for tileset and mutation)
-    LOG.warn(" defaulting to classic tile generation ");
+    LOG.debug(" defaulting to classic tile generation ");
     List<Tile> tiles = classicTilesGenerator.generate(size,tileRotation);
 
     Board board = new Board(size,topology,tiles,tileRotation);

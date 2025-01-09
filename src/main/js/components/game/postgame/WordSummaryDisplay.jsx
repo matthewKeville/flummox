@@ -1,7 +1,7 @@
 import React from 'react';
-import { Text, Group, Stack, ScrollArea } from "@mantine/core";
+import { Text, Group, Stack, ScrollArea, HoverCard, Popover, Divider } from "@mantine/core";
 
-export default function WordSummaryDisplay({summaries,onWordClick}) {
+export default function WordSummaryDisplay({summaries,onHighlightPath}) {
 
   let summariesBySize = new Map()
   summariesBySize.set(3,[])
@@ -24,8 +24,38 @@ export default function WordSummaryDisplay({summaries,onWordClick}) {
   }
 
   function SummaryDisplay(summary) {
+
+    let wordColor;
+    let wordDecoration;
+    if ( summary.word.counted ) {
+      wordColor = "black"
+      wordDecoration = "none"
+    } else if ( summary.word.found ) {
+      wordColor = "grey"
+      wordDecoration = "line-through"
+    } else {
+      wordColor = "grey"
+      wordDecoration = "none"
+    }
         
-    return (<Text c="black" key={summary.word.name}>{summary.word.name}</Text>)
+    return (
+      <HoverCard position="bottom" onOpen={ () => onHighlightPath(summary.word.paths[0])}>
+      <HoverCard.Target  >
+        <Text style={{textDecoration: {wordDecoration}}} c={wordColor} key={summary.word.name}>{summary.word.name}</Text>
+      </HoverCard.Target>
+      <HoverCard.Dropdown>
+        <Stack>
+          <Text ta="center">{summary.word.name}</Text>
+          <Divider/>
+          {summary.finders.map( f => 
+            <Group>
+              <Text>{f.username}</Text><Text span>{f.time}</Text>
+            </Group>
+          )}
+        </Stack>
+      </HoverCard.Dropdown>
+      </HoverCard>
+    )
 
     /*
     let fg="black"

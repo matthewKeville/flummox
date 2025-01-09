@@ -12,6 +12,7 @@ export default function PostGame({lobby,onReturnToLobby}) {
 
   const { userInfo } = useRouteLoaderData("root");
   const [postGame,setPostGame] = useState(null)
+  const [highlightPath,setHighlightPath] = useState(null)
 
   useEffect(() => {
 
@@ -35,14 +36,20 @@ export default function PostGame({lobby,onReturnToLobby}) {
     return
   }
 
+  let onHighlightPath = (path) => {
+    console.log("onHighlight path hit")
+    console.log(path)
+    setHighlightPath(path)
+  }
+
   return (
 
     <Stack align="center" justify="center" mt="2%"> 
-      <Board dice={postGame.tiles} />
+      <Board dice={postGame.tiles} highlightPath={highlightPath}/>
       <Button color="yellow" onClick={() => onReturnToLobby()}>
         <IconArrowBackUp/>
       </Button>
-      <WordSummaryDisplay summaries={postGame.wordSummaries}/>
+      <WordSummaryDisplay summaries={postGame.wordSummaries} onHighlightPath={onHighlightPath}/>
     </Stack>
 
   );

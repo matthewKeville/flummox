@@ -55,7 +55,7 @@ public class BoardSolver {
       LOG.trace("solve cache hit!");
       return solveCache.get(board);
     }
-    LOG.warn("solve cache miss!");
+    LOG.debug("solve cache miss!");
     Map<String,BoardWord> solution = solveBoard(board);
     solveCache.put(board,solution);
     return solution;
@@ -186,7 +186,7 @@ public class BoardSolver {
       case SIX:
         return 6;
       default :
-        LOG.warn("unhandled board size " + board.boardSize );
+        LOG.debug("unhandled board size " + board.boardSize );
         throw new BoardSolverException(BoardSolverException.Error.INVALID_BOARD_TOPOLOGY);
     }
   }
