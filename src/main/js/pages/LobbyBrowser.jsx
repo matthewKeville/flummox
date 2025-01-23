@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Table, Container, Text, Button, } from '@mantine/core';
 
 import { CreateLobby, JoinLobby, GetLobbySummaries } from "/src/main/js/services/flummox/LobbyService.ts";
+// TODO , remove css module, convert into MantineUI
 import styles from './LobbyBrowser.module.css';
 
 export async function loader({ params }) {

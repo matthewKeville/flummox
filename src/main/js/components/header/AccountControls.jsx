@@ -48,7 +48,7 @@ export default function AccountControls() {
   return (
     <Menu width="target" position='bottom-end'>
       <Menu.Target>
-        <Button w="150px" justify="space-between" rightSection={accountIcon}>
+        <Button justify="space-between" rightSection={accountIcon}>
           <Text ta="center" mr="2px" c="white" size="sm" fw={600}>
             {userInfo.username}
           </Text>

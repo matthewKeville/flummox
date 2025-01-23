@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
-import { AppShell } from "@mantine/core";
+import { AppShell, NavLink } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
 import Header from "/src/main/js/components/header/Header.jsx"
@@ -39,9 +39,22 @@ export default function Root() {
         <Header navbarIsOpen={!hideNavBar} navbarOnClick={toggle}/>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+      <AppShell.Navbar p="md">
+        <NavLink
+          label="Home"
+          href="#/"
+        />
+        <NavLink
+          label="Lobbies"
+          href="#/lobby"
+        />
+        <NavLink
+          label="Analytics"
+          disabled
+        />
+      </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main mx="2%" my="2%">
         <Outlet/>
       </AppShell.Main>
 
