@@ -26,9 +26,10 @@ export default function Root() {
 
   return ( 
     <AppShell
-      header={{ height: 60}}
+      padding="md"
+      header={{ height: 48/*rem*/}}
       navbar={{
-        width: 200,
+        width: "144", /*rem*/
         breakpoint: 'sm',
         collapsed: { mobile: hideNavBar, desktop: hideNavBar },
         padding:"md"
@@ -54,7 +55,8 @@ export default function Root() {
         />
       </AppShell.Navbar>
 
-      <AppShell.Main mx="2%" my="2%">
+      {/*https://mantine.dev/core/app-shell/*/}
+      <AppShell.Main style={{height: "calc(100vh - var(--app-shell-header-height))"}}>
         <Outlet/>
       </AppShell.Main>
 

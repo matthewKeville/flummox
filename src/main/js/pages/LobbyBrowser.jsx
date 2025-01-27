@@ -2,11 +2,9 @@ import React from 'react';
 import { useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Table, Container, Text, Button, } from '@mantine/core';
+import { Table, ScrollArea, Text, Button, } from '@mantine/core';
 
 import { CreateLobby, JoinLobby, GetLobbySummaries } from "/src/main/js/services/flummox/LobbyService.ts";
-// TODO , remove css module, convert into MantineUI
-import styles from './LobbyBrowser.module.css';
 
 export async function loader({ params }) {
   let serviceResponse = await GetLobbySummaries();
@@ -56,13 +54,9 @@ export default function Lobbies() {
   ))
 
   return (
-    <Container className={styles.container}>
 
-      <Text className={styles.caption}>
-        Lobbies
-      </Text>
-
-      <Table className={styles.table}>
+    <ScrollArea mt="2%" mb="2%" h="90%" type="hover" scrollHideDelay={50} >
+      <Table stickyHeader>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Lobby</Table.Th>
@@ -78,14 +72,14 @@ export default function Lobbies() {
               <Table.Td></Table.Td>
               <Table.Td></Table.Td>
               <Table.Td>
-                <Button className={styles.createbtn} onClick={createLobby}>Create</Button>
+                <Button >Create</Button>
               </Table.Td>
             </Table.Tr>
           }
         </Table.Tbody>
       </Table>
+    </ScrollArea>
 
-    </Container>
   );
 
 }

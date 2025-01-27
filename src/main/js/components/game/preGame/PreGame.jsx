@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Stack , Button, Group, Text, Tooltip } from '@mantine/core';
+import { Stack , Flex, Box, Button, Group, Text, Tooltip, SimpleGrid } from '@mantine/core';
 import { IconTrash, IconUserShare, IconDoorExit, IconPlayerPlay, 
   IconAdjustments, IconChartHistogram  } from '@tabler/icons-react';
 
@@ -124,25 +124,24 @@ export default function PreGame({lobby,onReturnToPostGame,playedPrevious}) {
     return (<></>)
   }
 
+  if (showSettings) {
+    return (
+    <GameSettings w="100%" h="100%" lobby={lobby} onFinish={onFinishSettingsView}/>
+    )
+  }
+
   return (
-    <>
 
-      <Stack align="center" justify="flex-start">
+    <Stack h="100%">
 
-        <Text style={{ textAlign: "center" }}>Welcome to {lobby.name}</Text>
+      <Text style={{ textAlign: "center" }}>Welcome to {lobby.name}</Text>
+      <Chat w="100%" h="60%" lobby={lobby}/> 
+      <Group justify="center">
+        {getLobbyButtons()}
+      </Group>
 
-        {!showSettings
-          ? <Chat lobby={lobby}/> 
-          : <GameSettings lobby={lobby} onFinish={onFinishSettingsView}/>
-        }
-
-        <Group justify="center">
-          {getLobbyButtons()}
-        </Group>
-
-      </Stack>
-
-    </>
+    </Stack>
   )
+
 
 }

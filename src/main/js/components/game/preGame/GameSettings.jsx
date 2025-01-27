@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useRouteLoaderData, useRevalidator, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Stack, Group, Text, Button, NumberInput, TextInput, Switch, NativeSelect, Grid, ActionIcon } from "@mantine/core";
+import { Stack, ScrollArea, Text, Button, NumberInput, TextInput, Switch, NativeSelect, Grid, ActionIcon } from "@mantine/core";
 
 import { UpdateLobby } from "/src/main/js/services/flummox/LobbyService.ts";
 
-export default function GameSettings({lobby, onFinish}) {
+export default function GameSettings({lobby, onFinish,w="100%",h="100%"}) {
 
   const { userInfo } = useRouteLoaderData("root");
   const [edit, setEdit]    = useState(false)
@@ -86,6 +86,7 @@ export default function GameSettings({lobby, onFinish}) {
   }
 
   return (
+    <ScrollArea w={w} h={h}>
     <Stack>
 
       <Text >Name</Text>
@@ -145,6 +146,7 @@ export default function GameSettings({lobby, onFinish}) {
       }
 
     </Stack>
+    </ScrollArea>
   )
 
 }

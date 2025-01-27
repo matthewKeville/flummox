@@ -82,7 +82,7 @@ export default function Game({ gameId}) {
         <GameTimer gameEnd={game.end}/>
         <Board dice={game.tiles} tileRotationEnabled={game.tileRotation} muted={muted} onToggleMuted={() => toggleMuted()}/>
         <Group> 
-          <WordInput onWordInput={onSubmitAnswer} />
+          <WordInput w="100%" onWordInput={onSubmitAnswer} />
         </Group>
         <AnswerDisplay answers={game.answers} />
       </Stack>
