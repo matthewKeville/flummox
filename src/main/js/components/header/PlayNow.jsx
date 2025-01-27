@@ -34,7 +34,7 @@ export default function PlayNow() {
 
   return (
     <>
-    <Button onClick={createOrReturnToLobby}>{ userInfo.lobbyId == null ? "Play Now" : "Lobby"}</Button>
+    <Button onClick={createOrReturnToLobby}>{ userInfo.lobbyId == null ? "Play" : "Lobby"}</Button>
     </>
   )
 

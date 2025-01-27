@@ -8,7 +8,7 @@ import { IconUserCircle } from "@tabler/icons-react";
 
 import { Logout } from "/src/main/js/services/flummox/UserService.ts";
 
-export default function AccountControls() {
+export default function AccountControls({hideName=false}) {
   
   const { userInfo } = useLoaderData();
   const navigate = useNavigate();
@@ -49,9 +49,10 @@ export default function AccountControls() {
     <Menu width="target" position='bottom-end'>
       <Menu.Target>
         <Button justify="space-between" rightSection={accountIcon}>
-          <Text ta="center" mr="2px" c="white" size="sm" fw={600}>
+          {!hideName && <Text ta="center" mr="2px" c="white" size="sm" fw={600}>
             {userInfo.username}
           </Text>
+          }
         </Button>
       </Menu.Target>
       <Menu.Dropdown>

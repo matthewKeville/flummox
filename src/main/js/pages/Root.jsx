@@ -27,7 +27,7 @@ export default function Root() {
   return ( 
     <AppShell
       padding="md"
-      header={{ height: 48/*rem*/}}
+      header={{ height: { base: 48/*rem*/, sm: 60 }}}
       navbar={{
         width: "144", /*rem*/
         breakpoint: 'sm',
