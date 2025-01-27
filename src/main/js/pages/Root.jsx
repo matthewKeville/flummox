@@ -44,14 +44,17 @@ export default function Root() {
         <NavLink
           label="Home"
           href="#/"
+          onClick={ toggle }
         />
         <NavLink
           label="Lobbies"
           href="#/lobby"
+          onClick={ toggle }
         />
         <NavLink
           label="Analytics"
           disabled
+          onClick={ toggle }
         />
       </AppShell.Navbar>
 
