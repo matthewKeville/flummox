@@ -69,6 +69,7 @@ public class SecurityConfig {
           sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
       )
 
+
       .authorizeHttpRequests( request -> request
 
         //pages & resources

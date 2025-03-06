@@ -20,6 +20,7 @@ public class User implements UserDetails {
     public Boolean verified = false;
     public String verificationToken = "";
     public Boolean guest = true;
+    public Boolean deactivated = false;
 
     public User() {};
 
@@ -28,6 +29,7 @@ public class User implements UserDetails {
       this.username = username;
       this.password = password;
       this.verified = false;
+      this.deactivated = false;
       this.guest = false;
     }
 

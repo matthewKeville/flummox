@@ -40,7 +40,7 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
     private UserRepository users;
 
     //FIXME : This implementation doesn't remove expired session entries in the map
-    private Map<String,Integer> sessionGuests = new HashMap<String,Integer>();
+    public static Map<String,Integer> SessionGuests = new HashMap<String,Integer>();
 
     //this is some security thing that i'm not well versed in.
     public static final String KEY_INDENTITY = "NOTSURE";
@@ -67,8 +67,8 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
           throw new RuntimeException("GuestUserAnonymousAuthenticationFilter assumes SessionCreationPolicy is ALWAYS");
         } 
 
-        if ( sessionGuests.containsKey(session.getId()) ) {
-          int guestId = sessionGuests.get(session.getId());
+        if ( SessionGuests.containsKey(session.getId()) ) {
+          int guestId = SessionGuests.get(session.getId());
           Optional<User> optUser = users.findById(guestId);
 
           if (optUser.isEmpty()) {
@@ -82,7 +82,7 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
 
           guest = guestCreator.createGuest();
           guest = users.save(guest);
-          sessionGuests.put(session.getId(),guest.id);
+          SessionGuests.put(session.getId(),guest.id);
 
           LOG.info("new session guest");
           LOG.info("session id " + session.getId());
