@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.keville.flummox.events.GameEndEvent;
 import com.keville.flummox.events.StartLobbyEvent;
 import com.keville.flummox.DTO.LobbyDTO;
+import com.keville.flummox.DTO.LobbyMessageDTO;
 import com.keville.flummox.DTO.LobbyMessageRequestDTO;
 import com.keville.flummox.DTO.LobbySummaryDTO;
 import com.keville.flummox.DTO.LobbyUpdateRequestDTO;
@@ -33,6 +34,7 @@ import com.keville.flummox.service.utils.ServiceUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -353,6 +355,20 @@ public class DefaultLobbyService implements LobbyService {
 
       return lobbyDto;
 
+    }
+
+    public List<LobbyMessageDTO> getLobbyMessages(Integer lobbyId) {
+      List<LobbyMessageDTO> messages = new ArrayList<LobbyMessageDTO>();
+      for ( LobbyMessage lm : lobbyMessages.findByLobby(lobbyId) ) {
+        if ( lm.user == null ) {
+          //system messages
+          messages.add(new LobbyMessageDTO(lm));
+        } else {
+          User user = users.findById(lm.user.getId()).get();
+          messages.add(new LobbyMessageDTO(lm, user.username));
+        }
+      }
+      return messages;
     }
 
     private Lobby transferLobbyOwnership(Lobby lobby, User user) throws EntityNotFound,NotAuthorized,BadRequest {

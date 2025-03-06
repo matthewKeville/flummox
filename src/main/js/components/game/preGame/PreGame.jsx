@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {  useRouteLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { Stack , Flex, Box, Button, Group, Text, Tooltip, SimpleGrid } from '@mantine/core';
-import { IconTrash, IconUserShare, IconDoorExit, IconPlayerPlay, 
+import { Stack , Button, Group, Text, Tooltip } from '@mantine/core';
+import { IconUserShare, IconDoorExit, IconPlayerPlay, 
   IconAdjustments, IconChartHistogram  } from '@tabler/icons-react';
 
 import Chat from "/src/main/js/components/game/preGame/Chat.jsx";

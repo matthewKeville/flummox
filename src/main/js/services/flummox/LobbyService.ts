@@ -91,3 +91,11 @@ export async function SendLobbyChat(lobbyId: number,lobbyChat: LobbyChat) : Prom
     lobbyChat
   );
 }
+
+export async function GetLobbyMessages(lobbyId: number) : Promise<ServiceResponse> {
+  console.log("GetLobbyMessages" + lobbyId);
+  return await ServiceRequest(
+    HttpMethod.GET,
+    `${config.origin}/api/lobby/${lobbyId}/messages`
+  );
+}

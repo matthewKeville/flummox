@@ -1,5 +1,6 @@
 package com.keville.flummox.controllers.web.api;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.keville.flummox.DTO.LobbyMessageDTO;
 import com.keville.flummox.DTO.LobbyMessageRequestDTO;
 import com.keville.flummox.DTO.LobbySummaryDTO;
 import com.keville.flummox.DTO.LobbyUpdateRequestDTO;
@@ -57,6 +59,19 @@ public class LobbyController {
   public Iterable<LobbySummaryDTO> getLobbySummaries(
       @RequestParam(required = false, name = "publicOnly") boolean publicOnly) {
     return lobbyService.getLobbySummaryDTOs();
+  }
+
+  @GetMapping("/{id}/messages")
+  public List<LobbyMessageDTO> getLobbyMessages(
+      @PathVariable("id") Integer id,
+      //future plans to allow for slicing the message data, so 
+      //as to allow incremental updates to the clients chat
+      //and not overload the client with ancient chat messages
+      @RequestParam(required = false, name = "start") Integer startIndex,
+      @RequestParam(required = false, name = "end") Integer endIndex) {
+
+    //for now get all, will overload this interface in the future
+    return lobbyService.getLobbyMessages(id);
   }
 
   @GetMapping("/{id}/messages/sse")

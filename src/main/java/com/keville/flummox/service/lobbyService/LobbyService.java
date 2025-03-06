@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.keville.flummox.DTO.LobbyDTO;
+import com.keville.flummox.DTO.LobbyMessageDTO;
 import com.keville.flummox.DTO.LobbyMessageRequestDTO;
 import com.keville.flummox.DTO.LobbySummaryDTO;
 import com.keville.flummox.DTO.LobbyUpdateRequestDTO;
@@ -17,6 +18,7 @@ public interface LobbyService {
 
     public LobbyDTO getLobbyDTO(int id) throws EntityNotFound;
     public List<LobbySummaryDTO> getLobbySummaryDTOs() throws EntityNotFound;
+    public List<LobbyMessageDTO> getLobbyMessages(Integer lobbyId);
 
     public Lobby create() throws EntityNotFound,BadRequest;
     public Lobby update(Integer id,LobbyUpdateRequestDTO lobbyUpdateDTO) throws EntityNotFound,BadRequest,NotAuthorized;

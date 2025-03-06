@@ -36,25 +36,7 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
     }
 
     @Override
-    protected void sendInitialPayload(SseEmitter emitter,LobbyMessageContext context) {
-      try {
-
-        List<LobbyMessageDTO> messages = getLobbyMessageDTOs(context.lobbyId);
-
-        SseEventBuilder sseEvent = SseEmitter.event()
-          .id(String.valueOf(0))
-          .name("init")
-          .data(messages);
-
-        tryEmitEvent(emitter, sseEvent);
-
-      } catch (EntityNotFound e) {
-
-        LOG.error(String.format("Caught error dispatching init payload for lobby message %d",context.lobbyId));
-        LOG.error(e.getMessage());
-
-      }
-    }
+    protected void sendInitialPayload(SseEmitter emitter,LobbyMessageContext context) {}
  
     @EventListener
     public void handleLobbyMessageSave(AfterSaveEvent<Object> event) {
@@ -67,12 +49,10 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
 
       try {
 
-        List<LobbyMessageDTO> messages = getLobbyMessageDTOs(message.lobby.getId());
-
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(message.id))
           .name("update")
-          .data(messages);
+          .data(1); //breaks if I don't send data, not sure why...
 
         sseMap
           .entrySet()
@@ -89,20 +69,6 @@ public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext
 
       }
 
-    }
-
-    private List<LobbyMessageDTO> getLobbyMessageDTOs(int lobbyId) {
-      List<LobbyMessageDTO> messages = new ArrayList<LobbyMessageDTO>();
-      for ( LobbyMessage lm : lobbyMessages.findByLobby(lobbyId) ) {
-        if ( lm.user == null ) {
-          //system messages
-          messages.add(new LobbyMessageDTO(lm));
-        } else {
-          User user = users.findById(lm.user.getId()).get();
-          messages.add(new LobbyMessageDTO(lm, user.username));
-        }
-      }
-      return messages;
     }
 
 }
