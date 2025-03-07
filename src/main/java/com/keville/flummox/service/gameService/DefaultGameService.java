@@ -150,26 +150,24 @@ public class DefaultGameService implements GameService {
 
     }
 
-    public GameDTO getGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized {
+    public GameDTO getGameDTO(Integer gameId) throws EntityNotFound,NotAuthorized {
 
       User principal = ServiceUtils.getPrincipal();
       Game game = ServiceUtils.findGameById(games,gameId);
-      User user = ServiceUtils.findUserById(users,userId);
 
-      if ( !principal.id.equals(userId)) {
-        throw new NotAuthorized(String.format("principal %d is not user %d",principal.id,user.id));
-      }
+      //TODO : Check if User in Game
 
       //extract users answers 
       Set<String> userAnswers = 
         game.answers.stream()
         .filter( ans -> {
-          return ans.user.getId().equals(userId);
+          return ans.user.getId().equals(principal.id);
         })
         .map( uga ->  uga.answer )
         .collect(Collectors.toSet());
 
       return new GameDTO(game,userAnswers);
+
     }
 
     public PostGameDTO getPostGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized {

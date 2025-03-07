@@ -15,6 +15,7 @@ export default function Chat({lobby,w="50%",h="50%"}) {
   }
   
   const scrollToBottom = () => viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
+
   const fetchLobbyMessages = () => {
     GetLobbyMessages(lobby.id).then(
       (result) => {
@@ -31,7 +32,7 @@ export default function Chat({lobby,w="50%",h="50%"}) {
   useEffect(() => {
 
     const evtSource = new EventSource("/api/lobby/"+lobby.id+"/messages/sse")
-    evtSource.addEventListener("update", (e) => {
+    evtSource.addEventListener("update", () => {
       console.log("new message data recieved");
       fetchLobbyMessages(lobby.id)
     });

@@ -12,6 +12,13 @@ export async function GetPostGame(gameId: number,userId: number) : Promise<Servi
   );
 }
 
+export async function GetGame(gameId: number) : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.GET,
+    `${config.origin}/api/game/${gameId}`
+  );
+}
+
 export async function PostGameAnswer(gameId: number, userId: number,answer: GameAnswer) : Promise<ServiceResponse> {
     return await ServiceRequest(
       HttpMethod.POST,

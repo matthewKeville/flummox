@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.keville.flummox.DTO.GameAnswerRequestDTO;
 import com.keville.flummox.DTO.GameAnswerResponseDTO;
+import com.keville.flummox.DTO.GameDTO;
 import com.keville.flummox.DTO.PostGameDTO;
 import com.keville.flummox.model.user.User;
 import com.keville.flummox.sse.GameSseDispatcher;
@@ -58,6 +59,12 @@ public class GameController {
     PostGameDTO postGameDTO = gameService.getPostGameDTO(id, userId);
     return new ResponseEntity<PostGameDTO>(postGameDTO,HttpStatus.OK);
 
+  }
+
+  @GetMapping("/{id}")
+  public GameDTO  getGameDTO (
+      @PathVariable("id") Integer id) {
+      return gameService.getGameDTO(id);
   }
 
   @GetMapping("/{id}/sse/{userId}")

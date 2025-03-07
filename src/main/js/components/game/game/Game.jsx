@@ -8,7 +8,7 @@ import Board from "/src/main/js/components/game/Board.jsx";
 import AnswerDisplay from "/src/main/js/components/game/game/AnswerDisplay.jsx"
 import WordInput from "/src/main/js/components/WordInput.jsx"
 
-import {  PostGameAnswer } from "/src/main/js/services/flummox/GameService.ts"
+import {  PostGameAnswer, GetGame } from "/src/main/js/services/flummox/GameService.ts"
 
 export async function loader() {}
 
@@ -44,6 +44,19 @@ export default function Game({ gameId}) {
 
   }
 
+  const fetchGame = () => {
+    GetGame(gameId).then(
+      (result) => {
+        console.log(result.data)
+        setGame(result.data)
+        //let newGameData = JSON.parse(e.data)
+      },
+      () => { 
+        console.log("failed to get game")
+      }
+    )
+  }
+
   const [game, setGame] = useState(null)
 
   useEffect(() => {
@@ -52,19 +65,12 @@ export default function Game({ gameId}) {
 
     const evtSource = new EventSource("/api/game/" + gameId + "/sse/" + userInfo.id)
 
-    evtSource.addEventListener("update", (e) => {
+    evtSource.addEventListener("update", () => {
       console.log("game change recieved");
-      let newGameData = JSON.parse(e.data)
-      setGame(newGameData)
-      console.log(newGameData)
+      fetchGame(gameId)
     });
 
-    evtSource.addEventListener("init", (e) => {
-      console.log("init game data recieved");
-      let data = JSON.parse(e.data)
-      setGame(data)
-      console.log(data)
-    });
+    fetchGame(gameId)
 
     return () => {
       console.log("closing the game event source")

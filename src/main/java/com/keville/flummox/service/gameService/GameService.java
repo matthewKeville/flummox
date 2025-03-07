@@ -14,7 +14,7 @@ public interface GameService {
 
     public Game createGame(Lobby lobby) throws BoardGenerationException,NotAuthorized;
     public GameAnswerResponseDTO submitGameAnswer(Integer gameId, Integer userId,GameAnswerRequestDTO gameAnswerRequestDTO) throws EntityNotFound,InternalError,NotAuthorized;
-    public GameDTO getGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized;
+    public GameDTO getGameDTO(Integer gameId) throws EntityNotFound,NotAuthorized;
     public PostGameDTO getPostGameDTO(Integer gameId,Integer userId) throws EntityNotFound,NotAuthorized;
 
 }
