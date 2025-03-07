@@ -1,9 +1,10 @@
 import React, { useState, useEffect, } from 'react';
-import {  useLoaderData, useRouteLoaderData } from "react-router-dom";
+import {  useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
 
 import PreGame from "/src/main/js/components/game/preGame/PreGame.jsx";
 import Game from "/src/main/js/components/game/game/Game.jsx";
 import PostGame from "/src/main/js/components/game/postgame/PostGame.jsx";
+import { GetLobby } from "/src/main/js/services/flummox/LobbyService.ts";
 
 export async function loader({params}) {
   console.log("loading lobby " + params.lobbyId)
@@ -12,73 +13,55 @@ export async function loader({params}) {
 
 export default function Lobby() {
 
+  const navigate = useNavigate()
   const { userInfo } = useRouteLoaderData("root");
   const lobbyId = useLoaderData();
-
   const [lobby,setLobby] = useState(null)
-  const [lobbyState,setLobbyState] = useState("pregame")
+  const [showPostGame,setShowPostGame] = useState(false)
 
-  /*  because useState (setters) are async i need to evaluate the data from
-    * the SSE and can't rely on the stored state of the lobby. This feels
-    * like bad design, perhaps a better approach would be to send the affected
-    * userid's in the game_start and game_end events. These transitions are
-    * the only space where this is important, because the other components
-    * will rerender when the state changes so we can just use null coalescence
-    * on a function that checks the stored state.
-    */
   function isUserInCurrentGame() {
-    //return lobby?.gameUsers?.some( (x) =>  x.id == userInfo.id ) ?? false
     return (lobby?.users?.find( (u) => u.id == userInfo.id ))?.inGame ?? false;
   }
-  function isUserInCurrentGameDTO(DTO) {
-    //return DTO.gameUsers.some( (x) =>  x.id == userInfo.id )
-    return (DTO?.users?.find( (u) => u.id == userInfo.id ))?.inGame ?? false;
+
+  const fetchLobby = () => {
+    GetLobby(lobbyId).then(
+      (result) => {
+        setLobby(result.data)
+      },
+      () => { 
+        console.log("failed to get lobby")
+      }
+    )
   }
 
   useEffect(() => {
 
+    if ( userInfo.lobbyId != lobbyId ) {
+      navigate("/lobby");
+      return
+    }
+
     const evtSource = new EventSource("/api/lobby/"+lobbyId+"/summary/sse")
 
-    evtSource.addEventListener("init", (e) => {
-      let data = JSON.parse(e.data)
-      console.log("init event recieved");
-      console.log(data)
-      setLobby(data)
-
-      if ( isUserInCurrentGameDTO(data) && data.gameActive ) {
-        setLobbyState("game")
-      }
-
+    evtSource.addEventListener("update", () => {
+      console.log("update event recieved")
+      fetchLobby()
     });
 
-    evtSource.addEventListener("update", (e) => {
-      let data = JSON.parse(e.data)
-      console.log("update event recieved");
-      console.log(data)
-      setLobby(data)
+    evtSource.addEventListener("game_start", () => {
+      console.log("game_start recieved")
+      fetchLobby()
+      setShowPostGame(true) // we always want the game to transition to the
+                            // postgame, but the user can override this when 
+                            // the game is inActive
     });
 
-
-    evtSource.addEventListener("game_start", (e) => {
-      let data = JSON.parse(e.data)
-      console.log("game_start recieved");
-      console.log(data)
-      setLobbyState("game")
-      setLobby(data)
+    evtSource.addEventListener("game_end", () => {
+      console.log("game_end recieved")
+      fetchLobby()
     });
 
-    evtSource.addEventListener("game_end", (e) => {
-      let data = JSON.parse(e.data)
-      console.log("game_end recieved");
-      console.log(data)
-      setLobby(data)
-
-      if ( isUserInCurrentGameDTO(data) ) {
-        setLobbyState("postgame")
-      }
-
-    });
-
+    fetchLobby()
 
     return () => {
       console.log("closing the event source") 
@@ -87,18 +70,26 @@ export default function Lobby() {
 
   },[]);
 
+
+
   if (lobby == null) {
     return (<></>)
   }
 
-  if ( lobbyState == "pregame" ) {
-    return ( <PreGame lobby={lobby} onReturnToPostGame={() => {setLobbyState("postgame")}} playedPrevious={isUserInCurrentGame()}/> )
-  } else if (lobbyState == "game") {
+  if ( 
+    (!lobby.gameActive && !showPostGame && isUserInCurrentGame)
+    || (!isUserInCurrentGame()) ) {
+    return ( <PreGame lobby={lobby} onReturnToPostGame={() => {setShowPostGame(true)}} playedPrevious={isUserInCurrentGame()}/> )
+  } 
+
+  if ( (lobby.gameActive && isUserInCurrentGame()) ) {
     return ( <Game gameId={lobby.gameId}/> )
-  } else if (lobbyState == "postgame") {
-    return ( <PostGame lobby={lobby} onReturnToLobby={() => {setLobbyState("pregame")}}/> )
-  } else {
-    return (<>oops</>)
   }
+
+  if ( (!lobby.gameActive && showPostGame && isUserInCurrentGame())) {
+    return ( <PostGame lobby={lobby} onReturnToLobby={() => {setShowPostGame(false)}}/> )
+  }
+
+  return (<>"oops"</>)
 
 }

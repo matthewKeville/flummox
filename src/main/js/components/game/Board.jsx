@@ -87,8 +87,6 @@ export default function Board({dice,tileRotationEnabled,muted,onToggleMuted,high
           {dice.map( (die, i ) => {
             let tileRotation = tileRotationEnabled ? die.rotation : -turn()
             let highlight = highlightPath == null ? false : highlightPath.includes(i)
-            console.log("highlight is " + highlight)
-            console.log(i + " " + highlightPath)
             return ( <Die key={i} tile={dice[i]} tileRotation={tileRotation} highlight={highlight}/> )
           })}
         </SimpleGrid>

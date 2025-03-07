@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.keville.flummox.DTO.LobbyDTO;
 import com.keville.flummox.DTO.LobbyMessageDTO;
 import com.keville.flummox.DTO.LobbyMessageRequestDTO;
 import com.keville.flummox.DTO.LobbySummaryDTO;
@@ -53,6 +54,12 @@ public class LobbyController {
     this.lobbyService = lobbyService;
     this.lobbySseDispatcher = lobbySseDispatcher;
     this.lobbyMessageSseDispatcher = lobbyMessageSseDispatcher;
+  }
+
+  @GetMapping("/{id}")
+  public LobbyDTO getLobby(
+      @PathVariable("id") Integer id) {
+    return lobbyService.getLobbyDTO(id);
   }
 
   @GetMapping("/summary")

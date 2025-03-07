@@ -5,6 +5,13 @@ interface LobbyChat {
   message : string
 }
 
+export async function GetLobby(lobbyId: number) : Promise<ServiceResponse> {
+  return await ServiceRequest(
+    HttpMethod.GET,
+    `${config.origin}/api/lobby/${lobbyId}`
+  );
+}
+
 export async function GetLobbySummaries() : Promise<ServiceResponse> {
   return await ServiceRequest(
     HttpMethod.GET,

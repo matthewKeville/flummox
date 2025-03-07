@@ -2,50 +2,28 @@ package com.keville.flummox.sse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.relational.core.mapping.event.AfterSaveEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.keville.flummox.DTO.LobbyDTO;
 import com.keville.flummox.events.GameEndEvent;
 import com.keville.flummox.events.StartLobbyEvent;
 import com.keville.flummox.model.lobby.Lobby;
 import com.keville.flummox.service.exceptions.EntityNotFound;
-import com.keville.flummox.service.lobbyService.LobbyService;
 import com.keville.flummox.sse.context.LobbyContext;
 
 @Component
 public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbySseDispatcher.class);
-    private LobbyService lobbyService;
 
-    public LobbySseDispatcher(@Autowired LobbyService lobbyService) {
-      this.lobbyService = lobbyService;
-    }
+    public LobbySseDispatcher() {}
 
+    //deprecated
     @Override
     protected void sendInitialPayload(SseEmitter emitter,LobbyContext context) {
-      try {
-
-        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(context.lobbyId);
-
-        SseEventBuilder sseEvent = SseEmitter.event()
-          .id(String.valueOf(0))
-          .name("init")
-          .data(lobbySummary);
-
-        tryEmitEvent(emitter, sseEvent);
-
-      } catch (EntityNotFound e) {
-
-        LOG.error(String.format("Caught error dispatching init payload for lobby %d",context.lobbyId));
-        LOG.error(e.getMessage());
-
-      }
     }
   
     @EventListener
@@ -59,12 +37,10 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(lobby.id);
-
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(lobby.id))
           .name("update")
-          .data(lobbySummary);
+          .data(0);
 
         sseMap
           .entrySet()
@@ -87,12 +63,10 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(event.lobbyId);
-
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(event.lobbyId))
           .name("game_start")
-          .data(lobbySummary);
+          .data(0);
 
         sseMap
           .entrySet()
@@ -114,12 +88,10 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
 
       try {
 
-        LobbyDTO lobbySummary = lobbyService.getLobbyDTO(event.lobbyId);
-
         SseEventBuilder sseEvent = SseEmitter.event()
           .id(String.valueOf(event.lobbyId))
           .name("game_end")
-          .data(lobbySummary);
+          .data(0);
 
         sseMap
           .entrySet()

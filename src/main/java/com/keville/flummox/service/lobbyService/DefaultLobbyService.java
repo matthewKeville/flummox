@@ -330,7 +330,7 @@ public class DefaultLobbyService implements LobbyService {
       lobbyDto.isPrivate = lobby.isPrivate;
       lobbyDto.gameSettings = lobby.gameSettings;
       lobbyDto.gameId = game == null ? null : game.id;
-      lobbyDto.gameActive = game != null;
+      lobbyDto.gameActive = game != null && LocalDateTime.now().isBefore(game.end);
 
       // lobby owner 
 
