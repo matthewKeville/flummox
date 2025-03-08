@@ -1,5 +1,6 @@
 import React, { useState, useEffect, } from 'react';
-import {  useLoaderData, useRouteLoaderData, useNavigate } from "react-router-dom";
+import {  useLoaderData, useRouteLoaderData } from "react-router-dom";
+import config from "config" 
 
 import PreGame from "/src/main/js/components/game/preGame/PreGame.jsx";
 import Game from "/src/main/js/components/game/game/Game.jsx";
@@ -13,7 +14,6 @@ export async function loader({params}) {
 
 export default function Lobby() {
 
-  const navigate = useNavigate()
   const { userInfo } = useRouteLoaderData("root");
   const lobbyId = useLoaderData();
   const [lobby,setLobby] = useState(null)
@@ -37,7 +37,10 @@ export default function Lobby() {
   useEffect(() => {
 
     if ( userInfo.lobbyId != lobbyId ) {
-      navigate("/lobby");
+      console.log("redirect will occur")
+      window.location.replace(`${config.origin}/#/lobby`)
+      //this is causing my sessions to be destroyed... wth
+      //navigate("/lobby");
       return
     }
 

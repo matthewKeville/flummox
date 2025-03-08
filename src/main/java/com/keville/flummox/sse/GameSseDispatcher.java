@@ -20,11 +20,6 @@ public class GameSseDispatcher extends SseDispatcher<GameContext> {
 
     public GameSseDispatcher() {}
 
-    //depracated
-    @Override
-    protected void sendInitialPayload(SseEmitter emitter,GameContext context) {
-    }
-
     @EventListener
     public void handleGameUpdateEvent(AfterSaveEvent<Object> event) {
 

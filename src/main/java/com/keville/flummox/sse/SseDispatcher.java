@@ -14,7 +14,6 @@ import com.keville.flummox.sse.context.SseContext;
 public abstract class SseDispatcher<T extends SseContext> {
 
   private final Logger LOG = LoggerFactory.getLogger(getClass());
-  protected abstract void sendInitialPayload(SseEmitter emitter,T context);
   public ConcurrentMap<T,SseEmitter> sseMap = new ConcurrentHashMap<>();
 
   public SseEmitter register(T context) {
@@ -39,7 +38,6 @@ public abstract class SseDispatcher<T extends SseContext> {
     }
 
     sseMap.put(context,emitter);
-    sendInitialPayload(emitter,context);
 
     LOG.info("registered emitter : context " + context.toString());
     LOG.info(sseMap.size() + " emitters registered");

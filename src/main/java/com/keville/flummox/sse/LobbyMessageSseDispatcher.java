@@ -1,22 +1,14 @@
 package com.keville.flummox.sse;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.relational.core.mapping.event.AfterSaveEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.keville.flummox.DTO.LobbyMessageDTO;
 import com.keville.flummox.model.lobby.LobbyMessage;
-import com.keville.flummox.model.user.User;
-import com.keville.flummox.repository.LobbyMessageRepository;
-import com.keville.flummox.repository.UserRepository;
 import com.keville.flummox.service.exceptions.EntityNotFound;
 import com.keville.flummox.sse.context.LobbyMessageContext;
 
@@ -25,19 +17,9 @@ import com.keville.flummox.sse.context.LobbyMessageContext;
 public class LobbyMessageSseDispatcher extends SseDispatcher<LobbyMessageContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LobbyMessageSseDispatcher.class);
-    private LobbyMessageRepository lobbyMessages;
-    private UserRepository users;
 
-    public LobbyMessageSseDispatcher(
-        @Autowired LobbyMessageRepository lobbyMessages,
-        @Autowired UserRepository users) {
-      this.lobbyMessages = lobbyMessages;
-      this.users = users;
-    }
+    public LobbyMessageSseDispatcher() {}
 
-    @Override
-    protected void sendInitialPayload(SseEmitter emitter,LobbyMessageContext context) {}
- 
     @EventListener
     public void handleLobbyMessageSave(AfterSaveEvent<Object> event) {
 

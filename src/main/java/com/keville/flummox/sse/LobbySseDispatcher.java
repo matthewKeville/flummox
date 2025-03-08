@@ -20,11 +20,6 @@ public class LobbySseDispatcher extends SseDispatcher<LobbyContext> {
     private static final Logger LOG = LoggerFactory.getLogger(LobbySseDispatcher.class);
 
     public LobbySseDispatcher() {}
-
-    //deprecated
-    @Override
-    protected void sendInitialPayload(SseEmitter emitter,LobbyContext context) {
-    }
   
     @EventListener
     public void handleLobbyUpdate(AfterSaveEvent<Object> event) {
