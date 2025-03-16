@@ -1,5 +1,6 @@
 package com.keville.flummox.model.user;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;

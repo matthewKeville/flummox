@@ -7,5 +7,6 @@ import com.keville.flummox.DTO.UserInfoDTO;
 public interface UserService extends UserDetailsService {
 
     public UserInfoDTO getUserInfoDTO();
+    public void updateUserSessionActivityChecker();
 
 }

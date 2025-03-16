@@ -1,22 +1,14 @@
+/*
 package com.keville.flummox.controllers.config;
-
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.stereotype.Component;
 
-import com.keville.flummox.model.lobby.Lobby;
-import com.keville.flummox.model.lobby.LobbyMessage;
-import com.keville.flummox.model.lobby.LobbyUserReference;
-import com.keville.flummox.model.user.User;
 import com.keville.flummox.repository.LobbyMessageRepository;
 import com.keville.flummox.repository.LobbyRepository;
 import com.keville.flummox.repository.UserRepository;
-import com.keville.flummox.security.GuestUserAnonymousAuthenticationFilter;
-import com.keville.flummox.service.utils.ServiceUtils;
 
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -44,9 +36,10 @@ public class SessionListener implements HttpSessionListener {
       event.getSession().setMaxInactiveInterval(15);
   }
 
-  /* when a session is destroyed, if the session was a guest session, remove
-   * the guest from any non-owned lobbies and promote other members in there own
-   * lobby, or delete the lobby if no other members are active */
+  //when a session is destroyed, if the session was a guest session, remove
+  //the guest from any non-owned lobbies and promote other members in there own
+  //lobby, or delete the lobby if no other members are active
+  
   @Override
   public void sessionDestroyed(HttpSessionEvent event) {
       LOG.info("session destroyed");
@@ -97,3 +90,4 @@ public class SessionListener implements HttpSessionListener {
   }
 
 }
+*/

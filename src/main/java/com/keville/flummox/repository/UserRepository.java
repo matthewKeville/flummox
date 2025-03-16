@@ -10,6 +10,11 @@ import com.keville.flummox.model.user.User;
 public interface UserRepository extends CrudRepository<User, Integer> {
 
   @Query("""
+  SELECT  user.* FROM user where user.online  = true
+  """)
+  Iterable<User> findAllOnline();
+
+  @Query("""
   SELECT  user.* FROM user where user.username  = :username
   """)
   Optional<User> findByUsername(String username);
@@ -18,6 +23,7 @@ public interface UserRepository extends CrudRepository<User, Integer> {
   SELECT  user.* FROM user where user.email  = :email
   """)
   Optional<User> findByEmail(String email);
+
 
   // existance
 

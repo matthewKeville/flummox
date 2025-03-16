@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { AppShell, NavLink } from "@mantine/core";
@@ -6,6 +6,7 @@ import { useDisclosure } from "@mantine/hooks";
 
 import Header from "/src/main/js/components/header/Header.jsx"
 import { GetUserInfo } from "/src/main/js/services/flummox/UserService.ts"
+import { KeepAlive } from "/src/main/js/services/flummox/SessionService.ts"
 
 export async function loader({ params }) {
   var UserInfoResponse = await GetUserInfo()
@@ -23,6 +24,28 @@ export default function Root() {
       onClose: () => { setHideNavBar(true) }
     }
   );
+
+  useEffect(() => {
+
+    console.log("the fuck")
+
+    function timer() {
+      KeepAlive()
+      console.log("Session Keep Alive");
+    }
+
+    const sessionKeepAliveInterval = setInterval(timer, (15*1000));
+
+    function myStopFunction() {
+      clearInterval(sessionKeepAliveInterval);
+    }
+
+
+    return () => {
+      clearInterval(sessionKeepAliveInterval)
+    }
+
+  },[]);
 
   return ( 
     <AppShell

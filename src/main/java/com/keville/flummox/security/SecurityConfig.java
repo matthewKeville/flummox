@@ -83,9 +83,12 @@ public class SecurityConfig {
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/user/register")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/user/verify")).permitAll()
 
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/session/active")).permitAll()
         //api
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/user/info")).permitAll()
+
+        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/stats")).permitAll()
 
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby")).permitAll()
         .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.GET,  "/api/lobby/*")).permitAll()

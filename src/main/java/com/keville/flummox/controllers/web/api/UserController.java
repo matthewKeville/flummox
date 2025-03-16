@@ -48,5 +48,11 @@ public class UserController {
 
     }
 
+    @PostMapping("/active")
+    public ResponseEntity<?> verify() {
+      userService.updateUserSessionActivityChecker();
+      return ResponseEntity.ok().build();
+    }
+
 
 }

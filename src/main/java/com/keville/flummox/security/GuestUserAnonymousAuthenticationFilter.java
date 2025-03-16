@@ -1,7 +1,5 @@
 package com.keville.flummox.security;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.keville.flummox.model.user.GuestCreator;
 import com.keville.flummox.model.user.User;
 import com.keville.flummox.repository.UserRepository;
+import com.keville.flummox.session.SessionAuthenticationMap;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -39,25 +38,24 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
     @Autowired
     private UserRepository users;
 
-    //FIXME : This implementation doesn't remove expired session entries in the map
-    public static Map<String,Integer> SessionGuests = new HashMap<String,Integer>();
-
-    //this is some security thing that i'm not well versed in.
-    public static final String KEY_INDENTITY = "NOTSURE";
+    public static final String KEY_INDENTITY = "NOTSURE"; //not sure what this is
 
     public GuestUserAnonymousAuthenticationFilter() {
         super(KEY_INDENTITY);
     }
 
+    // The procedure to create session guests, requires that every request is bound
+    // to a session. Thus, in the security config we assume the SessionManagementCustomizer
+    // has set the SessionCreationPolicy to ALWAYS, otherwise the anonymous filter
+    // won't have a session to bind the guest to, and it has been determined that
+    // we can't create sessions in this filter as req.getSession(true) throws
+    // an error on session creation because the response has already been submitted
+    //
+    // i.e. Session is created first, then Authentication process
+
     @Override
     protected Authentication createAuthentication(HttpServletRequest req) {
 
-        // The procedure to create session guests, requires that every request is bound
-        // to a session. Thus, in the security config we assume the SessionManagementCustomizer
-        // has set the SessionCreationPolicy to ALWAYS, otherwise the anonymous filter
-        // won't have a session to bind the guest to, and it has been determined that
-        // we can't create sessions in this filter as req.getSession(true) throws
-        // an error on session creation because the response has already been submitted
  
         HttpSession session = req.getSession(false);
         User guest;
@@ -67,26 +65,23 @@ public class GuestUserAnonymousAuthenticationFilter extends AnonymousAuthenticat
           throw new RuntimeException("GuestUserAnonymousAuthenticationFilter assumes SessionCreationPolicy is ALWAYS");
         } 
 
-        if ( SessionGuests.containsKey(session.getId()) ) {
-          int guestId = SessionGuests.get(session.getId());
+        if ( SessionAuthenticationMap.hasSession(session) ) {
+
+          Integer guestId = SessionAuthenticationMap.GetSessionUserId(session);
           Optional<User> optUser = users.findById(guestId);
 
-          if (optUser.isEmpty()) {
-            LOG.warn(" guest user id " + guestId + " in sessionGuests map, but doesn't exist in the database");
+          if ( optUser.isEmpty() ) {
+            LOG.warn("critical error, session exists in UserSession map, but it's userId does not map to a real User database entry");
             return null;
           }
-
           guest = optUser.get();
 
         } else {
 
           guest = guestCreator.createGuest();
           guest = users.save(guest);
-          SessionGuests.put(session.getId(),guest.id);
 
-          LOG.info("new session guest");
-          LOG.info("session id " + session.getId());
-          LOG.info("guest user id : " + guest.username);
+          SessionAuthenticationMap.addUserSession(guest.id,session);
 
         }
 

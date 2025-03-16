@@ -1,5 +1,6 @@
 package com.keville.flummox.model.user;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -20,6 +21,8 @@ public class User implements UserDetails {
     public Boolean verified = false;
     public String verificationToken = "";
     public Boolean guest = true;
+    public LocalDateTime lastSeen;
+    //Soft Delete
     public Boolean deactivated = false;
 
     public User() {};
